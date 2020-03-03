@@ -1,0 +1,96 @@
+{
+  "name": "shequn",
+  "version": "0.1.1",
+  "private": true,
+  "description": "社群",
+  "author": "Bo Liu",
+  "scripts": {
+    "serve": "vue-cli-service serve --mode dev",
+    "build": "vue-cli-service build --mode production && node scripts/app-hash.js",
+    "lint": "vue-cli-service lint",
+    "commit": "git-cz",
+    "d2u": "node scripts/dos2unix.js --dir src/**/*",
+    "dev": "npm run serve",
+    "lint:css": "stylelint src/**/*.{css,less} --custom-syntax postcss-less --fix",
+    "lint:style": "stylelint src/**/*.{html,vue} --custom-syntax postcss-html --fix",
+    "qa": "vue-cli-service build --mode qa && node scripts/app-hash.js",
+    "sftp": "node scripts/sftp.js",
+    "publish": "node scripts/online-shell.js",
+    "online": "node scripts/publish-online.js"
+  },
+  "dependencies": {
+    "axios": "^0.18.0",
+    "clipboard": "^2.0.4",
+    "cropperjs": "^1.5.5",
+    "mint-ui": "^2.2.13",
+    "qiniu-js": "^2.5.4",
+    "qrcode": "^1.3.3",
+    "vue": "^2.5.22",
+    "vue-awesome-swiper": "^3.1.3",
+    "vue-axios": "^2.1.4",
+    "vue-infinite-loading": "^2.4.3",
+    "vue-lazyload": "^1.2.6",
+    "vue-router": "^3.0.1",
+    "vue-wechat-title": "^2.0.5",
+    "vuex": "^3.1.0",
+    "weixin-js-sdk": "^1.4.0-test"
+  },
+  "devDependencies": {
+    "@dpwolfe/dos2unix": "^1.1.3",
+    "@vue/cli-plugin-babel": "^3.3.0",
+    "@vue/cli-plugin-eslint": "^3.3.0",
+    "@vue/cli-service": "^3.3.1",
+    "@vue/eslint-config-standard": "^4.0.0",
+    "babel-eslint": "^10.0.1",
+    "babel-plugin-component": "^1.1.1",
+    "browserslist": "^4.6.2",
+    "caniuse-lite": "^1.0.30001006",
+    "chalk": "^2.4.2",
+    "commitizen": "^3.0.5",
+    "compression-webpack-plugin": "^2.0.0",
+    "cz-conventional-changelog": "^2.1.0",
+    "eslint": "^5.12.1",
+    "eslint-plugin-vue": "^5.0.0",
+    "fs-extra": "^7.0.1",
+    "less": "^3.0.4",
+    "less-loader": "^4.1.0",
+    "lint-staged": "^8.1.0",
+    "minimist": "^1.2.0",
+    "node-ssh": "^5.1.2",
+    "optimize-css-assets-webpack-plugin": "^5.0.3",
+    "pug": "^2.0.3",
+    "pug-plain-loader": "^1.0.0",
+    "raw-loader": "^1.0.0",
+    "shelljs": "^0.8.3",
+    "style-resources-loader": "^1.2.1",
+    "stylelint": "^9.10.1",
+    "stylelint-config-standard": "^18.2.0",
+    "vue-cli-plugin-style-resources-loader": "^0.1.3",
+    "vue-template-compiler": "^2.5.22",
+    "webpack-bundle-analyzer": "^3.0.3"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  },
+  "gitHooks": {
+    "pre-commit": "lint-staged",
+    "commit-msg": "node scripts/verify-commit-msg.js"
+  },
+  "lint-staged": {
+    "*.js": [
+      "vue-cli-service lint",
+      "git add"
+    ],
+    "*.vue": [
+      "vue-cli-service lint",
+      "stylelint --custom-syntax postcss-html --fix",
+      "git add"
+    ],
+    "*.less": [
+      "stylelint --custom-syntax postcss-less --fix",
+      "git add"
+    ]
+  }
+}

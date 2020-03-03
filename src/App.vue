@@ -1,0 +1,114 @@
+<template lang="pug">
+  div#app(@click="handleClick")
+    transition(:css="isTransition")
+      router-view(v-wechat-title='$route.meta.title' v-if="!restrict")
+</template>
+
+<script>
+  import { MessageBox } from 'mint-ui'
+  export default {
+    name: 'App',
+    data () {
+      return {
+        timer: null,
+        usePrimitiveUploader: false,
+        clickCount: 0
+      }
+    },
+    computed: {
+      isTransition () {
+        return this.$route.meta.transition === true
+      },
+      uid () {
+        return this.$store.state.personalInfo.uid
+      },
+      restrict () {
+        return this.$store.state.accessStatus.restrict
+      },
+      desc () {
+        return this.$store.state.accessStatus.desc
+      }
+    },
+    watch: {
+      // 解决第一次登录时更新分享人信息
+      uid (id) {
+        let fromId = this.$_.getFromId(location.pathname)
+        if (fromId && fromId < 2 && +id !== +fromId) {
+          let pathname = location.pathname.replace(/\/from\/\d+/, function () {
+            return `/from/${id}`
+          })
+          location.replace(location.origin + pathname)
+        }
+      },
+      desc (val) {
+        if (val) {
+          MessageBox.alert(val, '登录限制').then(() => {
+            window.opener = null
+            window.close()
+            if (window.WeixinJSBridge) {
+              window.WeixinJSBridge.call('closeWindow')
+            }
+          })
+        }
+      },
+      $route () {
+        // 解决页面在显示弹窗时，直接关闭页面或跳转页面后，无法滚动问题
+        this.handleToggleModal(false)
+      }
+    },
+    created () {
+      // 全局处理模态框滚动穿透的问题
+      this.$root.$on('toggleModal', this.handleToggleModal)
+    },
+    methods: {
+      handleToggleModal (isShow) {
+        if (isShow) {
+          this.scrollTop = document.scrollingElement.scrollTop
+          document.scrollingElement.style = `position:fixed;width:100%;top:-${this.scrollTop}px;`
+        } else {
+          window.$_.scrollY = this.scrollTop
+          document.scrollingElement.removeAttribute('style')
+          document.scrollingElement.scrollTop = this.scrollTop || 0
+        }
+      },
+      handleClick () {
+        if (this.usePrimitiveUploader) return
+        if (this.timer) {
+          this.clickCount += 1
+          if (this.clickCount >= 5) {
+            clearTimeout(this.timer)
+            this.timer = null
+            sessionStorage.setItem('usePrimitiveUploader', true)
+            this.usePrimitiveUploader = true
+            this.$_.Toast('上传方式更换成功')
+          }
+        } else {
+          this.clickCount = 1
+          this.timer = setTimeout(() => {
+            clearTimeout(this.timer)
+            this.timer = null
+          }, 1e3)
+        }
+      }
+    }
+  }
+</script>
+
+<style lang="less">
+  .v-enter {
+    opacity: 0;
+  }
+
+  .v-leave-to {
+    opacity: 0;
+  }
+
+  .v-enter-active,
+  .v-leave-active {
+    will-change: transform;
+    transition: all .5s;
+    width: 100%;
+    height: 100vh;
+    position: absolute;
+  }
+</style>

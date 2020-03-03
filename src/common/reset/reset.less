@@ -1,0 +1,68 @@
+@import "import";
+
+html {
+  text-size-adjust: 100%;
+  font-size: 100 * (100vw / 750);
+}
+
+body {
+  line-height: 1.6;
+  font-family: @weuiFontDefault;
+  font-size: .3rem;
+  color: @fontColor;
+  background-color: #f3f3f3;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+img {
+  border: 0;
+  vertical-align: bottom;
+  object-fit: cover;
+}
+
+a {
+  text-decoration: none;
+  .setTapColor();
+}
+
+li {
+  list-style: none;
+}
+
+button,
+input,
+textarea {
+  outline: none;
+  border: none;
+  appearance: none;
+  font-size: inherit;
+  resize: none;
+  .setTapColor();
+}
+
+div,
+ul,
+header,
+label {
+  .setTapColor();
+}
+
+/* mint-ui reset */
+
+.mint-toast {
+  z-index: 3000 !important;
+}
+
+.mint-indicator-wrapper {
+  z-index: 999 !important;
+}
+
+.mint-indicator {
+  position: fixed;
+  z-index: 2200 !important;
+}
