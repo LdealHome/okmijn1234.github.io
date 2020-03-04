@@ -30,6 +30,7 @@ export default {
   },
   [SET_SCENE_INFO] (state, payload) {
     state.sceneInfo = payload
+    state.isLoadScene = true
   },
   [SET_TABLE_INFO] (state, payload) {
     state.typeTableLoaded = true

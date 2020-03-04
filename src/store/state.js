@@ -5,6 +5,8 @@ export default {// 是否已经加载过全局的用户信息
   userInfoLoaded: false,
   // 是否已经加载过字段对照表
   typeTableLoaded: false,
+  // 是否加载公用场景值信息
+  isLoadScene: false,
   // 全局的个人信息
   personalInfo: {
     avatar: '', // 用户头像

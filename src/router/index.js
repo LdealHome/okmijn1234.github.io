@@ -19,7 +19,10 @@ router.beforeEach((to, from, next) => {
     // 全局通用的字段对照表
     if (!$_.store.state.typeTableLoaded) {
       // $_.store.dispatch('getTypeTable')
-      // $_.store.dispatch('getSceneInfo')
+    }
+    // 获取场景值信息
+    if (!$_.store.state.isLoadScene) {
+      $_.store.dispatch('getSceneInfo')
     }
     // 全局通用的用户信息(不包含以访客身份访问)
     if (window.$_.memberToken && !$_.store.state.userInfoLoaded) {

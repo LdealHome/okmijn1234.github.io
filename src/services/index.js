@@ -47,7 +47,7 @@ export function postShareSuccess (data) {
  * @return {AxiosPromise<any>}
  */
 export function getWeixinConfig (data) {
-  return Vue.axios.get('/pub/wx/jssdk')
+  return Vue.axios.get('/api/pub/jssdk')
 }
 
 /**
@@ -65,7 +65,7 @@ export function postErrorInfo (data) {
  * @return {AxiosPromise<any>}
  */
 export function getServiceInfo (params) {
-  return Vue.axios.get('/pub/get/customer/service', { params })
+  return Vue.axios.get('/pub/customer', { params })
 }
 
 /**
