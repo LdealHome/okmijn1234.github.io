@@ -24,7 +24,9 @@ export default {// 是否已经加载过全局的用户信息
   },
   // 场景值信息
   sceneInfo: {
-  
+    ad: {
+      community_course_home: '' 
+    }
   },
   // 账号状态
   accessStatus: {

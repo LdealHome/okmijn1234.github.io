@@ -26,5 +26,29 @@ export default [
     meta: {
       title: '社群'
     }
+  },
+  {
+    path: `/ranking`,
+    name: 'community-ranking',
+    component: () => import(/* webpackChunkName: "community-ranking" */ '../views/community/Ranking.vue'),
+    meta: {
+      title: '排行榜'
+    }
+  },
+  {
+    path: `/particulars/:courseId/from/:from`,
+    name: 'particulars',
+    component: () => import(/* webpackChunkName: "particulars" */ '../views/community/Particulars.vue'),
+    meta: {
+      title: '社群详情'
+    }
+  },
+  {
+    path: `/course/:courseId/from/:from`,
+    name: 'course',
+    component: () => import(/* webpackChunkName: "course" */ '../views/community/CourseDetails.vue'),
+    meta: {
+      title: '润阳演说力'
+    }
   }
 ]
