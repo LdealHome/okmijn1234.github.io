@@ -73,10 +73,12 @@
   import weixinConfig from '../mixin/weixinConfig'
   import {
     getCommunityInfo,
-    getInviteList,
+    getInviteList
+  } from '../services/community'
+  import {
     getBannerList,
     getVideoInfo
-  } from '../services/community'
+  } from '../services'
 
   let vm
   export default {

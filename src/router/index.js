@@ -25,12 +25,6 @@ router.beforeEach((to, from, next) => {
     if (window.$_.memberToken && !$_.store.state.userInfoLoaded) {
       // $_.store.dispatch('getUserInfo')
     }
-
-    // 上报精统计信息
-    let statistics = localStorage.getItem('statistics')
-    if (statistics) {
-      // $_.store.dispatch('postStatistics', JSON.parse(statistics))
-    }
     
     // 上传接口响应错误信息
     let errorInfo = localStorage.getItem('errorInfo')

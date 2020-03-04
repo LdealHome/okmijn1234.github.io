@@ -1,31 +1,5 @@
 import Vue from 'vue'
 /**
- * 获取场景值信息
- * @returns {AxiosPromise<any>}
- */
-export function getSceneInfo () {
-  return Vue.axios.get('/pub/scene/contrast')
-}
-
-/**
- * 根据场景值获取banner信息
- * @param params {Object} 请求携带的参数{ scene: 场景值, uid: 用户uid }
- * @returns {AxiosPromise<any>}
- */
-export function getBannerList (params) {
-  return Vue.axios.get('/pub/ads/list', { params })
-}
-
-/**
- * 根据场景值获取视频信息
- * @param params {Object} 请求携带的参数{ scene: 场景值 }
- * @returns {AxiosPromise<any>}
- */
-export function getVideoInfo (params) {
-  return Vue.axios.get('/pub/get/tutorials', { params })
-}
-
-/**
  * 获取社群首页信息
  * @returns {AxiosPromise<any>}
  */

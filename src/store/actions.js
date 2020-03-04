@@ -6,7 +6,6 @@ import {
   getUserInfo,
   getTypeTable,
   getSceneInfo,
-  postStatistics,
   postShareSuccess,
   postErrorInfo,
   getServiceInfo
@@ -68,33 +67,6 @@ export default {
         sessionStorage.setItem('sceneInfo', JSON.stringify(res.data.data))
         commit(SET_SCENE_INFO, res.data.data)
       })
-    }
-  },
-  // 上报精准统计信息
-  postStatistics ({ commit }, payload) {
-    // 只上报5~300之间的数据(不足5秒算5秒)
-    let list = []
-    payload.list.forEach(item => {
-      if (item.time_length > 300) {
-        item.time_length = 300
-        list.push(item)
-      } else if (item.time_length < 5) {
-        item.time_length = 5
-        list.push(item)
-      } else {
-        list.push(item)
-      }
-    })
-    if (list.length) {
-      payload.list = list
-      return postStatistics(payload).then(res => {
-        if (res.data.code === 1) {
-          localStorage.removeItem('statistics')
-        }
-      })
-    } else {
-      localStorage.removeItem('statistics')
-      return Promise.resolve()
     }
   },
   // 分享成功上报
