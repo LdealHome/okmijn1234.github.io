@@ -1,6 +1,8 @@
 /**
  * 可以分享的页面，meta中添加share字段值为true
  * 禁止游客访问的页面，meta中添加auth字段为true
+ * from 分享人的uid
+ * courseId 课程id
  */
 export default [
   {
@@ -40,11 +42,12 @@ export default [
     name: 'particulars',
     component: () => import(/* webpackChunkName: "particulars" */ '../views/community/Particulars.vue'),
     meta: {
-      title: '社群详情'
+      title: '社群详情',
+      share: true
     }
   },
   {
-    path: `/course/:courseId/from/:from`,
+    path: `/course/:courseId`,
     name: 'course',
     component: () => import(/* webpackChunkName: "course" */ '../views/community/CourseDetails.vue'),
     meta: {

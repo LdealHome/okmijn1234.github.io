@@ -21,7 +21,9 @@
         button.btn.share(type="button" @click="share") 分享
         button.btn.immediately(type="button" v-if="!isParticipate" @click="immediately") 立即抢购
         // 购买成功显示参与课程
-        button.btn.immediately(type="button" v-else @click="participate") 参与课程
+        button.btn.participate(type="button" v-else @click="participate") 参与课程
+    // 社群中心入口
+    RouterLink.entrance(v-show="isParticipate" :to="{name: 'home'}") 社群中心
     CommonSharePopup(
       :courseId="+courseId"
       :isCommonSharePopup="commonShareInfo.isCommonSharePopup"
@@ -45,6 +47,17 @@
       @invite="obtainCourseInvite"
       @service="obtainCourseService"
       )
+    PaymentPopup(
+      v-if="isPaymentPopup"
+      @close="isPaymentPopup = false"
+      @jumpCamiloPayment="jumpCamiloPayment"
+      @determine="determinePayment"
+      )
+    CamiloPaymentPopup(
+      v-if="isCamiloPaymentPopup"
+      @close="isCamiloPaymentPopup = false"
+      @determine="determineCamiloPayment"
+    )
 </template>
 
 <script>
@@ -53,6 +66,8 @@
   import InformationPopup from '../../components/community/InformationPopup'
   import CustomerServicePopup from '../../components/community/CustomerServicePopup'
   import ObtainCoursePopup from '../../components/community/ObtainCoursePopup'
+  import PaymentPopup from '../../components/community/PaymentPopup'
+  import CamiloPaymentPopup from '../../components/community/CamiloPaymentPopup'
   import weixinConfig from '../../mixin/weixinConfig'
   import {
     getParticularsDetail,
@@ -67,7 +82,9 @@
       CommonSharePopup,
       InformationPopup,
       CustomerServicePopup,
-      ObtainCoursePopup
+      ObtainCoursePopup,
+      PaymentPopup,
+      CamiloPaymentPopup
     },
     mixins: [weixinConfig],
     data () {
@@ -75,7 +92,7 @@
         shufflingList: [], // 开通课程列表
         swiperOptions: {
           autoplay: true,
-          speed: 500, // 切换速度
+          speed: 300, // 切换速度
           direction: 'vertical',
           watchOverflow: true, // 当没有足够的slide切换时，例如只有1个slide（非loop），swiper会失效且隐藏导航等。默认不开启这个功能。
           loop: true, // 开启循环模式
@@ -91,6 +108,8 @@
         isShowInformationPopup: false, // 支付成功后填写信息弹框
         isCustomerServicePopup: false, // 加群弹框
         isObtainCoursePopup: false, // 是否已经免费获得课程弹框
+        isPaymentPopup: false, // 立即抢购弹框
+        isCamiloPaymentPopup: false, // 卡密支付弹框
         customerServiceData: { // 客服弹框公共(客服和课程)
           differentiate: 0,
           content: '',
@@ -129,20 +148,39 @@
       },
       isObtainCoursePopup (val) {
         this.$root.$emit('toggleModal', Boolean(val))
+      },
+      isPaymentPopup (val) {
+        this.$root.$emit('toggleModal', Boolean(val))
+      },
+      isCamiloPaymentPopup (val) {
+        this.$root.$emit('toggleModal', Boolean(val))
       }
     },
     computed: {
       // 课程id
       courseId () {
         return this.$route.params.courseId
+      },
+      // 访客
+      guest () {
+        return this.$store.state.guest
       }
     },
     created () {
-      this.mine()
-      // 获得免费课程是否已经展示
-      let isObtainCoursePopup = sessionStorage.getItem('freeCourses')
-      if (isObtainCoursePopup) {
-        this.isObtainCoursePopup = false
+      if (this.guest) { // 访客跳转到课程详情
+        this.$router.replace({
+          name: 'course',
+          params: {
+            courseId: this.courseId
+          }
+        })
+      } else {
+        this.mine()
+        // 获得免费课程是否已经展示
+        let isObtainCoursePopup = sessionStorage.getItem('freeCourses')
+        if (isObtainCoursePopup) {
+          this.isObtainCoursePopup = false
+        }
       }
     },
     methods: {
@@ -201,6 +239,15 @@
       },
       // 立即抢购
       immediately () {
+        this.isPaymentPopup = true
+      },
+      // 选择卡密支付
+      jumpCamiloPayment () {
+        this.isPaymentPopup = false
+        this.isCamiloPaymentPopup = true
+      },
+      // 确认购买
+      determinePayment () {
         let that = this
         postBuyNow({ id: that.cardId }).then(res => {
           if (res.data.code === 1) {
@@ -208,12 +255,25 @@
             window.wx.chooseWXPay({
               ...res.data.data.js_dsk_config,
               success (res) {
+                that.isPaymentPopup = false
                 that.isShowInformationPopup = true
                 that.isParticipate = true
               }
             })
           }
         })
+      },
+      /**
+       * 卡密支付
+       * @param camilo {String | Number} 输入的卡密
+       */
+      determineCamiloPayment (camilo) {
+        if (camilo === '') {
+          this.$_.Toast('请输入有效卡密')
+        } else {
+          console.log(camilo)
+          this.isCamiloPaymentPopup = false
+        }
       },
       // 参与课程
       participate () {
@@ -412,6 +472,68 @@
           background: linear-gradient(to left, #ff7606, #fe4006);
         }
       }
+
+      .participate {
+        position: relative;
+        color: #333;
+        border-top-right-radius: 1rem;
+        border-bottom-right-radius: 1rem;
+        border: 1px solid #e9ebed;
+        background-color: #f5f5f5;
+
+        &:active {
+          background-color: darken(#f5f5f5, 5%);
+        }
+
+        &::before {
+          position: absolute;
+          top: -.5rem;
+          right: 0;
+          content: '已购买';
+          padding: .02rem .1rem;
+          color: #333;
+          font-size: .24rem;
+          font-weight: bold;
+          transform: scale(.83);
+          border: 1px solid #e9ebed;
+          border-radius: .16rem;
+          background-color: #fc0;
+        }
+
+        &::after {
+          position: absolute;
+          top: -.2rem;
+          right: .7rem;
+          content: '';
+          width: .1rem;
+          height: .1rem;
+          transform: rotate(45deg);
+          background-color: #fc0;
+        }
+      }
+    }
+  }
+
+  .entrance {
+    position: fixed;
+    bottom: 2.08rem;
+    right: .6rem;
+    width: .92rem;
+    height: .92rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 .2rem;
+    border-radius: 1rem;
+    line-height: 1.2;
+    color: #fff;
+    font-size: .26rem;
+    font-weight: bold;
+    box-shadow: 0 1px 2px 0 rgba(157, 112, 4, .46);
+    background-color: rgba(255, 184, 19, .96);
+
+    &:active {
+      background-color: darken(rgba(255, 184, 19, .96), 5%);
     }
   }
 </style>

@@ -346,8 +346,7 @@
           this.$router.push({
             name: 'course',
             params: {
-              courseId: item.id,
-              from: this.uid
+              courseId: item.id
             }
           })
         } else { // 社群详情

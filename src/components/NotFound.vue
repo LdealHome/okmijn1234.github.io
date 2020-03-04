@@ -1,7 +1,8 @@
+<!--404-->
 <template lang="pug">
-  div.notfound
-    img.img(src="~@images/404.png")
-    p.text 页面被喵星人抓走了
+  div.page
+    img.page__img(src="@images/community/404.png")
+    p 网页好像走丢啦~
 </template>
 
 <script>
@@ -11,22 +12,21 @@
 </script>
 
 <style scoped lang="less">
-  .notfound {
-    position: fixed;
-    top: 0;
-    left: 0;
+  .page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
     width: 100vw;
     height: 100vh;
-    color: rgba(104, 104, 104, .5);
-    font-size: .26rem;
+    color: #888;
+    font-size: .24rem;
     background-color: #fff;
-    padding-top: 2.22rem;
-    text-align: center;
-  }
 
-  .img {
-    width: 6.4rem;
-    height: 4.76rem;
-    margin-bottom: .3rem;
+    &__img {
+      width: 3.82rem;
+      height: 2.22rem;
+      margin-bottom: .4rem;
+    }
   }
 </style>
