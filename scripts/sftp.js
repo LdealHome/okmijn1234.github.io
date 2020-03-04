@@ -8,9 +8,7 @@ function resolve (dir) {
   return path.join(process.cwd(), dir)
 }
 
-// todo 信息无误后在上传
-shell.exit(1)
-const dir = 'hkstest.smsqmx.com'
+const dir = '/www/wwwroot/community-test/communityWeb'
 
 // 构建测试包代码
 if (shell.exec('vue-cli-service build --mode qa').code !== 0) {
@@ -27,10 +25,10 @@ if (shell.exec('node scripts/app-hash.js').code !== 0) {
 // 上传模块对应的代码
 async function uploadFile () {
   // 上传html
-  await ssh.putFile(resolve('dist/index.html'), `/www/wwwroot/${dir}/index.html`)
+  await ssh.putFile(resolve('dist/index.html'), `${dir}/index.html`)
   console.log('upload html success.')
   // 上传资源文件
-  await ssh.putDirectory(resolve('dist/assets'), `/www/wwwroot/${dir}/assets`, {
+  await ssh.putDirectory(resolve('dist/assets'), `${dir}/assets`, {
     recursive: true,
     concurrency: 10,
     validate: function (itemPath) {
