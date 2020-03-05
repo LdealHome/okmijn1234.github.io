@@ -75,7 +75,8 @@
   import {
     getParticularsDetail,
     postBuyNow,
-    postInformation
+    postInformation,
+    postReadTips
   } from '../../services/community'
 
   export default {
@@ -132,7 +133,8 @@
         courseInfo: {
           differentiate: 1,
           name: '',
-          imgSrc: ''
+          imgSrc: '',
+          id: 0
         },
         commonShareInfo: {
           isCommonSharePopup: false,
@@ -152,6 +154,19 @@
       },
       isObtainCoursePopup (val) {
         this.$root.$emit('toggleModal', Boolean(val))
+        if (!val) {
+          postReadTips({ id: this.courseInfo.id }).then(res => {
+            if (res.data.code === 1 && res.data.data.is_give === 2) {
+              let data = res.data.data.give_info
+              this.courseInfo = {
+                name: data.title,
+                imgSrc: data.img_url,
+                id: data.id
+              }
+              this.isObtainCoursePopup = true
+            }
+          })
+        }
       },
       isPaymentPopup (val) {
         this.$root.$emit('toggleModal', Boolean(val))
@@ -162,11 +177,6 @@
     },
     created () {
       this.mine()
-      // 获得免费课程是否已经展示
-      // let isObtainCoursePopup = sessionStorage.getItem('freeCourses')
-      // if (isObtainCoursePopup) {
-      //   this.isObtainCoursePopup = false
-      // }
     },
     methods: {
       mine () {
@@ -199,14 +209,13 @@
 
             that.courseInfo = {
               name: giveInfo.title,
-              imgSrc: giveInfo.img_url
+              imgSrc: giveInfo.img_url,
+              id: giveInfo.give_course_id
             }
 
             that.isObtainCoursePopup = data.is_give === 2
 
             that.postList = data.position_enums
-
-            sessionStorage.setItem('freeCourses', that.isObtainCoursePopup)
 
             // 分享配置信息
             this.getWeiXinConfig({

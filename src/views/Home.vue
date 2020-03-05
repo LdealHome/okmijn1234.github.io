@@ -1,5 +1,5 @@
 <template lang="pug">
-  div.whole
+  div.whole(v-if="isLoad")
     div.top-banner
       SwiperCommon(:slides="bannerList" :swiperOptions="swiperOption")
         template(
@@ -72,7 +72,8 @@
   import weixinConfig from '../mixin/weixinConfig'
   import {
     getCommunityInfo,
-    getInviteList
+    getInviteList,
+    postReadTips
   } from '../services/community'
   import {
     getBannerList,
@@ -92,6 +93,7 @@
     mixins: [weixinConfig],
     data () {
       return {
+        isLoad: false,
         swiperOption: { // 轮播设置对应属性
           autoplay: true,
           speed: 500, // 切换速度
@@ -123,7 +125,8 @@
         isObtainCoursePopup: false, // 是否已经免费获得课程弹框
         courseInfo: { // 获取课程
           name: '',
-          imgSrc: ''
+          imgSrc: '',
+          id: 0
         },
         isCustomerServicePopup: false, // 客服二维码弹框
         customerServiceData: { // 客服弹框值
@@ -150,43 +153,30 @@
       },
       isObtainCoursePopup (val) {
         this.$root.$emit('toggleModal', Boolean(val))
+        if (!val) {
+          postReadTips({ id: this.courseInfo.id }).then(res => {
+            if (res.data.code === 1 && res.data.data.is_give === 2) {
+              let data = res.data.data.give_info
+              this.courseInfo = {
+                name: data.title,
+                imgSrc: data.img_url,
+                id: data.id
+              }
+              this.isObtainCoursePopup = true
+            }
+          })
+        }
+      },
+      isLoadGuestInfo () {
+        this.main()
       }
     },
     created () {
       vm = this
 
-      this.getBannerList()
-      getCommunityInfo().then(res => {
-        if (res.data.code === 1) {
-          let data = res.data.data
-          let giveInfo = data.give_info
-          let shareInfo = data.share_info
-          this.mBean = {
-            avatar: data.member_info.img_url, // 头像
-            profit: data.member_info.amount, // 收益
-            invitationNumber: data.member_info.invite_number, // 邀请人数
-            courseNumber: data.member_info.course_number, // 获得课程数
-            courseList: this.transformCourseList(data.couser_list || [])
-          }
-
-          this.isObtainCoursePopup = giveInfo.is_give === 2
-          this.courseInfo = {
-            name: giveInfo.title,
-            imgSrc: giveInfo.img_url
-          }
-
-          this.customerServiceData.content = giveInfo.customer_text
-          this.customerServiceData.codeSrc = giveInfo.customer_qr_code
-
-          // 分享配置信息
-          this.getWeiXinConfig({
-            desc: shareInfo.content,
-            img: shareInfo.img_url,
-            title: shareInfo.title,
-            link: shareInfo.link
-          }).then(this.setWeiXinConfig)
-        }
-      })
+      if (this.isLoadGuestInfo) { // 访客跳转到社群详情
+        this.main()
+      }
     },
     computed: {
       bannerScene () {
@@ -194,9 +184,52 @@
       },
       uid () {
         return this.$store.state.personalInfo.uid
+      },
+      // 访客
+      isGuest () {
+        return this.$store.state.guest
+      },
+      // 是否加载访客信息
+      isLoadGuestInfo () {
+        return this.$store.state.isLoadGuestInfo
       }
     },
     methods: {
+      main () {
+        this.getBannerList()
+        getCommunityInfo().then(res => {
+          if (res.data.code === 1) {
+            let data = res.data.data
+            let giveInfo = data.give_info
+            let shareInfo = data.share_info
+            this.mBean = {
+              avatar: data.member_info.img_url, // 头像
+              profit: data.member_info.amount, // 收益
+              invitationNumber: data.member_info.invite_number, // 邀请人数
+              courseNumber: data.member_info.course_number, // 获得课程数
+              courseList: this.transformCourseList(data.couser_list || [])
+            }
+
+            this.isObtainCoursePopup = giveInfo.is_give === 2
+            this.courseInfo = {
+              name: giveInfo.title,
+              imgSrc: giveInfo.img_url,
+              id: giveInfo.give_course_id
+            }
+
+            this.customerServiceData.content = giveInfo.customer_text
+            this.customerServiceData.codeSrc = giveInfo.customer_qr_code
+
+            // 分享配置信息
+            this.getWeiXinConfig({
+              desc: shareInfo.content,
+              img: shareInfo.img_url,
+              title: shareInfo.title,
+              link: shareInfo.link
+            }).then(this.setWeiXinConfig)
+          }
+        })
+      },
       /**
        * 获取邀请的好友列表
        */

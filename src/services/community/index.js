@@ -33,6 +33,13 @@ export function getParticularsDetail () {
 }
 
 /**
+ * 确认查看免费获得课程提示
+ */
+export function postReadTips (data) {
+  return Vue.axios.post('/community/active/notice', data, { $_hideLoading: true })
+}
+
+/**
  * 获取活动课程详情
  * @returns {AxiosPromise<id>} 活动课程id
  */
