@@ -10,7 +10,10 @@
             span.name "{{item.name}}"
             | 加入社群
             span.time {{item.time}}
-    div.particulars__content(v-html="particularsInfo.content") 内容区
+    DetailsContent(
+      :contentList="contentList"
+      @videoPlay="videoPlay"
+      )
     div.particulars__footer
       div.amount
         p.price {{particularsInfo.price}}
@@ -62,6 +65,7 @@
 
 <script>
   import SwiperCommon from '../../components/SwiperCommon'
+  import DetailsContent from '../../components/community/DetailsContent'
   import CommonSharePopup from '../../components/community/CommonSharePopup'
   import InformationPopup from '../../components/community/InformationPopup'
   import CustomerServicePopup from '../../components/community/CustomerServicePopup'
@@ -79,6 +83,7 @@
     name: 'Particulars',
     components: {
       SwiperCommon,
+      DetailsContent,
       CommonSharePopup,
       InformationPopup,
       CustomerServicePopup,
@@ -99,10 +104,10 @@
           allowTouchMove: false // 禁止拖动
         },
         particularsInfo: {
-          content: '',
           price: '', // 价格
           originalPrice: '' // 原价
         },
+        contentList: [], // 内容
         isParticipate: false, // 是否已经支付
         isPerfectInformation: false, // 是否完善信息
         isShowInformationPopup: false, // 支付成功后填写信息弹框
@@ -207,9 +212,10 @@
 
             that.particularsInfo = {
               price: courseInfo.price,
-              originalPrice: courseInfo.old_price,
-              content: courseInfo.content
+              originalPrice: courseInfo.old_price
             }
+
+            that.contentList = that.transformContentList(courseInfo.content)
 
             that.courseInfo = {
               name: giveInfo.title,
@@ -218,7 +224,7 @@
 
             that.isObtainCoursePopup = data.is_give === 2
 
-            that.postList.push(...data.position_enums)
+            that.postList = data.position_enums
 
             sessionStorage.setItem('freeCourses', that.isObtainCoursePopup)
 
@@ -231,6 +237,16 @@
             }).then(this.setWeiXinConfig)
           }
         })
+      },
+      /**
+       * 视频播放
+       * @param itemIndex { Number } 选择视频父元素的角标
+       * @param videoIndex { Number } 选择播放视频当前的角标
+       * @param video {Object} 视频播放
+       */
+      videoPlay (itemIndex, videoIndex, video) {
+        this.contentList[itemIndex].videoList[videoIndex].isVideoPlay = true
+        video.play()
       },
       // 分享
       share () {
@@ -356,6 +372,40 @@
           })
         })
         return list
+      },
+      /**
+       * 转换内容数据
+       * @param source {Object} 需要转换的数据源
+       * @return {Object} 转换后可以直接使用的结构
+       */
+      transformContentList (source) {
+        let list = []
+        source.forEach(item => {
+          list.push({
+            videoList: this.transformVideoList(item.list_data), // 视频列表
+            type: item.market_format, // 类型 1图片 2文本 3单个视频 4多个视频
+            title: item.title, // 标题
+            text: item.resource // 文本内容
+          })
+        })
+        return list
+      },
+      /**
+       * 转换视频列表数据
+       * @param source {Object} 需要转换的数据源
+       * @return {Object} 转换后可以直接使用的结构
+       */
+      transformVideoList (source) {
+        let list = []
+        source.forEach(item => {
+          list.push({
+            src: item.url, // 视频路径
+            cover: item.img_url, // 封面图
+            text: item.title,
+            isVideoPlay: false
+          })
+        })
+        return list
       }
     }
   }
@@ -363,6 +413,9 @@
 
 <style scoped lang="less">
   .particulars {
+    padding-bottom: 1.2rem;
+    background-color: #fff;
+
     &__shuffling {
       position: static;
       top: 0;

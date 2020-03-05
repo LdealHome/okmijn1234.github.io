@@ -1,7 +1,10 @@
 <template lang="pug">
   div.course
     template(v-if="isCourseState === 1 || isCourseState === 2")
-      div.course__content(v-html="courseDetailsInfo.content") 内容区
+      DetailsContent(
+        :contentList="contentList"
+        @videoPlay="videoPlay"
+      )
       div.course__footer
         div.amount
           p.price {{courseDetailsInfo.price}}
@@ -37,6 +40,7 @@
 </template>
 
 <script>
+  import DetailsContent from '../../components/community/DetailsContent'
   import CustomerServicePopup from '../../components/community/CustomerServicePopup'
   import WarmPromptPopup from '../../components/community/WarmPromptPopup'
   import CommonSharePopup from '../../components/community/CommonSharePopup'
@@ -49,6 +53,7 @@
   export default {
     name: 'CourseDetails',
     components: {
+      DetailsContent,
       CustomerServicePopup,
       WarmPromptPopup,
       CommonSharePopup,
@@ -73,10 +78,10 @@
     data () {
       return {
         courseDetailsInfo: {
-          content: '',
           price: '', // 价格
           originalPrice: '' // 原价
         },
+        contentList: [], // 内容
         isObtain: false, // 是否获取课程
         isCourseState: 1, // 课程状态 1未获取 2已获取 3课程不存在或者加载失败 4.活动课程过期
         isCustomerServicePopup: false, // 客服二维码弹框
@@ -106,10 +111,11 @@
             let relationInfo = data.relation_info
             let shareInfo = data.share_info
             that.courseDetailsInfo = {
-              content: courseInfo.content,
               price: courseInfo.price, // 价格
               originalPrice: courseInfo.old_price // 原价
             }
+
+            that.contentList = that.transformContentList(courseInfo.content)
 
             that.isObtain = data.status === 2
             that.isCourseState = data.status
@@ -128,6 +134,16 @@
             }).then(this.setWeiXinConfig)
           }
         })
+      },
+      /**
+       * 视频播放
+       * @param itemIndex { Number } 选择视频父元素的角标
+       * @param videoIndex { Number } 选择播放视频当前的角标
+       * @param video {Object} 视频播放
+       */
+      videoPlay (itemIndex, videoIndex, video) {
+        this.contentList[itemIndex].videoList[videoIndex].isVideoPlay = true
+        video.play()
       },
       // 立即购买
       immediately () {
@@ -148,6 +164,40 @@
       // 重新加载
       reload () {
         this.mine()
+      },
+      /**
+       * 转换内容数据
+       * @param source {Object} 需要转换的数据源
+       * @return {Object} 转换后可以直接使用的结构
+       */
+      transformContentList (source) {
+        let list = []
+        source.forEach(item => {
+          list.push({
+            videoList: this.transformVideoList(item.list_data), // 视频列表
+            type: item.market_format, // 类型 1图片 2文本 3单个视频 4多个视频
+            title: item.title, // 标题
+            text: item.resource // 文本内容
+          })
+        })
+        return list
+      },
+      /**
+       * 转换视频列表数据
+       * @param source {Object} 需要转换的数据源
+       * @return {Object} 转换后可以直接使用的结构
+       */
+      transformVideoList (source) {
+        let list = []
+        source.forEach(item => {
+          list.push({
+            src: item.url, // 视频路径
+            cover: item.img_url, // 封面图
+            text: item.title,
+            isVideoPlay: false
+          })
+        })
+        return list
       }
     }
   }
@@ -155,6 +205,9 @@
 
 <style scoped lang="less">
   .course {
+    padding-bottom: 1.2rem;
+    background-color: #fff;
+
     &__footer {
       position: fixed;
       bottom: 0;
