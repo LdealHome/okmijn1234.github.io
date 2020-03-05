@@ -49,10 +49,20 @@ export function getCourseDetail (params) {
 
 /**
  * 立即购买
- * @returns {AxiosPromise<id>} 课程id
+ * @param data {Object} from_uid 分享人uid
+ * @returns {AxiosPromise<id>}
  */
 export function postBuyNow (data) {
   return Vue.axios.post('/community/course/buy', data)
+}
+
+/**
+ * 卡密支付
+ * @param data {Object} 请求携带的参数{ from_uid: 分享人uid, code: 卡密 }
+ * @returns {AxiosPromise<id>}
+ */
+export function postKalmanPay (data) {
+  return Vue.axios.post('/community/course/kalman/buy', data)
 }
 
 /**

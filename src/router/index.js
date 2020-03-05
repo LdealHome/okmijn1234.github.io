@@ -24,7 +24,7 @@ router.beforeEach((to, from, next) => {
     if (!$_.store.state.isLoadScene) {
       $_.store.dispatch('getSceneInfo')
     }
-    // 获取场景值信息
+    // 获取购买社群状态
     if (!$_.store.state.isLoadGuestInfo) {
       $_.store.dispatch('getPayCommunityState')
     }

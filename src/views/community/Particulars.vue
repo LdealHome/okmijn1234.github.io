@@ -76,7 +76,8 @@
     getParticularsDetail,
     postBuyNow,
     postInformation,
-    postReadTips
+    postReadTips,
+    postKalmanPay
   } from '../../services/community'
 
   export default {
@@ -175,6 +176,11 @@
         this.$root.$emit('toggleModal', Boolean(val))
       }
     },
+    computed: {
+      fromUid () {
+        return this.$route.params.from
+      }
+    },
     created () {
       this.mine()
     },
@@ -254,7 +260,7 @@
       // 确认购买
       determinePayment () {
         let that = this
-        postBuyNow({ id: that.cardId }).then(res => {
+        postBuyNow({ from_uid: that.fromUid }).then(res => {
           if (res.data.code === 1) {
             // 付款成功弹出
             window.wx.chooseWXPay({
@@ -263,6 +269,7 @@
                 that.isPaymentPopup = false
                 that.isShowInformationPopup = true
                 that.isParticipate = true
+                that.$_.store.dispatch('getPayCommunityState')
               }
             })
           }
@@ -273,10 +280,15 @@
        * @param camilo {String | Number} 输入的卡密
        */
       determineCamiloPayment (camilo) {
-        postInformation({ camilo }).then(res => {
+        postKalmanPay({
+          code: camilo,
+          from_uid: this.fromUid
+        }).then(res => {
           if (res.data.code === 1) {
             this.isCamiloPaymentPopup = false
             this.isShowInformationPopup = true
+            this.isParticipate = true
+            this.$_.store.dispatch('getPayCommunityState')
           }
         })
       },
