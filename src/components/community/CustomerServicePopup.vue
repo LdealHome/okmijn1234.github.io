@@ -6,7 +6,10 @@
       div.above
         p.back(:class="{course: customer.differentiate === 1}")
         p.title {{differentiate}}
-        div.text(v-html="customer.content")
+        div.text(v-html="customer.content" v-if="customer.differentiate === 1")
+        div.text(v-else)
+          p 请识别下方二维码
+          p 立即联系客服购买课程
         img.img(:src="customer.codeSrc")
         button.btn(type="button") 长按识别二维码
       p.close(@click="$emit('close')") 稍后再说
@@ -126,6 +129,7 @@
       color: #666;
       font-size: .28rem;
       line-height: 1.4;
+      text-align: center;
     }
 
     .img {

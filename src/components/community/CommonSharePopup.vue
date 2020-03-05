@@ -95,10 +95,10 @@
         },
         linkShareList: [], // 链接分享弹框列表
         posterInfo: { // 海报分享弹框
-          backSrc: 'http://sorce.lm720.com/upload/2019/12/03/201912035de5d068eba8c041216185.jpeg', // 背景
-          portraitSrc: 'http://sorce.lm720.com/upload/p/2019/12/30/201912305e09a55993d7d761411308.jpg', // 头像
-          nicknameText: '复杂人生', // 昵称
-          codeSrc: 'http://sorce.lm720.com/upload/p/2019/12/30/201912305e09a55993d7d761411308.jpg' // 二维码
+          backSrc: '', // 背景
+          portraitSrc: '', // 头像
+          nicknameText: '', // 昵称
+          codeSrc: '' // 二维码
         }
       }
     },
@@ -117,8 +117,12 @@
         getSharePoster().then(res => {
           if (res.data.code === 1) {
             let data = res.data.data
-            that.posterInfo.backSrc = data.share_img
-            that.posterInfo.codeSrc = data.qr_code
+            that.posterInfo = {
+              backSrc: data.share_img,
+              portraitSrc: that.$store.state.personalInfo.avatar,
+              nicknameText: that.$store.state.personalInfo.nickname,
+              codeSrc: data.qr_code
+            }
           }
         })
       },
@@ -135,7 +139,7 @@
         that.isLinkSharePopup = true
         getShareLink().then(res => {
           if (res.data.code === 1) {
-            that.linkShareList.push(...res.data.data.list)
+            that.linkShareList = res.data.data.list
           }
         })
       },

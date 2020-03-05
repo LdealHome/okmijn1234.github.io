@@ -130,7 +130,7 @@
         },
         isCustomerServicePopup: false, // 客服二维码弹框
         customerServiceData: { // 客服弹框值
-          differentiate: 0,
+          differentiate: 1,
           content: '',
           codeSrc: ''
         },

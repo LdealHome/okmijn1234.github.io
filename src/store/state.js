@@ -11,6 +11,7 @@ export default {// 是否已经加载过全局的用户信息
   isLoadGuestInfo: false,
   // 全局的个人信息
   personalInfo: {
+    nickname: '', // 用户昵称
     avatar: '', // 用户头像
     uid: '' // 用户uid
   },
@@ -24,12 +25,15 @@ export default {// 是否已经加载过全局的用户信息
   guest: '',
   // 类型字段对照表
   typeTable: {
-  
+
   },
   // 场景值信息
   sceneInfo: {
     ad: {
-      community_course_home: '' 
+      community_course_home: ''
+    },
+    customer: { // 客服二维码
+      activity_curriculum: '' // 活动课程
     }
   },
   // 账号状态

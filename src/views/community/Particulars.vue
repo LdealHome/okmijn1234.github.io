@@ -116,18 +116,8 @@
         isObtainCoursePopup: false, // 是否已经免费获得课程弹框
         isPaymentPopup: false, // 立即抢购弹框
         isCamiloPaymentPopup: false, // 卡密支付弹框
-        customerServiceData: { // 客服弹框公共(客服和课程)
-          differentiate: 0,
-          content: '',
-          codeSrc: '' // 客服二维码
-        }, // 群弹框
-        courseServiceData: { // 课程二维码弹框
-          differentiate: 0,
-          content: '',
-          codeSrc: ''
-        },
-        serviceData: { // 客服
-          differentiate: 0,
+        customerServiceData: { // 课程客服弹框
+          differentiate: 1,
           content: '',
           codeSrc: '' // 客服二维码
         },
@@ -199,12 +189,9 @@
             that.isPerfectInformation = BuyInfo.buy_status === 3
 
             if (that.isPerfectInformation) { // 已经购买和完善信息
-              that.courseServiceData.content = BuyInfo.customer_text
-              that.courseServiceData.codeSrc = BuyInfo.customer_qr_code
+              that.customerServiceData.content = BuyInfo.customer_text
+              that.customerServiceData.codeSrc = BuyInfo.customer_qr_code
             }
-
-            that.serviceData.content = giveInfo.customer_text
-            that.serviceData.codeSrc = giveInfo.customer_qr_code
 
             that.particularsInfo = {
               price: courseInfo.price,
@@ -297,7 +284,7 @@
         if (!this.isPerfectInformation) { // 未完善信息
           this.isShowInformationPopup = true
         } else {
-          this.changeCustomerCommon(1)
+          this.isCustomerServicePopup = true
         }
       },
       /**
@@ -330,9 +317,9 @@
             if (res.data.code === 1) {
               let data = res.data.data
               that.isShowInformationPopup = false
-              that.courseServiceData.content = data.customer_text
-              that.courseServiceData.codeSrc = data.customer_qr_code
-              that.changeCustomerCommon(1)
+              that.customerServiceData.content = data.customer_text
+              that.customerServiceData.codeSrc = data.customer_qr_code
+              that.isCustomerServicePopup = true
             }
           })
         }
@@ -345,18 +332,6 @@
       // 联系客服
       obtainCourseService () {
         this.isObtainCoursePopup = false
-        this.changeCustomerCommon(0)
-      },
-      /**
-       * 客服弹框和课程弹框公共部分修改对应的值
-       * @param differentiate {Number} 区分是那个0客服，1课程
-       */
-      changeCustomerCommon (differentiate) {
-        if (differentiate === 0) { // 客服
-          this.customerServiceData = this.serviceData
-        } else { // 课程
-          this.customerServiceData = this.courseServiceData
-        }
         this.isCustomerServicePopup = true
       },
       /**

@@ -16,10 +16,12 @@ import {
 export default {
   [SET_USER_INFO] (state, payload) {
     // todo
-    let userInfo = payload.member_info
+    // let userInfo = payload.member_info
     state.userInfoLoaded = true
     state.personalInfo = {
-      uid: userInfo.uid
+      uid: payload.uid,
+      nickname: payload.nick_name,
+      avatar: payload.img_url
     }
   },
   [SET_QINIU_TOKEN] (state, payload) {

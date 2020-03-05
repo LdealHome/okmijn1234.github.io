@@ -15,7 +15,7 @@
           template(v-if="!isObtain")
             button.btn.immediately(type="button" @click="immediately") 立即购买
             button.btn.free(type="button" @click="free") 免费获取
-          button.obtain(v-else) 已免费获取
+          button.obtain(v-else @click="free") 已免费获取
       CustomerServicePopup(
         v-if="isCustomerServicePopup"
         :customer="customerServiceData"
@@ -49,6 +49,9 @@
   import {
     getCourseDetail
   } from '../../services/community'
+  import {
+    getServiceInfo
+  } from '../../services'
   export default {
     name: 'CourseDetails',
     components: {
@@ -70,6 +73,9 @@
       },
       isLoadGuestInfo () {
         this.main()
+      },
+      sceneService () {
+        this.getSceneValue()
       }
     },
     computed: {
@@ -83,11 +89,16 @@
       // 是否加载访客信息
       isLoadGuestInfo () {
         return this.$store.state.isLoadGuestInfo
+      },
+      // 客服场景值
+      sceneService () {
+        return this.$store.state.sceneInfo.customer.activity_curriculum
       }
     },
     data () {
       return {
         isLoad: false,
+        isSceneService: false, // 客服固定场景值是否加载
         courseDetailsInfo: {
           price: '', // 价格
           originalPrice: '' // 原价
@@ -96,7 +107,17 @@
         isObtain: false, // 是否获取课程
         isCourseState: 1, // 课程状态 1未获取 2已获取 3课程不存在或者加载失败 4.活动课程过期
         isCustomerServicePopup: false, // 客服二维码弹框
-        customerServiceData: {
+        customerServiceData: { // 客服弹框公共(客服和课程)
+          differentiate: 0,
+          content: '',
+          codeSrc: '' // 客服二维码
+        }, // 群弹框
+        courseServiceData: { // 课程二维码弹框
+          differentiate: 1,
+          content: '',
+          codeSrc: ''
+        },
+        serviceData: { // 客服固定的
           differentiate: 0,
           content: '',
           codeSrc: '' // 客服二维码
@@ -146,8 +167,8 @@
             that.isObtain = data.status === 2
             that.isCourseState = data.status
 
-            that.customerServiceData.content = relationInfo.customer_text
-            that.customerServiceData.codeSrc = relationInfo.customer_qr_code
+            that.courseServiceData.content = relationInfo.customer_text
+            that.courseServiceData.codeSrc = relationInfo.customer_qr_code
 
             that.WarmPromptNumber = relationInfo.rest_invite_number
 
@@ -161,6 +182,18 @@
           }
         })
       },
+      getSceneValue () {
+        let that = this
+        if (!this.isSceneService && this.sceneService) {
+          this.isSceneService = true
+          getServiceInfo({ scene: this.sceneService }).then(res => {
+            if (res.data.code === 1) {
+              let data = res.data.data
+              that.serviceData.codeSrc = data.qr_code
+            }
+          })
+        }
+      },
       /**
        * 视频播放
        * @param itemIndex { Number } 选择视频父元素的角标
@@ -173,11 +206,13 @@
       },
       // 立即购买
       immediately () {
-        this.isCustomerServicePopup = true
+        this.changeCustomerCommon(0)
       },
       // 免费获取
       free () {
-        if (!this.isObtain) {
+        if (this.isObtain) {
+          this.changeCustomerCommon(1)
+        } else {
           this.isWarmPromptPopup = true
         }
       },
@@ -190,6 +225,18 @@
       // 重新加载
       reload () {
         this.mine()
+      },
+      /**
+       * 客服弹框和课程弹框公共部分修改对应的值
+       * @param differentiate {Number} 区分是那个0客服，1课程
+       */
+      changeCustomerCommon (differentiate) {
+        if (differentiate === 0) { // 客服
+          this.customerServiceData = this.serviceData
+        } else { // 课程
+          this.customerServiceData = this.courseServiceData
+        }
+        this.isCustomerServicePopup = true
       },
       /**
        * 转换内容数据
