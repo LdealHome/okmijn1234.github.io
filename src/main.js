@@ -196,7 +196,7 @@ axios.interceptors.response.use(function (response) {
   // 如果明确指定取消错误提示，就不显示错误提示
   if (!response.config.$_cancelNotice && response.data.code === 0) {
     $_.Toast({
-      message: response.data.msg,
+      message: response.data.message,
       duration: 2e3
     })
   }

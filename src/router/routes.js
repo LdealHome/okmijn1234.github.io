@@ -38,7 +38,7 @@ export default [
     }
   },
   {
-    path: `/particulars/:courseId/from/:from`,
+    path: `/particulars/from/:from`,
     name: 'particulars',
     component: () => import(/* webpackChunkName: "particulars" */ '../views/community/Particulars.vue'),
     meta: {

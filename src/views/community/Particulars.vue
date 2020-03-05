@@ -28,7 +28,6 @@
     // 社群中心入口
     RouterLink.entrance(v-show="isParticipate" :to="{name: 'home'}") 社群中心
     CommonSharePopup(
-      :courseId="+courseId"
       :isCommonSharePopup="commonShareInfo.isCommonSharePopup"
       :changePopupNumber="commonShareInfo.changePopupNumber"
     )
@@ -161,37 +160,18 @@
         this.$root.$emit('toggleModal', Boolean(val))
       }
     },
-    computed: {
-      // 课程id
-      courseId () {
-        return this.$route.params.courseId
-      },
-      // 访客
-      guest () {
-        return this.$store.state.guest
-      }
-    },
     created () {
-      if (this.guest) { // 访客跳转到课程详情
-        this.$router.replace({
-          name: 'course',
-          params: {
-            courseId: this.courseId
-          }
-        })
-      } else {
-        this.mine()
-        // 获得免费课程是否已经展示
-        let isObtainCoursePopup = sessionStorage.getItem('freeCourses')
-        if (isObtainCoursePopup) {
-          this.isObtainCoursePopup = false
-        }
-      }
+      this.mine()
+      // 获得免费课程是否已经展示
+      // let isObtainCoursePopup = sessionStorage.getItem('freeCourses')
+      // if (isObtainCoursePopup) {
+      //   this.isObtainCoursePopup = false
+      // }
     },
     methods: {
       mine () {
         let that = this
-        getParticularsDetail({ id: this.courseId }).then(res => {
+        getParticularsDetail().then(res => {
           if (res.data.code === 1) {
             let data = res.data.data
             let BuyInfo = data.buy_info // 购买信息
@@ -284,12 +264,12 @@
        * @param camilo {String | Number} 输入的卡密
        */
       determineCamiloPayment (camilo) {
-        if (camilo === '') {
-          this.$_.Toast('请输入有效卡密')
-        } else {
-          console.log(camilo)
-          this.isCamiloPaymentPopup = false
-        }
+        postInformation({ camilo }).then(res => {
+          if (res.data.code === 1) {
+            this.isCamiloPaymentPopup = false
+            this.isShowInformationPopup = true
+          }
+        })
       },
       // 参与课程
       participate () {

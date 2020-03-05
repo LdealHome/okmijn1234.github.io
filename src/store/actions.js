@@ -8,14 +8,16 @@ import {
   getSceneInfo,
   postShareSuccess,
   postErrorInfo,
-  getServiceInfo
+  getServiceInfo,
+  getPayCommunity
 } from '../services'
 import {
   SET_USER_INFO,
   SET_QINIU_TOKEN,
   SET_TABLE_INFO,
   SET_SCENE_INFO,
-  SET_ACCESS_STATUS
+  SET_ACCESS_STATUS,
+  SET_GUEST_INFO
 } from './mutation-type'
 
 export default {
@@ -68,6 +70,16 @@ export default {
         commit(SET_SCENE_INFO, res.data.data)
       })
     }
+  },
+  /**
+   * 判断token是否购买社群
+   */
+  getPayCommunityState (commit) {
+    return getPayCommunity().then(res => {
+      if (res.data.code === 0) {
+        commit(SET_GUEST_INFO, !res.data.data.is_register)
+      }
+    })
   },
   // 分享成功上报
   postShareSuccess ({ commit }, payload) {

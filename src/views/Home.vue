@@ -46,7 +46,6 @@
       div(slot="no-results")
     VideoPopup(:isShow="isShowVideo" :video="videoInfo" @videoClose="isShowVideo = false")
     CommonSharePopup(
-      :courseId="courseId"
       :isCommonSharePopup="commonShareInfo.isCommonSharePopup"
       :changePopupNumber="commonShareInfo.changePopupNumber"
       )
@@ -109,7 +108,6 @@
         },
         bannerList: [],
         isLoadBanner: false,
-        courseId: 0, // 课程id
         mBean: {
           avatar: '', // 头像
           profit: '', // 收益
@@ -170,7 +168,6 @@
             courseNumber: data.member_info.course_number, // 获得课程数
             courseList: this.transformCourseList(data.couser_list || [])
           }
-          this.courseId = data.community_course_id // 课程id
 
           this.isObtainCoursePopup = giveInfo.is_give === 2
           this.courseInfo = {
@@ -188,16 +185,8 @@
             title: shareInfo.title,
             link: shareInfo.link
           }).then(this.setWeiXinConfig)
-
-          sessionStorage.setItem('freeCourses', this.isObtainCoursePopup)
         }
       })
-
-      // 获得免费课程是否已经展示
-      let isObtainCoursePopup = sessionStorage.getItem('freeCourses')
-      if (isObtainCoursePopup) {
-        this.isObtainCoursePopup = false
-      }
     },
     computed: {
       bannerScene () {
@@ -216,7 +205,7 @@
           .then(res => {
             if (res.data.code === 1) {
               let list = res.data.data.list || []
-              this.friendList.push(this.transformInviteList(list))
+              this.friendList.push(...this.transformInviteList(list))
               return list
             }
           })
@@ -342,22 +331,12 @@
        * @param item {Object} 对应的数据
        */
       jumpDetails (item) {
-        if (item.isUnlock) { // 课程详情
-          this.$router.push({
-            name: 'course',
-            params: {
-              courseId: item.id
-            }
-          })
-        } else { // 社群详情
-          this.$router.push({
-            name: 'particulars',
-            params: {
-              courseId: item.id,
-              from: this.uid
-            }
-          })
-        }
+        this.$router.push({
+          name: 'course',
+          params: {
+            courseId: item.id
+          }
+        })
       },
       // 邀请好友
       inviteFriends () {

@@ -53,11 +53,6 @@
         type: Number,
         required: true,
         default: 0
-      },
-      courseId: {
-        type: Number,
-        required: true,
-        default: -1
       }
     },
     components: {
@@ -119,7 +114,7 @@
         let that = this
         that.isSharePopup = false
         that.isPostersSharePopup = true
-        getSharePoster({ id: this.courseId }).then(res => {
+        getSharePoster().then(res => {
           if (res.data.code === 1) {
             let data = res.data.data
             that.posterInfo.backSrc = data.share_img

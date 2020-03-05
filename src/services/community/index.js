@@ -27,10 +27,9 @@ export function getRankingList (params) {
 
 /**
  * 获取社群详情
- * @returns {AxiosPromise<id>} 课程id
  */
-export function getParticularsDetail (params) {
-  return Vue.axios.get('/community/course/detail', { params })
+export function getParticularsDetail () {
+  return Vue.axios.get('/community/course/detail')
 }
 
 /**
@@ -76,8 +75,8 @@ export function getShareLink () {
 
 /**
  * 获取海报分享
- * @returns {AxiosPromise<id>>} 课程id
+ * @returns {AxiosPromise<id>>}
  */
-export function getSharePoster (params) {
-  return Vue.axios.get('/community/share/poster', { params })
+export function getSharePoster () {
+  return Vue.axios.get('/community/share/poster')
 }

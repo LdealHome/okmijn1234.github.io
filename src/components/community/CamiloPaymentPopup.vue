@@ -8,7 +8,7 @@
         input.write(placeholder="请输入有效卡密" type="text" v-ios-focus v-model="camilo")
       ul.list
         li.list-item(v-for="item in promptList") {{item}}
-      button.determine(type="button" @click="$emit('determine', camilo)") 立即支付
+      button.determine(type="button" @click="payClick") 立即支付
 </template>
 
 <script>
@@ -22,6 +22,15 @@
           '2、卡密输入立即支付后，即购买社群课程。',
           '3、卡密仅可支付1次，支付成功后卡密失效。'
         ]
+      }
+    },
+    methods: {
+      payClick () {
+        if (!this.camilo) {
+          this.$_.Toast('请输入卡密！')
+          return
+        }
+        this.$emit('determine', this.camilo)
       }
     }
   }

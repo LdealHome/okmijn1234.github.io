@@ -85,3 +85,11 @@ export function getBannerList (params) {
 export function getVideoInfo (params) {
   return Vue.axios.get('/pub/get/tutorials', { params })
 }
+
+/**
+ * 获取购买社群状态
+ * @returns {AxiosPromise<any>}
+ */
+export function getPayCommunity () {
+  return Vue.axios.get('/pub/user/register')
+}

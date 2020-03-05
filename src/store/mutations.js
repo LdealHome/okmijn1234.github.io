@@ -27,6 +27,7 @@ export default {
   },
   [SET_GUEST_INFO] (state, payload) {
     state.guest = payload
+    state.isLoadGuestInfo = true
   },
   [SET_SCENE_INFO] (state, payload) {
     state.sceneInfo = payload

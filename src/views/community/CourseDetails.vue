@@ -1,5 +1,5 @@
 <template lang="pug">
-  div.course
+  div.course(v-if="isLoad")
     template(v-if="isCourseState === 1 || isCourseState === 2")
       DetailsContent(
         :contentList="contentList"
@@ -28,7 +28,6 @@
         @invite="invite"
       )
       CommonSharePopup(
-        :courseId="+courseId"
         :isCommonSharePopup="commonShareInfo.isCommonSharePopup"
         :changePopupNumber="commonShareInfo.changePopupNumber"
       )
@@ -68,15 +67,27 @@
       },
       isWarmPromptPopup (val) {
         this.$root.$emit('toggleModal', Boolean(val))
+      },
+      isLoadGuestInfo () {
+        this.main()
       }
     },
     computed: {
       courseId () {
         return this.$route.params.courseId
+      },
+      // 访客
+      isGuest () {
+        return this.$store.state.guest
+      },
+      // 是否加载访客信息
+      isLoadGuestInfo () {
+        return this.$store.state.isLoadGuestInfo
       }
     },
     data () {
       return {
+        isLoad: false,
         courseDetailsInfo: {
           price: '', // 价格
           originalPrice: '' // 原价
@@ -99,9 +110,24 @@
       }
     },
     created () {
-      this.mine()
+      if (this.isLoadGuestInfo) { // 访客跳转到社群详情
+        this.main()
+      }
     },
     methods: {
+      main () {
+        if (this.isGuest) {
+          this.$router.replace({
+            name: 'particulars',
+            params: {
+              from: 0
+            }
+          })
+          return
+        }
+        this.isLoad = true
+        this.mine()
+      },
       mine () {
         let that = this
         getCourseDetail({ id: this.courseId }).then(res => {
