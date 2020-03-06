@@ -6,7 +6,7 @@
       div.above 分享朋友圈、群或好友
       div.following
         p.title 推荐朋友圈文案
-        p.text {{circleFriendsInfo.content}}
+        p.text(v-html="circleFriendsInfo.content")
         div.btns
           button.btn(type="button" @click="$emit('change', circleFriendsInfo.id)") 换一换
           button.btn.copy(type="button" @click="$emit('copy', circleFriendsInfo.shareContent)") 复制文案

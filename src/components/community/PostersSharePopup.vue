@@ -10,6 +10,7 @@
 </template>
 
 <script>
+  import generateQR from '../../mixin/generateQR'
   import imageFit from '../../utils/image-fit'
   import { canvasWrapText } from '../../utils/canvas-polyfill'
 
@@ -51,6 +52,7 @@
      * @param callback {Function} 画图成功之后执行的回调
      */
     init (config, callback) {
+      let that = this
       let { backSrc, portraitSrc, nicknameText, codeSrc } = config
       if (backSrc && portraitSrc && nicknameText && codeSrc) {
         this.data = { ...this.data, ...config }
@@ -68,7 +70,7 @@
           drawInvitePoster.methods.drawImage()
         }
       } else {
-        this.$_.Toast('缺少必需参数，无法生成海报图')
+        that.$_.Toast('缺少必需参数，无法生成海报图')
       }
     },
     methods: {
@@ -195,6 +197,7 @@
         }
       }
     },
+    mixins: [generateQR],
     data () {
       return {
         imgSrc: ''
@@ -202,8 +205,11 @@
     },
     created () {
       let that = this
-      drawInvitePoster.init(this.posterInfo, function (res) {
-        that.imgSrc = res
+      that.generateQR(this.posterInfo.codeSrc).then(res => {
+        this.posterInfo.codeSrc = res
+        drawInvitePoster.init(this.posterInfo, function (res) {
+          that.imgSrc = res
+        })
       })
     }
   }

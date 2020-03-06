@@ -110,41 +110,39 @@
     methods: {
       // 朋友圈分享
       friendShare () {
-        this.isSharePopup = false
-        this.isCircleFriendsSharePopup = true
         this.shareCircleFriends('')
+        this.isSharePopup = false
       },
       // 海报分享
       posterShare () {
         let that = this
-        that.isSharePopup = false
-        that.isPostersSharePopup = true
         getSharePoster({ uid: this.fromUid }).then(res => {
           if (res.data.code === 1) {
             let data = res.data.data
             that.posterInfo = {
-              backSrc: data.share_img,
+              backSrc: data.img_url,
               portraitSrc: that.$store.state.personalInfo.avatar,
               nicknameText: that.$store.state.personalInfo.nickname,
               codeSrc: data.qr_code
             }
+            that.isSharePopup = false
+            that.isPostersSharePopup = true
           }
         })
       },
       // 海报分享给好友
       friendsShare () {
-        this.isPostersSharePopup = false
-        this.isCircleFriendsSharePopup = true
         this.shareCircleFriends('')
+        this.isPostersSharePopup = false
       },
       // 链接分享
       linkShare () {
         let that = this
-        that.isSharePopup = false
-        that.isLinkSharePopup = true
         getShareLink({ uid: this.fromUid }).then(res => {
           if (res.data.code === 1) {
             that.linkShareList = res.data.data.list
+            that.isSharePopup = false
+            that.isLinkSharePopup = true
           }
         })
       },
@@ -176,6 +174,9 @@
               content: data.content,
               id: data.id,
               shareContent: data.share_content
+            }
+            if (id === '') {
+              this.isCircleFriendsSharePopup = true
             }
           }
         })
