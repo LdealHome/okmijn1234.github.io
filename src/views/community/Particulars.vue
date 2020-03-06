@@ -28,6 +28,7 @@
     // 社群中心入口
     RouterLink.entrance(v-show="isParticipate" :to="{name: 'home'}") 社群中心
     CommonSharePopup(
+      :fromUid="uid"
       :isCommonSharePopup="commonShareInfo.isCommonSharePopup"
       :changePopupNumber="commonShareInfo.changePopupNumber"
     )
@@ -131,7 +132,8 @@
           isCommonSharePopup: false,
           changePopupNumber: 0
         },
-        postList: [] // 完善信息职位列表
+        postList: [], // 完善信息职位列表
+        shareInfo: null
       }
     },
     watch: {
@@ -164,11 +166,20 @@
       },
       isCamiloPaymentPopup (val) {
         this.$root.$emit('toggleModal', Boolean(val))
+      },
+      mUid () {
+        this.configShareInfo(this.mUid)
       }
     },
     computed: {
       fromUid () {
         return this.$route.params.from
+      },
+      mUid () {
+        return this.$store.state.personalInfo.uid
+      },
+      uid () {
+        return this.mUid || this.fromUid
       }
     },
     created () {
@@ -182,8 +193,9 @@
             let data = res.data.data
             let BuyInfo = data.buy_info // 购买信息
             let courseInfo = data.course_info // 课程信息
-            let shareInfo = data.share_info
             let giveInfo = data.give_info
+            that.shareInfo = data.share_info
+            that.configShareInfo(that.uid)
             that.shufflingList.push(...that.transformShufflingList(data.buy_list))
             that.isParticipate = BuyInfo.buy_status !== 1
             that.isPerfectInformation = BuyInfo.buy_status === 3
@@ -209,16 +221,22 @@
             that.isObtainCoursePopup = data.is_give === 2
 
             that.postList = data.position_enums
-
-            // 分享配置信息
-            this.getWeiXinConfig({
-              desc: shareInfo.content,
-              img: shareInfo.img_url,
-              title: shareInfo.title,
-              link: shareInfo.link
-            }).then(this.setWeiXinConfig)
           }
         })
+      },
+      /**
+       * 配置分享信息
+       */
+      configShareInfo (uid) {
+        if (this.shareInfo) {
+          this.updateWXConfig()
+          this.getWeiXinConfig({
+            desc: this.shareInfo.content,
+            img: this.shareInfo.img_url,
+            title: this.shareInfo.title,
+            link: `${location.origin}/particulars/from/${uid}`
+          }).then(this.setWeiXinConfig)
+        }
       },
       /**
        * 视频播放

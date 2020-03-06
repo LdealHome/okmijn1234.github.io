@@ -74,10 +74,13 @@ export default {
   /**
    * 判断token是否购买社群
    */
-  getPayCommunityState (commit) {
+  getPayCommunityState ({ dispatch, commit }) {
     return getPayCommunity().then(res => {
       if (res.data.code === 0) {
         commit(SET_GUEST_INFO, !res.data.data.is_register)
+        if (res.data.data.is_register) {
+          dispatch('getUserInfo')
+        }
       }
     })
   },

@@ -46,6 +46,7 @@
       div(slot="no-results")
     VideoPopup(:isShow="isShowVideo" :video="videoInfo" @videoClose="isShowVideo = false")
     CommonSharePopup(
+      :fromUid="uid"
       :isCommonSharePopup="commonShareInfo.isCommonSharePopup"
       :changePopupNumber="commonShareInfo.changePopupNumber"
       )
@@ -143,7 +144,8 @@
           imgSrc: '',
           videoUrl: ''
         },
-        videoSceneInfo: {} // 加载过的视频信息
+        videoSceneInfo: {}, // 加载过的视频信息
+        shareInfo: null
       }
     },
     watch: {
@@ -169,11 +171,13 @@
       },
       isLoadGuestInfo () {
         this.main()
+      },
+      uid () {
+        this.configShareInfo()
       }
     },
     created () {
       vm = this
-
       if (this.isLoadGuestInfo) { // 访客跳转到社群详情
         this.main()
       }
@@ -196,12 +200,18 @@
     },
     methods: {
       main () {
+        if (this.isGuest) {
+          this.$router.replace({ name: '404' })
+          return
+        }
+        this.isLoad = true
         this.getBannerList()
         getCommunityInfo().then(res => {
           if (res.data.code === 1) {
             let data = res.data.data
             let giveInfo = data.give_info
-            let shareInfo = data.share_info
+            this.shareInfo = data.share_info
+            this.configShareInfo()
             this.mBean = {
               avatar: data.member_info.img_url, // 头像
               profit: data.member_info.amount, // 收益
@@ -219,16 +229,21 @@
 
             this.customerServiceData.content = giveInfo.customer_text
             this.customerServiceData.codeSrc = giveInfo.customer_qr_code
-
-            // 分享配置信息
-            this.getWeiXinConfig({
-              desc: shareInfo.content,
-              img: shareInfo.img_url,
-              title: shareInfo.title,
-              link: shareInfo.link
-            }).then(this.setWeiXinConfig)
           }
         })
+      },
+      /**
+       * 配置分享信息
+       */
+      configShareInfo () {
+        if (this.uid && this.shareInfo) {
+          this.getWeiXinConfig({
+            desc: this.shareInfo.content,
+            img: this.shareInfo.img_url,
+            title: this.shareInfo.title,
+            link: `${location.origin}/particulars/from/${this.uid}`
+          }).then(this.setWeiXinConfig)
+        }
       },
       /**
        * 获取邀请的好友列表

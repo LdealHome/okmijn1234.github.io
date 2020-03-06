@@ -27,6 +27,7 @@
       @invite="invite"
     )
     CommonSharePopup(
+      :fromUid="uid"
       :isCommonSharePopup="commonShareInfo.isCommonSharePopup"
       :changePopupNumber="commonShareInfo.changePopupNumber"
     )
@@ -67,6 +68,9 @@
       },
       sceneService () {
         this.getSceneValue()
+      },
+      uid () {
+        this.configShareInfo()
       }
     },
     computed: {
@@ -84,6 +88,9 @@
       // 客服场景值
       sceneService () {
         return this.$store.state.sceneInfo.customer.activity_curriculum
+      },
+      uid () {
+        return this.$store.state.personalInfo.uid
       }
     },
     data () {
@@ -117,7 +124,8 @@
         commonShareInfo: {
           isCommonSharePopup: false,
           changePopupNumber: 0
-        }
+        },
+        shareInfo: null
       }
     },
     created () {
@@ -128,12 +136,7 @@
     methods: {
       main () {
         if (this.isGuest) {
-          this.$router.replace({
-            name: 'particulars',
-            params: {
-              from: 0
-            }
-          })
+          this.$router.replace({ name: '404' })
           return
         }
         this.isLoad = true
@@ -146,10 +149,11 @@
             let data = res.data.data
             let courseInfo = data.course_info
             let relationInfo = data.relation_info
-            let shareInfo = data.share_info
-
+            
             document.title = data.title
-
+            
+            that.shareInfo = data.share_info
+            that.configShareInfo()
             that.courseDetailsInfo = {
               price: courseInfo.price, // 价格
               originalPrice: courseInfo.old_price // 原价
@@ -169,16 +173,21 @@
             that.courseServiceData.codeSrc = relationInfo.customer_qr_code
 
             that.WarmPromptNumber = relationInfo.rest_invite_number
-
-            // 分享配置信息
-            that.getWeiXinConfig({
-              desc: shareInfo.content,
-              img: shareInfo.img_url,
-              title: shareInfo.title,
-              link: shareInfo.link
-            }).then(this.setWeiXinConfig)
           }
         })
+      },
+      /**
+       * 配置分享信息
+       */
+      configShareInfo () {
+        if (this.uid && this.shareInfo) {
+          this.getWeiXinConfig({
+            desc: this.shareInfo.content,
+            img: this.shareInfo.img_url,
+            title: this.shareInfo.title,
+            link: `${location.origin}/particulars/from/${this.uid}`
+          }).then(this.setWeiXinConfig)
+        }
       },
       getSceneValue () {
         let that = this

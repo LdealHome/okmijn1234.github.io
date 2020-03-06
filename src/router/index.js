@@ -28,10 +28,6 @@ router.beforeEach((to, from, next) => {
     if (!$_.store.state.isLoadGuestInfo) {
       $_.store.dispatch('getPayCommunityState')
     }
-    // 全局通用的用户信息(不包含以访客身份访问)
-    if (window.$_.memberToken && !$_.store.state.userInfoLoaded) {
-      // $_.store.dispatch('getUserInfo')
-    }
     
     // 上传接口响应错误信息
     let errorInfo = localStorage.getItem('errorInfo')
