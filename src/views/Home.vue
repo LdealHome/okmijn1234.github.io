@@ -333,7 +333,7 @@
             uid: this.uid
           }).then(res => {
             if (res.data.code === 1) {
-              this.bannerList = res.data.data
+              this.bannerList = res.data.data.list
               this.isLoadBanner = true
             }
           })
