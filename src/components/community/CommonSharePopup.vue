@@ -55,7 +55,7 @@
         default: 0
       },
       fromUid: { // 分享人的uid
-        type: Number,
+        type: [String, Number],
         required: true,
         default: 0
       }

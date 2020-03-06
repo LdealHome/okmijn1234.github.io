@@ -191,23 +191,23 @@
         getParticularsDetail().then(res => {
           if (res.data.code === 1) {
             let data = res.data.data
-            let BuyInfo = data.buy_info // 购买信息
+            let buyInfo = data.buy_info // 购买信息
             let courseInfo = data.course_info // 课程信息
             let giveInfo = data.give_info
             that.shareInfo = data.share_info
             that.configShareInfo(that.uid)
             that.shufflingList.push(...that.transformShufflingList(data.buy_list))
-            that.isParticipate = BuyInfo.buy_status !== 1
-            that.isPerfectInformation = BuyInfo.buy_status === 3
+            that.isParticipate = buyInfo.buy_status !== 1
+            that.isPerfectInformation = buyInfo.buy_status === 3
 
             if (that.isPerfectInformation) { // 已经购买和完善信息
-              that.customerServiceData.content = BuyInfo.customer_text
-              that.customerServiceData.codeSrc = BuyInfo.customer_qr_code
+              that.customerServiceData.content = buyInfo.customer_text
+              that.customerServiceData.codeSrc = buyInfo.customer_qr_code
             }
 
             that.particularsInfo = {
-              price: courseInfo.price,
-              originalPrice: courseInfo.old_price
+              price: Number.isInteger(+courseInfo.price) ? parseInt(courseInfo.price) : courseInfo.price,
+              originalPrice: Number.isInteger(+courseInfo.old_price) ? parseInt(courseInfo.old_price) : courseInfo.old_price
             }
 
             that.contentList = that.transformContentList(courseInfo.content)
