@@ -15,6 +15,13 @@ export default [
   },
   {
     path: '/',
+    name: 'main',
+    redirect: {
+      name: 'home'
+    }
+  },
+  {
+    path: '/home',
     name: 'home',
     component: () => import(/* webpackChunkName: "home" */ '../views/Home.vue'),
     meta: {

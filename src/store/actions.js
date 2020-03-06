@@ -76,7 +76,7 @@ export default {
    */
   getPayCommunityState ({ dispatch, commit }) {
     return getPayCommunity().then(res => {
-      if (res.data.code === 0) {
+      if (res.data.code === 1) {
         commit(SET_GUEST_INFO, !res.data.data.is_register)
         if (res.data.data.is_register) {
           dispatch('getUserInfo')
