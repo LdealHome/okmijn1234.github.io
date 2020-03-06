@@ -37,7 +37,7 @@ export default {
         commit(SET_USER_INFO, data)
         // 将用户信息存储到本地，解决某些页面需要异步获取信息
         // todo
-        localStorage.setItem('USER_ID', data.member_info.uid)
+        localStorage.setItem('USER_ID', data.uid)
       }
     })
   },

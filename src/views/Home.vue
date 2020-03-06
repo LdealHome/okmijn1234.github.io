@@ -174,6 +174,10 @@
       },
       uid () {
         this.configShareInfo()
+        this.getBannerList()
+      },
+      bannerScene () {
+        this.getBannerList()
       }
     },
     created () {
@@ -217,7 +221,7 @@
               profit: data.member_info.amount, // 收益
               invitationNumber: data.member_info.invite_number, // 邀请人数
               courseNumber: data.member_info.course_number, // 获得课程数
-              courseList: this.transformCourseList(data.couser_list || [])
+              courseList: this.transformCourseList(data.course_list || [])
             }
 
             this.isObtainCoursePopup = giveInfo.is_give === 2
@@ -325,7 +329,7 @@
       getBannerList () {
         if (!this.isLoadBanner && this.bannerScene && this.uid) {
           getBannerList({
-            type: this.bannerScene,
+            scene: this.bannerScene,
             uid: this.uid
           }).then(res => {
             if (res.data.code === 1) {
