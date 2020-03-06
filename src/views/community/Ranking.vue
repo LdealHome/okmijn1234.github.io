@@ -49,7 +49,7 @@
           .then(res => {
             if (res.data.code === 1) {
               let list = res.data.data.list || []
-              this.list.push(this.transformRankingList(list))
+              this.list.push(...this.transformRankingList(list))
               return list
             }
           })

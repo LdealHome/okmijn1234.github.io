@@ -36,7 +36,6 @@ export default {
         let data = res.data.data
         commit(SET_USER_INFO, data)
         // 将用户信息存储到本地，解决某些页面需要异步获取信息
-        // todo
         localStorage.setItem('USER_ID', data.uid)
       }
     })
