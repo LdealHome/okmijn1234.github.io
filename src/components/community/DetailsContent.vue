@@ -22,10 +22,8 @@
             :src="video.src"
             controls="controls"
             :poster="video.cover"
-            x5-video-player-type="h5-page"
-            playsinline
             :ref="`video${itemIndex}-${videoIndex}`"
-            webkit-playsinline)
+            )
           p.text(v-html="video.text" v-show="video.text")
       // 多视频
       div.module__video(v-if="item.type === 4")
@@ -41,10 +39,8 @@
                 :src="video.src"
                 controls="controls"
                 :poster="video.cover"
-                x5-video-player-type="h5-page"
                 :ref="`video${itemIndex}-${videoIndex}`"
-                playsinline
-                webkit-playsinline)
+                )
             p.item-text(v-html="video.text" v-show="video.text")
 
 </template>

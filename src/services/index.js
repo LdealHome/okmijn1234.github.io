@@ -47,7 +47,7 @@ export function postShareSuccess (data) {
  * @return {AxiosPromise<any>}
  */
 export function getWeixinConfig (data) {
-  return Vue.axios.get('/api/pub/jssdk')
+  return Vue.axios.get('/pub/jssdk')
 }
 
 /**
