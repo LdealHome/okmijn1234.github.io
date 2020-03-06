@@ -53,6 +53,11 @@
         type: Number,
         required: true,
         default: 0
+      },
+      fromUid: { // 分享人的uid
+        type: Number,
+        required: true,
+        default: 0
       }
     },
     components: {
@@ -114,7 +119,7 @@
         let that = this
         that.isSharePopup = false
         that.isPostersSharePopup = true
-        getSharePoster().then(res => {
+        getSharePoster({ uid: this.fromUid }).then(res => {
           if (res.data.code === 1) {
             let data = res.data.data
             that.posterInfo = {
@@ -137,7 +142,7 @@
         let that = this
         that.isSharePopup = false
         that.isLinkSharePopup = true
-        getShareLink().then(res => {
+        getShareLink({ uid: this.fromUid }).then(res => {
           if (res.data.code === 1) {
             that.linkShareList = res.data.data.list
           }
@@ -164,7 +169,7 @@
        */
       shareCircleFriends (id) {
         let that = this
-        getShareCircleFriends({ id: id }).then(res => {
+        getShareCircleFriends({ id: id, uid: this.fromUid }).then(res => {
           if (res.data.code === 1) {
             let data = res.data.data
             that.circleFriendsInfo = {

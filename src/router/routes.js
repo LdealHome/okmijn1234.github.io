@@ -53,5 +53,21 @@ export default [
     meta: {
       title: '润阳演说力'
     }
+  },
+  {
+    path: `/end`,
+    name: 'end',
+    component: () => import(/* webpackChunkName: "default" */ '../views/community/CourseEnd.vue'),
+    meta: {
+      title: '课程已结束'
+    }
+  },
+  {
+    path: `/error`,
+    name: 'error',
+    component: () => import(/* webpackChunkName: "default" */ '../views/community/LoadError.vue'),
+    meta: {
+      title: '365课程'
+    }
   }
 ]

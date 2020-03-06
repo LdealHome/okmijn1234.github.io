@@ -14,7 +14,7 @@ export function getQiniuToken (scene) {
  * @return {AxiosPromise<any>}
  */
 export function getUserInfo () {
-  return Vue.axios.get('/member/info')
+  return Vue.axios.get('/member/basic')
 }
 
 /**

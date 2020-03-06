@@ -1,40 +1,35 @@
 <template lang="pug">
   div.course(v-if="isLoad")
-    template(v-if="isCourseState === 1 || isCourseState === 2")
-      DetailsContent(
-        :contentList="contentList"
-        @videoPlay="videoPlay"
+    DetailsContent(
+      :contentList="contentList"
+      @videoPlay="videoPlay"
+    )
+    div.course__footer
+      div.amount
+        p.price {{courseDetailsInfo.price}}
+        p.original(v-if="courseDetailsInfo.originalPrice")
+          span.original-text 限时特惠
+          span.original-price 原价{{courseDetailsInfo.originalPrice}}元
+      div.btns
+        template(v-if="!isObtain")
+          button.btn.immediately(type="button" @click="immediately") 立即购买
+          button.btn.free(type="button" @click="free") 免费获取
+        button.obtain(v-else @click="free") 已免费获取
+    CustomerServicePopup(
+      v-if="isCustomerServicePopup"
+      :customer="customerServiceData"
+      @close="isCustomerServicePopup = false"
       )
-      div.course__footer
-        div.amount
-          p.price {{courseDetailsInfo.price}}
-          p.original(v-if="courseDetailsInfo.originalPrice")
-            span.original-text 限时特惠
-            span.original-price 原价{{courseDetailsInfo.originalPrice}}元
-        div.btns
-          template(v-if="!isObtain")
-            button.btn.immediately(type="button" @click="immediately") 立即购买
-            button.btn.free(type="button" @click="free") 免费获取
-          button.obtain(v-else @click="free") 已免费获取
-      CustomerServicePopup(
-        v-if="isCustomerServicePopup"
-        :customer="customerServiceData"
-        @close="isCustomerServicePopup = false"
-        )
-      WarmPromptPopup(
-        v-if="isWarmPromptPopup"
-        :number="WarmPromptNumber"
-        @close="isWarmPromptPopup = false"
-        @invite="invite"
-      )
-      CommonSharePopup(
-        :isCommonSharePopup="commonShareInfo.isCommonSharePopup"
-        :changePopupNumber="commonShareInfo.changePopupNumber"
-      )
-    // 课程结束
-    CourseEnd(v-if="isCourseState === 4")
-    // 重新加载
-    LoadError(v-if="isCourseState === 3" @reload="reload")
+    WarmPromptPopup(
+      v-if="isWarmPromptPopup"
+      :number="WarmPromptNumber"
+      @close="isWarmPromptPopup = false"
+      @invite="invite"
+    )
+    CommonSharePopup(
+      :isCommonSharePopup="commonShareInfo.isCommonSharePopup"
+      :changePopupNumber="commonShareInfo.changePopupNumber"
+    )
 
 </template>
 
@@ -44,8 +39,6 @@
   import WarmPromptPopup from '../../components/community/WarmPromptPopup'
   import CommonSharePopup from '../../components/community/CommonSharePopup'
   import weixinConfig from '../../mixin/weixinConfig'
-  import CourseEnd from '../../components/community/CourseEnd'
-  import LoadError from '../../components/community/LoadError'
   import {
     getCourseDetail
   } from '../../services/community'
@@ -58,9 +51,7 @@
       DetailsContent,
       CustomerServicePopup,
       WarmPromptPopup,
-      CommonSharePopup,
-      CourseEnd,
-      LoadError
+      CommonSharePopup
     },
     mixins: [weixinConfig],
     watch: {
@@ -105,7 +96,6 @@
         },
         contentList: [], // 内容
         isObtain: false, // 是否获取课程
-        isCourseState: 1, // 课程状态 1未获取 2已获取 3课程不存在或者加载失败 4.活动课程过期
         isCustomerServicePopup: false, // 客服二维码弹框
         customerServiceData: { // 客服弹框公共(客服和课程)
           differentiate: 0,
@@ -157,6 +147,9 @@
             let courseInfo = data.course_info
             let relationInfo = data.relation_info
             let shareInfo = data.share_info
+
+            document.title = data.title
+
             that.courseDetailsInfo = {
               price: courseInfo.price, // 价格
               originalPrice: courseInfo.old_price // 原价
@@ -165,7 +158,12 @@
             that.contentList = that.transformContentList(courseInfo.content)
 
             that.isObtain = data.status === 2
-            that.isCourseState = data.status
+
+            if (data.status === 4) { // 课程结束
+              that.$router.replace({
+                name: 'end'
+              })
+            }
 
             that.courseServiceData.content = relationInfo.customer_text
             that.courseServiceData.codeSrc = relationInfo.customer_qr_code

@@ -76,7 +76,7 @@ export function postInformation (data) {
 
 /**
  * 获取分享朋友圈
- * @returns {AxiosPromise<id>>}
+ * @returns {AxiosPromise<id, uid>>}
  */
 export function getShareCircleFriends (params) {
   return Vue.axios.get('/community/share/firend', { params })
@@ -84,16 +84,16 @@ export function getShareCircleFriends (params) {
 
 /**
  * 获取分享链接
- * @returns {AxiosPromise<any>>}
+ * @returns {AxiosPromise<uid>>} 分享人的uid
  */
-export function getShareLink () {
-  return Vue.axios.get('/community/course/share/link')
+export function getShareLink (params) {
+  return Vue.axios.get('/community/course/share/link', { params })
 }
 
 /**
  * 获取海报分享
- * @returns {AxiosPromise<id>>}
+ * @returns {AxiosPromise<uid>>} 分享人的uid
  */
-export function getSharePoster () {
-  return Vue.axios.get('/community/share/poster')
+export function getSharePoster (params) {
+  return Vue.axios.get('/community/share/poster', { params })
 }
