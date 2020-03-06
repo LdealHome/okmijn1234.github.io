@@ -14,6 +14,14 @@ export default [
     }
   },
   {
+    path: '/reset',
+    name: 'reset',
+    component: () => import(/* webpackChunkName: "404" */ '../views/Reset.vue'),
+    meta: {
+      title: 'reset'
+    }
+  },
+  {
     path: '/',
     name: 'main',
     redirect: {
