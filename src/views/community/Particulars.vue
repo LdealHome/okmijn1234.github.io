@@ -197,8 +197,8 @@
             that.shareInfo = data.share_info
             that.configShareInfo(that.uid)
             that.shufflingList.push(...that.transformShufflingList(data.buy_list))
-            that.isParticipate = buyInfo.buy_status !== 1
-            that.isPerfectInformation = buyInfo.buy_status === 3
+            that.isParticipate = buyInfo.status !== 1
+            that.isPerfectInformation = buyInfo.status === 3
 
             if (that.isPerfectInformation) { // 已经购买和完善信息
               that.customerServiceData.content = buyInfo.customer_text
@@ -377,7 +377,7 @@
         source.forEach(item => {
           list.push({
             videoList: this.transformVideoList(item.list_data), // 视频列表
-            type: item.market_format, // 类型 1图片 2文本 3单个视频 4多个视频
+            type: item.mark_format, // 类型 1图片 2文本 3单个视频 4多个视频
             title: item.title, // 标题
             text: item.resource // 文本内容
           })

@@ -149,9 +149,9 @@
             let data = res.data.data
             let courseInfo = data.course_info
             let relationInfo = data.relation_info
-            
+
             document.title = data.title
-            
+
             that.shareInfo = data.share_info
             that.configShareInfo()
             that.courseDetailsInfo = {
@@ -255,7 +255,7 @@
         source.forEach(item => {
           list.push({
             videoList: this.transformVideoList(item.list_data), // 视频列表
-            type: item.market_format, // 类型 1图片 2文本 3单个视频 4多个视频
+            type: item.mark_format, // 类型 1图片 2文本 3单个视频 4多个视频
             title: item.title, // 标题
             text: item.resource // 文本内容
           })

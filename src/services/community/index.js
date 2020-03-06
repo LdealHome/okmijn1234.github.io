@@ -79,7 +79,7 @@ export function postInformation (data) {
  * @returns {AxiosPromise<id, uid>>}
  */
 export function getShareCircleFriends (params) {
-  return Vue.axios.get('/community/share/firend', { params })
+  return Vue.axios.get('/community/share/friend', { params })
 }
 
 /**
@@ -87,7 +87,7 @@ export function getShareCircleFriends (params) {
  * @returns {AxiosPromise<uid>>} 分享人的uid
  */
 export function getShareLink (params) {
-  return Vue.axios.get('/community/course/share/link', { params })
+  return Vue.axios.get('/community/share/link', { params })
 }
 
 /**
