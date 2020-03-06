@@ -150,13 +150,13 @@
             let courseInfo = data.course_info
             let relationInfo = data.relation_info
 
-            document.title = data.title
+            document.title = courseInfo.title
 
             that.shareInfo = data.share_info
             that.configShareInfo()
             that.courseDetailsInfo = {
-              price: courseInfo.price, // 价格
-              originalPrice: courseInfo.old_price // 原价
+              price: Number.isInteger(+courseInfo.price) ? parseInt(courseInfo.price) : courseInfo.price,
+              originalPrice: Number.isInteger(+courseInfo.old_price) ? parseInt(courseInfo.old_price) : courseInfo.old_price
             }
 
             that.contentList = that.transformContentList(courseInfo.content)
@@ -173,6 +173,8 @@
             that.courseServiceData.codeSrc = relationInfo.customer_qr_code
 
             that.WarmPromptNumber = relationInfo.rest_invite_number
+
+            that.getSceneValue()
           }
         })
       },
