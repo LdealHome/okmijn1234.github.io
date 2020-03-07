@@ -8,7 +8,7 @@
       li.ranking-item(v-for="(item, index) in list" :key="index")
         div.ranking-view
           span(:class="index < 3 ? 'medal_icon_' + index : ''") {{index < 3 ? '' : index + 1}}
-        img.avatar(:src="item.avatar" @click="jumpHomePage(item.link)")
+        img.avatar(v-lazy="item.avatar" @click="jumpHomePage(item.link)")
         div.item-right
           p.item-name {{item.name}}
           div.item-date

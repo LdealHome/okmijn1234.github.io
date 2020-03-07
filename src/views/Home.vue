@@ -8,7 +8,7 @@
         )
           img.banner-img(:src="item.pic")
     div.wallet
-      img.avatar(:src="mBean.avatar" @click="jumpHomePage(mBean.homepageUrl)")
+      img.avatar(v-lazy="mBean.avatar" @click="jumpHomePage(mBean.homepageUrl)")
       div.profit
         p.profit-text
           span 累计收益
@@ -34,7 +34,7 @@
     p.invitation-title 已邀请用户
     ul(v-if="friendList.length")
       li.friend-item(v-for="item in friendList" :key="item.uid")
-        img.friend-avatar(:src="item.avatar" @click="jumpHomePage(item.link)")
+        img.friend-avatar(v-lazy="item.avatar" @click="jumpHomePage(item.link)")
         div.friend-right
           div.friend-info
             p.friend-name {{item.name}}
