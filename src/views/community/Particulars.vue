@@ -269,7 +269,7 @@
           if (res.data.code === 1) {
             // 付款成功弹出
             window.wx.chooseWXPay({
-              ...res.data.data.js_dsk_config,
+              ...res.data.data.js_sdk_config,
               success (res) {
                 that.isPaymentPopup = false
                 that.isShowInformationPopup = true
