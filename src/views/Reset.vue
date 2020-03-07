@@ -7,6 +7,7 @@
     name: 'Reset',
     created () {
       $_.removeLocalToken()
+      localStorage.removeItem('USER_ID')
     }
   }
 </script>
