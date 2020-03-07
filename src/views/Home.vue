@@ -346,7 +346,7 @@
           this.$_.entryOtherPage(this.bannerList[index].url)
           break
         case 2: // 视频
-          this.getBannerVideo(this.bannerList[index].scene)
+          this.getBannerVideo(this.$store.state.sceneInfo.video_course.community_course_home)
           break
         default:
           break

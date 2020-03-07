@@ -34,6 +34,9 @@ export default {// 是否已经加载过全局的用户信息
     },
     customer: { // 客服二维码
       activity_curriculum: '' // 活动课程
+    },
+    video_course: {
+      community_course_home: ''
     }
   },
   // 账号状态
