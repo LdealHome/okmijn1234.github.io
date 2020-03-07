@@ -13,12 +13,19 @@
         div.item.card(@click="$emit('jumpCamiloPayment')")
           span.item-text 卡密支付
           span.icon
-      button.determine(type="button" @click="$emit('determine')") 确认支付￥19.9
+      button.determine(type="button" @click="$emit('determine')") 确认支付￥{{amountMoney}}
 </template>
 
 <script>
   export default {
-    name: 'PaymentPopup'
+    name: 'PaymentPopup',
+    props: {
+      amountMoney: {
+        type: Number,
+        required: true,
+        default: 0
+      }
+    }
   }
 </script>
 

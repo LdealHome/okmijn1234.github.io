@@ -228,7 +228,7 @@
       .post {
         color: #666;
         font-size: .32rem;
-        width: 3.3rem;
+        width: 3.1rem;
         padding: .1rem .2rem;
         border: 1px solid #ccc;
         border-radius: .08rem;

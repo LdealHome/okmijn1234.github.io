@@ -26,7 +26,9 @@
         // 购买成功显示参与课程
         button.btn.participate(type="button" v-else @click="participate") 参与课程
     // 社群中心入口
-    RouterLink.entrance(v-show="isParticipate" :to="{name: 'home'}") 社群中心
+    RouterLink.entrance(v-show="isParticipate" :to="{name: 'home'}")
+      span 社群
+      span 中心
     CommonSharePopup(
       :fromUid="uid"
       :isCommonSharePopup="commonShareInfo.isCommonSharePopup"
@@ -52,6 +54,7 @@
       )
     PaymentPopup(
       v-if="isPaymentPopup"
+      :amountMoney="particularsInfo.price"
       @close="isPaymentPopup = false"
       @jumpCamiloPayment="jumpCamiloPayment"
       @determine="determinePayment"
@@ -338,6 +341,7 @@
               that.customerServiceData.content = data.customer_text
               that.customerServiceData.codeSrc = data.customer_qr_code
               that.isCustomerServicePopup = true
+              that.isPerfectInformation = true
             }
           })
         }
@@ -570,7 +574,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 0 .2rem;
+    flex-direction: column;
     border-radius: 1rem;
     line-height: 1.2;
     color: #fff;
