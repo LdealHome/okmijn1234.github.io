@@ -456,12 +456,13 @@
       .amount {
         display: flex;
         align-items: center;
-        width: 2.86rem;
+        flex: 1;
       }
 
       .price {
         color: #fe5832;
         font-size: .64rem;
+        font-weight: bold;
 
         &::before {
           content: '￥';
@@ -498,7 +499,7 @@
       }
 
       .btn {
-        width: 2rem;
+        flex: 1;
         height: .8rem;
         color: #fff;
         font-size: .32rem;

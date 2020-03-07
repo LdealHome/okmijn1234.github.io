@@ -1,12 +1,13 @@
 <!--海报分享-->
 <template lang="pug">
   div.poster__bounced
-    div.mask
+    div.mask(@click="$emit('close')")
     div.content
-      p.close(@click="$emit('close')")
-      img.img(v-lazy="imgSrc")
-      p.prompt 长按可保存到手机相册
-      button.btn(type="button" @click="$emit('share')") 分享给好友
+      div.above 分享朋友圈、群或好友
+      div.following
+        img.img(v-lazy="imgSrc")
+        p.prompt 长按可保存到手机相册
+      div.close(@click="$emit('close')")
 </template>
 
 <script>
@@ -238,19 +239,34 @@
 
     .content {
       position: absolute;
-      top: 50%;
-      left: 50%;
+      top: 0;
+      left: 0;
+      right: 0;
+    }
+
+    .above {
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      color: #fff;
+      font-size: .3rem;
+      width: 100%;
+      height: 2.12rem;
+      padding-bottom: .4rem;
+      background: url("~@images/community/share-guide.png") no-repeat 5.38rem center;
+      background-size: contain;
+    }
+
+    .following {
       width: 5.18rem;
-      transform: translate(-50%, -50%);
+      margin: auto;
     }
 
     .close {
-      position: absolute;
-      top: -.76rem;
-      right: 0;
+      margin: auto;
       width: .76rem;
       height: .76rem;
-      background: url("~@icon/community/close-white.png") no-repeat right center;
+      background: url("~@icon/community/close-white.png") no-repeat center;
       background-size: .48rem;
 
       &:active {
@@ -269,21 +285,6 @@
       font-size: .28rem;
       text-align: center;
       margin: .2rem 0;
-    }
-
-    .btn {
-      display: block;
-      width: 3.76rem;
-      height: .8rem;
-      color: #fff;
-      font-size: .28rem;
-      border-radius: 1rem;
-      margin: auto;
-      background: linear-gradient(to right, #ff7606, #fe4006);
-
-      &:active {
-        background: linear-gradient(to left, #ff7606, #fe4006);
-      }
     }
   }
 </style>

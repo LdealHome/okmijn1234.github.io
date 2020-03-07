@@ -25,7 +25,6 @@
       v-if="isPostersSharePopup"
       :posterInfo="posterInfo"
       @close="isPostersSharePopup = false"
-      @share="friendsShare"
     )
 </template>
 
@@ -129,11 +128,6 @@
             that.isPostersSharePopup = true
           }
         })
-      },
-      // 海报分享给好友
-      friendsShare () {
-        this.shareCircleFriends('')
-        this.isPostersSharePopup = false
       },
       // 链接分享
       linkShare () {

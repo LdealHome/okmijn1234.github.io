@@ -73,6 +73,7 @@
   .module {
     &__img {
       width: 100%;
+      margin-bottom: .1rem;
 
       .img {
         width: 100%;
@@ -82,6 +83,7 @@
     &__text {
       color: #333;
       font-size: .28rem;
+      margin-bottom: .1rem;
 
       .text {
         padding: 0 .2rem;
@@ -90,6 +92,7 @@
 
     &__video {
       width: 100%;
+      margin-bottom: .1rem;
 
       .cover {
         position: relative;
@@ -168,7 +171,7 @@
           bottom: .04rem;
           left: .04rem;
           border-radius: .3rem;
-          background-size: .8rem;
+          background-size: .54rem;
         }
       }
 
