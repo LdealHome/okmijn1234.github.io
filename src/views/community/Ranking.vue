@@ -1,5 +1,5 @@
 <template lang="pug">
-  div.whole
+  div.whole(v-if="isLoad")
     div.ranking-top
       p.title-ranking 排名
       p.title-name 用户
@@ -8,7 +8,7 @@
       li.ranking-item(v-for="(item, index) in list" :key="index")
         div.ranking-view
           span(:class="index < 3 ? 'medal_icon_' + index : ''") {{index < 3 ? '' : index + 1}}
-        img.avatar(:src="item.avatar" @click="jumpHomePage(item.uid)")
+        img.avatar(:src="item.avatar" @click="jumpHomePage(item.link)")
         div.item-right
           p.item-name {{item.name}}
           div.item-date
@@ -28,6 +28,7 @@
     name: 'Ranking',
     data () {
       return {
+        isLoad: false,
         list: [],
         params: {
           page: 1,
@@ -35,12 +36,37 @@
         }
       }
     },
+    watch: {
+      isLoadGuestInfo () {
+        this.main()
+      }
+    },
     computed: {
       uid () {
         return this.$store.state.personalInfo.uid
+      },
+      // 访客
+      isGuest () {
+        return this.$store.state.guest
+      },
+      // 是否加载访客信息
+      isLoadGuestInfo () {
+        return this.$store.state.isLoadGuestInfo
+      }
+    },
+    created () {
+      if (this.isLoadGuestInfo) {
+        this.main()
       }
     },
     methods: {
+      main () {
+        if (this.isGuest) {
+          this.$router.replace({ name: '404' })
+          return
+        }
+        this.isLoad = true
+      },
       /**
        * 获取邀请的好友列表
        */
@@ -69,14 +95,8 @@
         }
       },
       // 跳转个人主页
-      jumpHomePage (uid) {
-        this.$router.push({
-          name: 'personal-profile',
-          params: {
-            uid: uid,
-            from: this.uid
-          }
-        })
+      jumpHomePage (url) {
+        this.$_.entryOtherPage(url)
       },
       /**
        * 排行榜列表数据转换
@@ -89,6 +109,7 @@
           list.push({
             uid: item.uid,
             avatar: item.img_url,
+            link: item.home_url,
             name: item.nick_name,
             courseNumber: item.course_number,
             inviteNumber: item.invite_number

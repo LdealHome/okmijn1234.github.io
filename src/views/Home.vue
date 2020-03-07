@@ -8,7 +8,7 @@
         )
           img.banner-img(:src="item.pic")
     div.wallet
-      img.avatar(:src="mBean.avatar" @click="jumpHomePage(uid)")
+      img.avatar(:src="mBean.avatar" @click="jumpHomePage(mBean.homepageUrl)")
       div.profit
         p.profit-text
           span 累计收益
@@ -34,7 +34,7 @@
     p.invitation-title 已邀请用户
     ul
       li.friend-item(v-for="item in friendList" :key="item.uid")
-        img.friend-avatar(:src="item.avatar")
+        img.friend-avatar(:src="item.avatar" @click="jumpHomePage(item.link)")
         div.friend-right
           div.friend-info
             p.friend-name {{item.name}}
@@ -113,6 +113,7 @@
         isLoadBanner: false,
         mBean: {
           avatar: '', // 头像
+          homepageUrl: '', // 个人主页地址
           profit: '', // 收益
           invitationNumber: '', // 邀请人数
           courseNumber: '', // 获得课程数
@@ -218,6 +219,7 @@
             this.configShareInfo()
             this.mBean = {
               avatar: data.member_info.img_url, // 头像
+              homepageUrl: data.link.home,
               profit: data.member_info.amount, // 收益
               invitationNumber: data.member_info.invite_number, // 邀请人数
               courseNumber: data.member_info.course_number, // 获得课程数
@@ -305,6 +307,7 @@
           list.push({
             uid: item.uid,
             avatar: item.img_url,
+            link: item.home_url,
             name: item.nick_name,
             time: item.create_time,
             number: item.course_number
@@ -313,14 +316,8 @@
         return list
       },
       // 跳转个人主页
-      jumpHomePage (uid) {
-        this.$router.push({
-          name: 'personal-profile',
-          params: {
-            uid: uid,
-            from: this.uid
-          }
-        })
+      jumpHomePage (url) {
+        this.$_.entryOtherPage(url)
       },
       // 提现
       withdrawal () {
