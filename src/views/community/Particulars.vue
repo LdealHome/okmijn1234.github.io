@@ -415,13 +415,14 @@
     background-color: #fff;
 
     &__shuffling {
-      position: static;
+      position: sticky;
       top: 0;
+      z-index: 2;
       display: flex;
       align-items: center;
       height: .64rem;
       padding: 0 .78rem;
-      background: rgba(203, 238, 250, .4) url("~@icon/community/notice.png") no-repeat .3rem center;
+      background: #eaf8fd url("~@icon/community/notice.png") no-repeat .3rem center;
       background-size: .3rem;
 
       .shuffling {
