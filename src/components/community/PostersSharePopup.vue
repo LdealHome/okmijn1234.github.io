@@ -52,7 +52,6 @@
      * @param callback {Function} 画图成功之后执行的回调
      */
     init (config, callback) {
-      let that = this
       let { backSrc, portraitSrc, nicknameText, codeSrc } = config
       if (backSrc && portraitSrc && nicknameText && codeSrc) {
         this.data = { ...this.data, ...config }
@@ -70,7 +69,7 @@
           drawInvitePoster.methods.drawImage()
         }
       } else {
-        that.$_.Toast('缺少必需参数，无法生成海报图')
+        $_.Toast('缺少必需参数，无法生成海报图')
       }
     },
     methods: {

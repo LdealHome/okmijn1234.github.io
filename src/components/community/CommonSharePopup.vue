@@ -121,8 +121,8 @@
             let data = res.data.data
             that.posterInfo = {
               backSrc: data.img_url,
-              portraitSrc: that.$store.state.personalInfo.avatar,
-              nicknameText: that.$store.state.personalInfo.nickname,
+              portraitSrc: data.head_img,
+              nicknameText: data.nick_name,
               codeSrc: data.qr_code
             }
             that.isSharePopup = false
