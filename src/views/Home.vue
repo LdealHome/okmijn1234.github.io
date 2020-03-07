@@ -32,7 +32,7 @@
       div.ranking-btn(@click="$router.push({ name: 'community-ranking' })")  排行榜
       div.invitation-btn(@click="inviteFriends") 邀请好友
     p.invitation-title 已邀请用户
-    ul
+    ul(v-if="friendList.length")
       li.friend-item(v-for="item in friendList" :key="item.uid")
         img.friend-avatar(:src="item.avatar" @click="jumpHomePage(item.link)")
         div.friend-right
@@ -40,6 +40,7 @@
             p.friend-name {{item.name}}
             p.register-time {{item.time}}
           p.friend-course 已拥有{{item.number}}门课程
+    NothingCommon(v-else :config="nothingConfig")
     infinite-loading(@infinite="loadMore")
       div(slot="spinner")
       div(slot="no-more")
@@ -70,6 +71,7 @@
   import ObtainCoursePopup from '../components/community/ObtainCoursePopup'
   import CustomerServicePopup from '../components/community/CustomerServicePopup'
   import VideoPopup from '../components/VideoPopup'
+  import NothingCommon from '../components/NothingCommon'
   import weixinConfig from '../mixin/weixinConfig'
   import {
     getCommunityInfo,
@@ -89,7 +91,8 @@
       CommonSharePopup,
       ObtainCoursePopup,
       CustomerServicePopup,
-      VideoPopup
+      VideoPopup,
+      NothingCommon
     },
     mixins: [weixinConfig],
     data () {
@@ -118,6 +121,9 @@
           invitationNumber: '', // 邀请人数
           courseNumber: '', // 获得课程数
           courseList: []
+        },
+        nothingConfig: {
+          tips: '暂时没有数据哦～'
         },
         friendList: [],
         commonShareInfo: {
@@ -432,7 +438,7 @@
     border-radius: .58rem;
     display: flex;
     align-items: center;
-    margin-bottom: .74rem;
+    margin-bottom: .54rem;
   }
 
   .avatar {
@@ -562,13 +568,14 @@
   .invitation-btn {
     width: 2.8rem;
     height: .74rem;
-    line-height: .74rem;
     border-radius: .37rem;
     border: 2px solid #f9480c;
     margin: 0 .19rem;
     font-size: .3rem;
     color: #ff7506;
-    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
     &:active {
       opacity: .7;

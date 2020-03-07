@@ -4,7 +4,7 @@
       p.title-ranking 排名
       p.title-name 用户
       p.title-course 已有课程
-    ul.ranking-list
+    ul.ranking-list(v-if="list.length")
       li.ranking-item(v-for="(item, index) in list" :key="index")
         div.ranking-view
           span(:class="index < 3 ? 'medal_icon_' + index : ''") {{index < 3 ? '' : index + 1}}
@@ -14,6 +14,7 @@
           div.item-date
             p.course-number 已拥有{{item.courseNumber}}门课程
             p.invite-number 已邀请{{item.inviteNumber}}人
+    NothingCommon(v-else :config="nothingConfig")
     infinite-loading(@infinite="loadMore")
       div(slot="spinner")
       div(slot="no-more")
@@ -21,11 +22,15 @@
 </template>
 
 <script>
+  import NothingCommon from '../../components/NothingCommon'
   import {
     getRankingList
   } from '../../services/community'
   export default {
     name: 'Ranking',
+    components: {
+      NothingCommon
+    },
     data () {
       return {
         isLoad: false,
@@ -33,6 +38,9 @@
         params: {
           page: 1,
           limit: 20
+        },
+        nothingConfig: {
+          tips: '暂时没有数据哦～'
         }
       }
     },
