@@ -62,7 +62,13 @@
       :fromUid="uid"
       :isCommonSharePopup="commonShareInfo.isCommonSharePopup"
       :changePopupNumber="commonShareInfo.changePopupNumber"
-      )
+      @isShowShare="isShowShare"
+    )
+    FollowPopup(
+      v-if="isShowFollowPopup"
+      :src="mBean.QRCode"
+      @cancel="isShowFollowPopup = false"
+    )
 </template>
 
 <script>
@@ -70,6 +76,7 @@
   import CommonSharePopup from '../components/community/CommonSharePopup'
   import ObtainCoursePopup from '../components/community/ObtainCoursePopup'
   import CustomerServicePopup from '../components/community/CustomerServicePopup'
+  import FollowPopup from '../components/community/FollowPopup'
   import VideoPopup from '../components/VideoPopup'
   import NothingCommon from '../components/NothingCommon'
   import weixinConfig from '../mixin/weixinConfig'
@@ -91,6 +98,7 @@
       CommonSharePopup,
       ObtainCoursePopup,
       CustomerServicePopup,
+      FollowPopup,
       VideoPopup,
       NothingCommon
     },
@@ -98,6 +106,7 @@
     data () {
       return {
         isLoad: false,
+        isShowFollowPopup: false,
         swiperOption: { // 轮播设置对应属性
           autoplay: true,
           speed: 500, // 切换速度
@@ -120,7 +129,9 @@
           profit: '', // 收益
           invitationNumber: '', // 邀请人数
           courseNumber: '', // 获得课程数
-          courseList: []
+          courseList: [],
+          isFollow: false,
+          QRCode: ''
         },
         nothingConfig: {
           tips: '暂时没有数据哦～'
@@ -152,13 +163,16 @@
           videoUrl: ''
         },
         videoSceneInfo: {}, // 加载过的视频信息
-        shareInfo: null
+        shareInfo: null,
+        isShowWaitPopup: false,
+        isShowSharePopup: false
       }
     },
     watch: {
       isCustomerServicePopup (val) {
         // true 显示弹框 false 关闭弹框
         this.$root.$emit('toggleModal', Boolean(val))
+        if (!val && this.isShowWaitPopup) this.isObtainCoursePopup = true
       },
       isObtainCoursePopup (val) {
         this.$root.$emit('toggleModal', Boolean(val))
@@ -171,9 +185,15 @@
                 imgSrc: data.img_url,
                 id: data.id
               }
-              this.isObtainCoursePopup = true
+              if (this.isShowSharePopup || this.isCustomerServicePopup) {
+                this.isShowWaitPopup = true
+              } else {
+                this.isObtainCoursePopup = true
+              }
             }
           })
+        } else {
+          this.isShowWaitPopup = false
         }
       },
       isLoadGuestInfo () {
@@ -185,6 +205,19 @@
       },
       bannerScene () {
         this.getBannerList()
+      },
+      isShowFollowPopup (val) {
+        // true 显示弹框 false 关闭弹框
+        this.$root.$emit('toggleModal', Boolean(val))
+        if (!val) {
+          localStorage.setItem('isLoadFollow', true)
+          if (this.isShowWaitPopup) {
+            this.isObtainCoursePopup = true
+          }
+        }
+      },
+      isShowSharePopup (val) {
+        if (!val && this.isShowWaitPopup) this.isObtainCoursePopup = true
       }
     },
     created () {
@@ -229,10 +262,16 @@
               profit: data.member_info.amount, // 收益
               invitationNumber: data.member_info.invite_number, // 邀请人数
               courseNumber: data.member_info.course_number, // 获得课程数
-              courseList: this.transformCourseList(data.course_list || [])
+              courseList: this.transformCourseList(data.course_list || []),
+              isFollow: data.member_info.is_subscribe === 1,
+              QRCode: data.member_info.subscribe_qr_code
             }
-
-            this.isObtainCoursePopup = giveInfo.is_give === 2
+            if (!this.mBean.isFollow && !localStorage.getItem('isLoadFollow')) {
+              this.isShowFollowPopup = true
+              this.isShowWaitPopup = giveInfo.is_give === 2
+            } else {
+              this.isObtainCoursePopup = giveInfo.is_give === 2
+            }
             this.courseInfo = {
               name: giveInfo.title,
               imgSrc: giveInfo.img_url,
@@ -393,6 +432,9 @@
           }
         })
       },
+      isShowShare (state) {
+        this.isShowSharePopup = state
+      },
       // 邀请好友
       inviteFriends () {
         this.commonShareInfo.isCommonSharePopup = true
@@ -406,8 +448,8 @@
       },
       // 联系客服
       obtainCourseService () {
-        this.isObtainCoursePopup = false
         this.isCustomerServicePopup = true
+        this.isObtainCoursePopup = false
       }
     }
   }

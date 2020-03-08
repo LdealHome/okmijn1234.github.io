@@ -52,6 +52,7 @@
       :fromUid="uid"
       :isCommonSharePopup="commonShareInfo.isCommonSharePopup"
       :changePopupNumber="commonShareInfo.changePopupNumber"
+      @isShowShare="isShowShare"
     )
     PaymentPopup(
       v-if="isPaymentPopup"
@@ -137,7 +138,9 @@
           changePopupNumber: 0
         },
         postList: [], // 完善信息职位列表
-        shareInfo: null
+        shareInfo: null,
+        isShowWaitPopup: false,
+        isShowSharePopup: false
       }
     },
     watch: {
@@ -148,6 +151,7 @@
       isCustomerServicePopup (val) {
         // true 显示弹框 false 关闭弹框
         this.$root.$emit('toggleModal', Boolean(val))
+        if (!val && this.isShowWaitPopup) this.isObtainCoursePopup = true
       },
       isObtainCoursePopup (val) {
         this.$root.$emit('toggleModal', Boolean(val))
@@ -160,9 +164,15 @@
                 imgSrc: data.img_url,
                 id: data.id
               }
-              this.isObtainCoursePopup = true
+              if (this.isShowSharePopup || this.isCustomerServicePopup) {
+                this.isShowWaitPopup = true
+              } else {
+                this.isObtainCoursePopup = true
+              }
             }
           })
+        } else {
+          this.isShowWaitPopup = false
         }
       },
       isPaymentPopup (val) {
@@ -173,6 +183,9 @@
       },
       mUid () {
         this.configShareInfo(this.mUid)
+      },
+      isShowSharePopup (val) {
+        if (!val && this.isShowWaitPopup) this.isObtainCoursePopup = true
       }
     },
     computed: {
@@ -361,8 +374,11 @@
       },
       // 联系客服
       obtainCourseService () {
-        this.isObtainCoursePopup = false
         this.isCustomerServicePopup = true
+        this.isObtainCoursePopup = false
+      },
+      isShowShare (state) {
+        this.isShowSharePopup = state
       },
       /**
        * 转换轮播数据
