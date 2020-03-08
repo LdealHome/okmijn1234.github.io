@@ -14,15 +14,15 @@
           span 累计收益
           span.profit-number {{mBean.profit}}
           span 元
-        p.invitation-text 共邀请{{mBean.invitationNumber}}人，已免费获得{{mBean.courseNumber}}门课程
+        p.invitation-text 共集福{{mBean.invitationNumber}}人，已免费获得{{mBean.courseNumber}}门课程
       img.withdraw-btn(src="~@icon/community/withdraw-btn.png" @click="withdrawal")
     p.my-course 我的课程
-    p.tips-text （邀请新用户达标即可免费获得一门课程）
+    p.tips-text （邀请新用户集福达标即可免费获得一门课程）
     ul.course-list
       li.course-item(v-for="(item, index) in mBean.courseList" :key="index" @click="jumpDetails(item)")
         img.item-img(:src="item.img")
         div.locking-cover(v-if="!item.isUnlock")
-          p.locking-text 邀请
+          p.locking-text 集福
             span.locking-number {{item.number}}
             span 人
           p.locking-text 即可解锁
