@@ -93,6 +93,7 @@
       max-height: 4.3rem;
       overflow-y: scroll;
       -webkit-overflow-scrolling: touch;
+      word-break: break-all;
     }
 
     .btns {

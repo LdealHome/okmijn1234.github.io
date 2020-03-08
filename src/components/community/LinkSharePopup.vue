@@ -87,6 +87,7 @@
       &-item {
         padding: .38rem 0;
         border-bottom: 1px dashed #dbe3e3;
+        word-break: break-all;
 
         &:last-child {
           border-bottom: none;
