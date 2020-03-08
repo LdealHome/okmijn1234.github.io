@@ -6,7 +6,7 @@
       div.above 分享朋友圈、群或好友
       div.following
         img.img(v-lazy="imgSrc")
-        p.prompt 长按可保存到手机相册
+        p.prompt 长按可保存到手机相册或发送给好友
       div.close(@click="$emit('close')")
 </template>
 
