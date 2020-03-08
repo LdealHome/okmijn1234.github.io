@@ -37,9 +37,9 @@
 
 <script>
   import DetailsContent from '../../components/community/DetailsContent'
+  import CommonSharePopup from '../../components/community/CommonSharePopup'
   import CustomerServicePopup from '../../components/community/CustomerServicePopup'
   import WarmPromptPopup from '../../components/community/WarmPromptPopup'
-  import CommonSharePopup from '../../components/community/CommonSharePopup'
   import weixinConfig from '../../mixin/weixinConfig'
   import {
     getCourseDetail
