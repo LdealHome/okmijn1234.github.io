@@ -41,6 +41,9 @@
             p.register-time {{item.time}}
           p.friend-course 已拥有{{item.number}}门课程
     NothingCommon(v-else :config="nothingConfig")
+    div.follow-btn(v-if="!mBean.isFollow" @click="showFollowPopup")
+      img.static-btn(v-show="isRollPage" src="~@images/community/follow-btn.png")
+      img.dynamic-btn(v-show="!isRollPage" src="~@images/community/follow-btn.gif")
     infinite-loading(@infinite="loadMore")
       div(slot="spinner")
       div(slot="no-more")
@@ -64,11 +67,6 @@
       :changePopupNumber="commonShareInfo.changePopupNumber"
       @isShowShare="isShowShare"
     )
-    FollowPopup(
-      v-if="isShowFollowPopup"
-      :src="mBean.QRCode"
-      @cancel="isShowFollowPopup = false"
-    )
 </template>
 
 <script>
@@ -76,7 +74,6 @@
   import CommonSharePopup from '../components/community/CommonSharePopup'
   import ObtainCoursePopup from '../components/community/ObtainCoursePopup'
   import CustomerServicePopup from '../components/community/CustomerServicePopup'
-  import FollowPopup from '../components/community/FollowPopup'
   import VideoPopup from '../components/VideoPopup'
   import NothingCommon from '../components/NothingCommon'
   import weixinConfig from '../mixin/weixinConfig'
@@ -98,7 +95,6 @@
       CommonSharePopup,
       ObtainCoursePopup,
       CustomerServicePopup,
-      FollowPopup,
       VideoPopup,
       NothingCommon
     },
@@ -106,7 +102,6 @@
     data () {
       return {
         isLoad: false,
-        isShowFollowPopup: false,
         swiperOption: { // 轮播设置对应属性
           autoplay: true,
           speed: 500, // 切换速度
@@ -130,7 +125,7 @@
           invitationNumber: '', // 邀请人数
           courseNumber: '', // 获得课程数
           courseList: [],
-          isFollow: false,
+          isFollow: true,
           QRCode: ''
         },
         nothingConfig: {
@@ -175,14 +170,30 @@
         videoSceneInfo: {}, // 加载过的视频信息
         shareInfo: null,
         isShowWaitPopup: false,
-        isShowSharePopup: false
+        isShowSharePopup: false,
+        isRollPage: false,
+        showFollowBtnTimer: null
       }
+    },
+    beforeRouteLeave (to, from, next) {
+      window.removeEventListener('scroll', this.handleScroll)
+      if (this.showFollowBtnTimer) {
+        clearTimeout(this.showFollowBtnTimer)
+      }
+      next()
     },
     watch: {
       isCustomerServicePopup (val) {
         // true 显示弹框 false 关闭弹框
         this.$root.$emit('toggleModal', Boolean(val))
-        if (!val && this.isShowWaitPopup) this.isObtainCoursePopup = true
+        if (!val) {
+          if (this.customerServiceData.differentiate === 2) {
+            localStorage.setItem('isLoadFollow', true)
+          }
+          if (this.isShowWaitPopup) {
+            this.isObtainCoursePopup = true
+          }
+        }
       },
       isObtainCoursePopup (val) {
         this.$root.$emit('toggleModal', Boolean(val))
@@ -215,16 +226,6 @@
       },
       bannerScene () {
         this.getBannerList()
-      },
-      isShowFollowPopup (val) {
-        // true 显示弹框 false 关闭弹框
-        this.$root.$emit('toggleModal', Boolean(val))
-        if (!val) {
-          localStorage.setItem('isLoadFollow', true)
-          if (this.isShowWaitPopup) {
-            this.isObtainCoursePopup = true
-          }
-        }
       },
       isShowSharePopup (val) {
         if (!val && this.isShowWaitPopup) this.isObtainCoursePopup = true
@@ -273,11 +274,11 @@
               invitationNumber: data.member_info.invite_number, // 邀请人数
               courseNumber: data.member_info.course_number, // 获得课程数
               courseList: this.transformCourseList(data.course_list || []),
-              isFollow: data.member_info.is_subscribe === 1,
+              isFollow: data.member_info.is_subscribe === 2,
               QRCode: data.member_info.subscribe_qr_code
             }
             if (!this.mBean.isFollow && !localStorage.getItem('isLoadFollow')) {
-              this.isShowFollowPopup = true
+              this.showFollowPopup()
               this.isShowWaitPopup = giveInfo.is_give === 2
             } else {
               this.isObtainCoursePopup = giveInfo.is_give === 2
@@ -289,13 +290,20 @@
             }
 
             this.followData.codeSrc = data.member_info.subscribe_qr_code
-            this.customerServiceData = this.followData
-            this.isCustomerServicePopup = data.member_info.is_subscribe === 1
-
             this.courseServiceData.content = giveInfo.customer_text
             this.courseServiceData.codeSrc = giveInfo.customer_qr_code
           }
         })
+        window.addEventListener('scroll', this.handleScroll)
+      },
+      handleScroll () {
+        this.isRollPage = true
+        if (this.showFollowBtnTimer) {
+          clearTimeout(this.showFollowBtnTimer)
+        }
+        this.showFollowBtnTimer = setTimeout(() => {
+          this.isRollPage = false
+        }, 1000)
       },
       /**
        * 配置分享信息
@@ -465,6 +473,10 @@
         this.customerServiceData = this.courseServiceData
         this.isCustomerServicePopup = true
         this.isObtainCoursePopup = false
+      },
+      showFollowPopup () {
+        this.customerServiceData = this.followData
+        this.isCustomerServicePopup = true
       }
     }
   }
@@ -707,5 +719,24 @@
   .friend-course {
     font-size: .32rem;
     color: #999;
+  }
+
+  .follow-btn {
+    position: fixed;
+    bottom: 2.16rem;
+    right: 0;
+    width: 2.4rem;
+    display: flex;
+    flex-direction: row-reverse;
+  }
+
+  .static-btn {
+    width: .58rem;
+    height: 1.12rem;
+  }
+
+  .dynamic-btn {
+    width: 2.4rem;
+    height: 2.4rem;
   }
 </style>
