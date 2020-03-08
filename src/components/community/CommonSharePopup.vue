@@ -3,7 +3,7 @@
   div
     SharePopup(
       v-if="isSharePopup"
-      @close="isSharePopup = false"
+      @close="sharePopupCancel"
       @friendShare="friendShare"
       @posterShare="posterShare"
       @linkShare="linkShare"
@@ -69,15 +69,19 @@
     watch: {
       isSharePopup (val) {
         this.$root.$emit('toggleModal', Boolean(val))
+        if (val) this.$emit('isShowShare', true)
       },
       isCircleFriendsSharePopup (val) {
         this.$root.$emit('toggleModal', Boolean(val))
+        if (!val) this.$emit('isShowShare', false)
       },
       isLinkSharePopup (val) {
         this.$root.$emit('toggleModal', Boolean(val))
+        if (!val) this.$emit('isShowShare', false)
       },
       isPostersSharePopup (val) {
         this.$root.$emit('toggleModal', Boolean(val))
+        if (!val) this.$emit('isShowShare', false)
       },
       changePopupNumber () {
         this.isSharePopup = this.isCommonSharePopup
@@ -104,6 +108,10 @@
       }
     },
     methods: {
+      sharePopupCancel () {
+        this.isSharePopup = false
+        this.$emit('isShowShare', false)
+      },
       // 朋友圈分享
       friendShare () {
         this.shareCircleFriends('')
