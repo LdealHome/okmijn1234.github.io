@@ -1,7 +1,7 @@
 const shell = require('shelljs')
 const args = require('minimist')(process.argv.slice(2))
 const branch = args._[0]
-let targetBranch = 'new_hks_online'
+let targetBranch = 'master'
 // 确保要发布的分支存在
 if (!branch) {
   shell.echo('请输入要发布的分支')
