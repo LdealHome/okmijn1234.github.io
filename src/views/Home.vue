@@ -46,11 +46,6 @@
       div(slot="no-more")
       div(slot="no-results")
     VideoPopup(:isShow="isShowVideo" :video="videoInfo" @videoClose="isShowVideo = false")
-    CommonSharePopup(
-      :fromUid="uid"
-      :isCommonSharePopup="commonShareInfo.isCommonSharePopup"
-      :changePopupNumber="commonShareInfo.changePopupNumber"
-      )
     ObtainCoursePopup(
       v-if="isObtainCoursePopup"
       :courseInfo="courseInfo"
@@ -63,6 +58,11 @@
       :customer="customerServiceData"
       @close="isCustomerServicePopup = false"
     )
+    CommonSharePopup(
+      :fromUid="uid"
+      :isCommonSharePopup="commonShareInfo.isCommonSharePopup"
+      :changePopupNumber="commonShareInfo.changePopupNumber"
+      )
 </template>
 
 <script>

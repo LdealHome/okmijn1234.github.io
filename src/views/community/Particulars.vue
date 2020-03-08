@@ -29,22 +29,12 @@
     RouterLink.entrance(v-show="isParticipate" :to="{name: 'home'}")
       span 社群
       span 中心
-    CommonSharePopup(
-      :fromUid="uid"
-      :isCommonSharePopup="commonShareInfo.isCommonSharePopup"
-      :changePopupNumber="commonShareInfo.changePopupNumber"
-    )
     InformationPopup(
       v-if="isShowInformationPopup"
       :postList="postList"
       @close="isShowInformationPopup = false"
       @determine="determineInformation"
       )
-    CustomerServicePopup(
-      v-if="isCustomerServicePopup"
-      :customer="customerServiceData"
-      @close="isCustomerServicePopup = false"
-    )
     ObtainCoursePopup(
       v-if="isObtainCoursePopup"
       :courseInfo="courseInfo"
@@ -52,6 +42,16 @@
       @invite="obtainCourseInvite"
       @service="obtainCourseService"
       )
+    CustomerServicePopup(
+      v-if="isCustomerServicePopup"
+      :customer="customerServiceData"
+      @close="isCustomerServicePopup = false"
+    )
+    CommonSharePopup(
+      :fromUid="uid"
+      :isCommonSharePopup="commonShareInfo.isCommonSharePopup"
+      :changePopupNumber="commonShareInfo.changePopupNumber"
+    )
     PaymentPopup(
       v-if="isPaymentPopup"
       :amountMoney="particularsInfo.price"
