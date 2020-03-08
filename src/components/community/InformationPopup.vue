@@ -22,6 +22,8 @@
             input.text(
               placeholder="请输入您的手机号"
               type="number"
+              pattern="[0-9]*"
+              autocomplete="off"
               v-model.trim="informationData.phone"
               v-ios-focus
               )
