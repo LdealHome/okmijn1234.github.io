@@ -1,15 +1,18 @@
-<!--联系客服和领取课程(群二维码)-->
+<!--联系客服、领取课程(群二维码)、关注公众号-->
 <template lang="pug">
   div.customer__bounced
     div.mask
     div.content
       div.above
-        p.back(:class="{course: customer.differentiate === 1}")
+        p.back(:class="{course: customer.differentiate === 1, follow: customer.differentiate === 2}")
         p.title {{differentiate}}
-        div.text(v-html="customer.content" v-if="customer.differentiate === 1")
-        div.text(v-else)
+        div.text(v-if="customer.differentiate === 0")
           p 请识别下方二维码
           p 立即联系客服购买课程
+        div.text(v-if="customer.differentiate === 1" v-html="customer.content")
+        div.text(v-if="customer.differentiate === 2")
+          p 长按关注公众号获取社群动态
+          p 365天见证自己的成长
         img.img(:src="customer.codeSrc")
         button.btn(type="button") 长按识别二维码
       p.close(@click="$emit('close')") 稍后再说
@@ -33,7 +36,7 @@
     },
     computed: {
       differentiate () {
-        return this.customer.differentiate === 0 ? '一对一金牌服务' : '领取课程'
+        return this.customer.differentiate === 0 ? '一对一金牌服务' : this.customer.differentiate === 1 ? '领取课程' : '关注公众号'
       }
     }
   }
@@ -115,6 +118,10 @@
 
       &.course {
         background-image: url("~@images/community/customer-img-course.png");
+      }
+
+      &.follow {
+        background-image: url("~@images/community/follow-img.png");
       }
     }
 

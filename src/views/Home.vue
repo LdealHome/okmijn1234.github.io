@@ -153,6 +153,16 @@
           content: '',
           codeSrc: ''
         },
+        courseServiceData: { // 课程
+          differentiate: 1,
+          content: '',
+          codeSrc: ''
+        },
+        followData: { // 关注公众号
+          differentiate: 2,
+          content: '',
+          codeSrc: ''
+        },
         params: {
           page: 1,
           limit: 20
@@ -278,8 +288,12 @@
               id: giveInfo.give_course_id
             }
 
-            this.customerServiceData.content = giveInfo.customer_text
-            this.customerServiceData.codeSrc = giveInfo.customer_qr_code
+            this.followData.codeSrc = data.member_info.subscribe_qr_code
+            this.customerServiceData = this.followData
+            this.isCustomerServicePopup = data.member_info.is_subscribe === 1
+
+            this.courseServiceData.content = giveInfo.customer_text
+            this.courseServiceData.codeSrc = giveInfo.customer_qr_code
           }
         })
       },
@@ -448,6 +462,7 @@
       },
       // 联系客服
       obtainCourseService () {
+        this.customerServiceData = this.courseServiceData
         this.isCustomerServicePopup = true
         this.isObtainCoursePopup = false
       }

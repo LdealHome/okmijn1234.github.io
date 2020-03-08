@@ -24,7 +24,7 @@
             :poster="video.cover"
             :ref="`video${itemIndex}-${videoIndex}`"
             )
-          p.text(v-html="video.text" v-show="video.text")
+          p.text(v-show="video.text") {{video.text}}
       // 多视频
       div.module__video(v-if="item.type === 4")
         // h2.title(v-show="item.title") 多视频标题
@@ -41,12 +41,12 @@
                 :poster="video.cover"
                 :ref="`video${itemIndex}-${videoIndex}`"
                 )
-            p.item-text(v-html="video.text" v-show="video.text")
+            p.item-text(v-show="video.text") {{video.text}}
       // 链接跳转
       ul.module__link(v-if="item.type === 6")
         li.item(v-for="(video, videoIndex) in item.videoList" @click="$emit('jumpLink', video.src)" :key="videoIndex")
           img.img(:src="video.cover")
-          span.name(v-html="video.title")
+          span.name {{video.text}}
 </template>
 
 <script>
