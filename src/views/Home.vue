@@ -401,6 +401,7 @@
       // 课程邀请好友
       obtainCourseInvite () {
         this.isObtainCoursePopup = false
+        this.commonShareInfo.isCommonSharePopup = true
         this.commonShareInfo.changePopupNumber++
       },
       // 联系客服

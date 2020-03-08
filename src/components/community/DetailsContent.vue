@@ -12,7 +12,7 @@
         p.text(v-html="item.text")
       // 单视频
       div.module__video(v-if="item.type === 3")
-        h2.title(v-show="item.title") {{item.title}}
+        // h2.title(v-show="item.title") {{item.title}}
         template(v-for="(video, videoIndex) in item.videoList")
           div.cover(v-if="!video.isVideoPlay")
             img.img(:src="video.cover")
@@ -27,9 +27,9 @@
           p.text(v-html="video.text" v-show="video.text")
       // 多视频
       div.module__video(v-if="item.type === 4")
-        h2.title(v-show="item.title") 多视频标题
+        // h2.title(v-show="item.title") 多视频标题
         ul.list
-          li.item(v-for="(video, videoIndex) in item.videoList")
+          li.item(v-for="(video, videoIndex) in item.videoList" :key="videoIndex")
             div.item-cover
               template(v-if="!video.isVideoPlay")
                 img.item-img(:src="video.cover")
@@ -42,7 +42,11 @@
                 :ref="`video${itemIndex}-${videoIndex}`"
                 )
             p.item-text(v-html="video.text" v-show="video.text")
-
+      // 链接跳转
+      ul.module__link(v-if="item.type === 6")
+        li.item(v-for="(video, videoIndex) in item.videoList" @click="$emit('jumpLink', video.src)" :key="videoIndex")
+          img.img(:src="video.cover")
+          span.name(v-html="video.title")
 </template>
 
 <script>
@@ -163,6 +167,7 @@
         &-text {
           text-align: center;
           margin-top: .26rem;
+          .ellipsisLn(1);
         }
 
         .pause {
@@ -183,6 +188,39 @@
       .text {
         text-align: center;
         margin-top: .18rem;
+      }
+    }
+
+    &__link {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      padding: .28rem .4rem;
+
+      .item {
+        position: relative;
+        height: .47rem;
+        margin-right: .1rem;
+        margin-bottom: .1rem;
+
+        &:nth-child(3n) {
+          margin-right: 0;
+        }
+      }
+
+      .img {
+        width: auto;
+        height: .47rem;
+      }
+
+      .name {
+        position: absolute;
+        top: 50%;
+        left: .06rem;
+        color: #fff;
+        font-size: .24rem;
+        font-weight: bold;
+        transform: scale(.9) translateY(-50%);
       }
     }
   }

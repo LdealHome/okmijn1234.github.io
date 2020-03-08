@@ -3,6 +3,7 @@
     DetailsContent(
       :contentList="contentList"
       @videoPlay="videoPlay"
+      @jumpLink="jumpLink"
     )
     div.course__footer
       div.amount
@@ -213,6 +214,13 @@
         this.contentList[itemIndex].videoList[videoIndex].isVideoPlay = true
         video.play()
       },
+      /**
+       * 跳转链接
+       * @param url {String} 跳转链接
+       */
+      jumpLink (url) {
+        this.$_.entryOtherPage(url)
+      },
       // 立即购买
       immediately () {
         this.changeCustomerCommon(0)
@@ -256,8 +264,8 @@
         let list = []
         source.forEach(item => {
           list.push({
-            videoList: this.transformVideoList(item.list_data), // 视频列表
-            type: item.mark_format, // 类型 1图片 2文本 3单个视频 4多个视频
+            videoList: this.transformVideoList(item.list_data), // 视频列表/多个链接
+            type: item.mark_format, // 类型 1图片 2文本 3单个视频 4多个视频 6多链接
             title: item.title, // 标题
             text: item.resource // 文本内容
           })

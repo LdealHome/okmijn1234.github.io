@@ -13,6 +13,7 @@
     DetailsContent(
       :contentList="contentList"
       @videoPlay="videoPlay"
+      @jumpLink="jumpLink"
       )
     div.particulars__footer
       div.amount
@@ -251,6 +252,13 @@
         this.contentList[itemIndex].videoList[videoIndex].isVideoPlay = true
         video.play()
       },
+      /**
+       * 跳转链接
+       * @param url {String} 跳转链接
+       */
+      jumpLink (url) {
+        this.$_.entryOtherPage(url)
+      },
       // 分享
       share () {
         this.commonShareInfo.isCommonSharePopup = true
@@ -326,7 +334,6 @@
           position: otherPost,
           type: info.post.key
         }
-        console.log(params)
         if (info.nickname === '' || info.phone === '' || info.post === '') {
           that.$_.Toast('信息需全部填写')
         } else if (info.nickname.length < 2 || info.nickname.length > 5) {
@@ -349,6 +356,7 @@
       // 课程邀请好友
       obtainCourseInvite () {
         this.isObtainCoursePopup = false
+        this.commonShareInfo.isCommonSharePopup = true
         this.commonShareInfo.changePopupNumber++
       },
       // 联系客服
@@ -380,8 +388,8 @@
         let list = []
         source.forEach(item => {
           list.push({
-            videoList: this.transformVideoList(item.list_data), // 视频列表
-            type: item.mark_format, // 类型 1图片 2文本 3单个视频 4多个视频
+            videoList: this.transformVideoList(item.list_data), // 视频列表/多个链接
+            type: item.mark_format, // 类型 1图片 2文本 3单个视频 4多个视频 6多链接
             title: item.title, // 标题
             text: item.resource // 文本内容
           })

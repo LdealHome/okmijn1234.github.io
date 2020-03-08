@@ -80,9 +80,6 @@
         this.$root.$emit('toggleModal', Boolean(val))
       },
       changePopupNumber () {
-        if (!this.isCommonSharePopup) {
-          this.isCircleFriendsSharePopup = true
-        }
         this.isSharePopup = this.isCommonSharePopup
       }
     },
