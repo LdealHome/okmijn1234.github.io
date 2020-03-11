@@ -32,6 +32,10 @@
       :isCommonSharePopup="commonShareInfo.isCommonSharePopup"
       :changePopupNumber="commonShareInfo.changePopupNumber"
     )
+    CourseCustomerServicePopup(
+      v-if="isCourseCustomerServicePopup"
+      @close="isCourseCustomerServicePopup = false"
+    )
 
 </template>
 
@@ -39,6 +43,7 @@
   import DetailsContent from '../../components/community/DetailsContent'
   import CommonSharePopup from '../../components/community/CommonSharePopup'
   import CustomerServicePopup from '../../components/community/CustomerServicePopup'
+  import CourseCustomerServicePopup from '../../components/community/CourseCustomerServicePopup'
   import WarmPromptPopup from '../../components/community/WarmPromptPopup'
   import weixinConfig from '../../mixin/weixinConfig'
   import {
@@ -52,6 +57,7 @@
     components: {
       DetailsContent,
       CustomerServicePopup,
+      CourseCustomerServicePopup,
       WarmPromptPopup,
       CommonSharePopup
     },
@@ -59,6 +65,9 @@
     watch: {
       isCustomerServicePopup (val) {
         // true 显示弹框 false 关闭弹框
+        this.$root.$emit('toggleModal', Boolean(val))
+      },
+      isCourseCustomerServicePopup (val) {
         this.$root.$emit('toggleModal', Boolean(val))
       },
       isWarmPromptPopup (val) {
@@ -104,22 +113,13 @@
         },
         contentList: [], // 内容
         isObtain: false, // 是否获取课程
-        isCustomerServicePopup: false, // 客服二维码弹框
-        customerServiceData: { // 客服弹框公共(客服和课程)
+        isCustomerServicePopup: false, // 固定客服弹框
+        isCourseCustomerServicePopup: false, // 课程客服弹框
+        customerServiceData: { // 固定客服弹框
           differentiate: 0,
           content: '',
           codeSrc: '' // 客服二维码
         }, // 群弹框
-        courseServiceData: { // 课程二维码弹框
-          differentiate: 1,
-          content: '',
-          codeSrc: ''
-        },
-        serviceData: { // 客服固定的
-          differentiate: 0,
-          content: '',
-          codeSrc: '' // 客服二维码
-        },
         isWarmPromptPopup: false, // 是否已经达到免费获取资格
         WarmPromptNumber: 0, // 提示还需多少个人
         commonShareInfo: {
@@ -170,9 +170,6 @@
               })
             }
 
-            that.courseServiceData.content = relationInfo.customer_text
-            that.courseServiceData.codeSrc = relationInfo.customer_qr_code
-
             that.WarmPromptNumber = relationInfo.rest_invite_number
 
             that.getSceneValue()
@@ -199,7 +196,7 @@
           getServiceInfo({ scene: this.sceneService }).then(res => {
             if (res.data.code === 1) {
               let data = res.data.data
-              that.serviceData.codeSrc = data.qr_code
+              that.customerServiceData.codeSrc = data.qr_code
             }
           })
         }
@@ -223,12 +220,12 @@
       },
       // 立即购买
       immediately () {
-        this.changeCustomerCommon(0)
+        this.isCustomerServicePopup = true
       },
       // 免费获取
       free () {
         if (this.isObtain) {
-          this.changeCustomerCommon(1)
+          this.isCourseCustomerServicePopup = true
         } else {
           this.isWarmPromptPopup = true
         }
@@ -242,18 +239,6 @@
       // 重新加载
       reload () {
         this.mine()
-      },
-      /**
-       * 客服弹框和课程弹框公共部分修改对应的值
-       * @param differentiate {Number} 区分是那个0客服，1课程
-       */
-      changeCustomerCommon (differentiate) {
-        if (differentiate === 0) { // 客服
-          this.customerServiceData = this.serviceData
-        } else { // 课程
-          this.customerServiceData = this.courseServiceData
-        }
-        this.isCustomerServicePopup = true
       },
       /**
        * 转换内容数据

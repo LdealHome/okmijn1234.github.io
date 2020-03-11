@@ -1,16 +1,15 @@
-<!--联系客服、领取课程(群二维码)、关注公众号-->
+<!--官方联系客服、关注公众号-->
 <template lang="pug">
   div.customer__bounced
     div.mask
     div.content
       div.above
-        p.back(:class="{course: customer.differentiate === 1, follow: customer.differentiate === 2}")
+        p.back(:class="{follow: customer.differentiate === 2}")
         p.title {{differentiate}}
         div.text(v-if="customer.differentiate === 0")
           p 请识别下方二维码
           p 立即联系客服购买课程
-        div.text(v-if="customer.differentiate === 1" v-html="customer.content")
-        div.text(v-if="customer.differentiate === 2")
+        div.text(v-else)
           p 长按关注公众号获取社群动态
           p 365天见证自己的成长
         img.img(:src="customer.codeSrc")
@@ -27,8 +26,7 @@
         required: true,
         default () {
           return {
-            differentiate: 0, // 0客服二维码，1领取课程
-            content: '', // 说明
+            differentiate: 0, // 0客服二维码，2关注公众号
             codeSrc: '' // 二维码
           }
         }
@@ -36,7 +34,7 @@
     },
     computed: {
       differentiate () {
-        return this.customer.differentiate === 0 ? '一对一金牌服务' : this.customer.differentiate === 1 ? '领取课程' : '关注公众号'
+        return this.customer.differentiate === 0 ? '一对一金牌服务' : '关注公众号'
       }
     }
   }
@@ -115,10 +113,6 @@
       height: 1.78rem;
       background: url("~@images/community/customer-img.png") no-repeat center;
       background-size: contain;
-
-      &.course {
-        background-image: url("~@images/community/customer-img-course.png");
-      }
 
       &.follow {
         background-image: url("~@images/community/follow-img.png");

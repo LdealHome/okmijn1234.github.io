@@ -43,10 +43,9 @@
       @invite="obtainCourseInvite"
       @service="obtainCourseService"
       )
-    CustomerServicePopup(
-      v-if="isCustomerServicePopup"
-      :customer="customerServiceData"
-      @close="isCustomerServicePopup = false"
+    CourseCustomerServicePopup(
+      v-if="isCourseCustomerServicePopup"
+      @close="isCourseCustomerServicePopup = false"
     )
     CommonSharePopup(
       :fromUid="uid"
@@ -73,7 +72,7 @@
   import DetailsContent from '../../components/community/DetailsContent'
   import CommonSharePopup from '../../components/community/CommonSharePopup'
   import InformationPopup from '../../components/community/InformationPopup'
-  import CustomerServicePopup from '../../components/community/CustomerServicePopup'
+  import CourseCustomerServicePopup from '../../components/community/CourseCustomerServicePopup'
   import ObtainCoursePopup from '../../components/community/ObtainCoursePopup'
   import PaymentPopup from '../../components/community/PaymentPopup'
   import CamiloPaymentPopup from '../../components/community/CamiloPaymentPopup'
@@ -93,7 +92,7 @@
       DetailsContent,
       CommonSharePopup,
       InformationPopup,
-      CustomerServicePopup,
+      CourseCustomerServicePopup,
       ObtainCoursePopup,
       PaymentPopup,
       CamiloPaymentPopup
@@ -118,17 +117,11 @@
         isParticipate: false, // 是否已经支付
         isPerfectInformation: false, // 是否完善信息
         isShowInformationPopup: false, // 支付成功后填写信息弹框
-        isCustomerServicePopup: false, // 加群弹框
         isObtainCoursePopup: false, // 是否已经免费获得课程弹框
         isPaymentPopup: false, // 立即抢购弹框
         isCamiloPaymentPopup: false, // 卡密支付弹框
-        customerServiceData: { // 课程客服弹框
-          differentiate: 1,
-          content: '',
-          codeSrc: '' // 客服二维码
-        },
+        isCourseCustomerServicePopup: false, // 课程客服弹框
         courseInfo: {
-          differentiate: 1,
           name: '',
           imgSrc: '',
           id: 0
@@ -148,7 +141,7 @@
         // true 显示弹框 false 关闭弹框
         this.$root.$emit('toggleModal', Boolean(val))
       },
-      isCustomerServicePopup (val) {
+      isCourseCustomerServicePopup (val) {
         // true 显示弹框 false 关闭弹框
         this.$root.$emit('toggleModal', Boolean(val))
         if (!val && this.isShowWaitPopup) this.isObtainCoursePopup = true
@@ -164,7 +157,7 @@
                 imgSrc: data.img_url,
                 id: data.id
               }
-              if (this.isShowSharePopup || this.isCustomerServicePopup) {
+              if (this.isShowSharePopup || this.isCourseCustomerServicePopup) {
                 this.isShowWaitPopup = true
               } else {
                 this.isObtainCoursePopup = true
@@ -216,11 +209,6 @@
             that.shufflingList.push(...that.transformShufflingList(data.buy_list))
             that.isParticipate = buyInfo.status !== 1
             that.isPerfectInformation = buyInfo.status === 3
-
-            if (that.isPerfectInformation) { // 已经购买和完善信息
-              that.customerServiceData.content = buyInfo.customer_text
-              that.customerServiceData.codeSrc = buyInfo.customer_qr_code
-            }
 
             that.particularsInfo = {
               price: Number.isInteger(+courseInfo.price) ? parseInt(courseInfo.price) : courseInfo.price,
@@ -326,7 +314,7 @@
         if (!this.isPerfectInformation) { // 未完善信息
           this.isShowInformationPopup = true
         } else {
-          this.isCustomerServicePopup = true
+          this.isCourseCustomerServicePopup = true
         }
       },
       /**
@@ -356,11 +344,8 @@
         } else {
           postInformation(params).then(res => {
             if (res.data.code === 1) {
-              let data = res.data.data
               that.isShowInformationPopup = false
-              that.customerServiceData.content = data.customer_text
-              that.customerServiceData.codeSrc = data.customer_qr_code
-              that.isCustomerServicePopup = true
+              that.isCourseCustomerServicePopup = true
               that.isPerfectInformation = true
             }
           })
@@ -374,7 +359,7 @@
       },
       // 联系客服
       obtainCourseService () {
-        this.isCustomerServicePopup = true
+        this.isCourseCustomerServicePopup = true
         this.isObtainCoursePopup = false
       },
       isShowShare (state) {

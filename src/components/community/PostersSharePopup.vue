@@ -3,10 +3,12 @@
   div.poster__bounced
     div.mask(@click="$emit('close')")
     div.content
-      div.above 分享朋友圈、群或好友
+      div.above
+        p 分享朋友圈、群或好友
+        p.be-careful (注意：有效期30天)
       div.following
         img.img(v-lazy="imgSrc")
-        p.prompt 长按可保存到手机相册或发送给好友
+        p.prompt 长按可保存到手机相册或分享给好友
       div.close(@click="$emit('close')")
 </template>
 
@@ -246,15 +248,20 @@
 
     .above {
       display: flex;
-      align-items: flex-end;
-      justify-content: center;
+      align-items: center;
+      justify-content: flex-end;
+      flex-direction: column;
       color: #fff;
       font-size: .3rem;
       width: 100%;
       height: 2.12rem;
-      padding-bottom: .4rem;
+      padding-bottom: .26rem;
       background: url("~@images/community/share-guide.png") no-repeat 5.38rem center;
       background-size: contain;
+    }
+
+    .be-careful {
+      font-size: .24rem;
     }
 
     .following {

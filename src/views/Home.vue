@@ -17,7 +17,9 @@
         p.invitation-text 共集福{{mBean.invitationNumber}}人，已免费获得{{mBean.courseNumber}}门课程
       img.withdraw-btn(src="~@icon/community/withdraw-btn.png" @click="withdrawal")
     p.my-course 我的课程
-    p.tips-text （邀请新用户集福达标即可免费获得一门课程）
+    p.tips-text （邀请新用户集福达标即可
+      span.free 免费
+      | 获得一门课程）
     ul.course-list
       li.course-item(v-for="(item, index) in mBean.courseList" :key="index" @click="jumpDetails(item)")
         img.item-img(:src="item.img")
@@ -61,6 +63,10 @@
       :customer="customerServiceData"
       @close="isCustomerServicePopup = false"
     )
+    CourseCustomerServicePopup(
+      v-if="isCourseCustomerServicePopup"
+      @close="isCourseCustomerServicePopup = false"
+    )
     CommonSharePopup(
       :fromUid="uid"
       :isCommonSharePopup="commonShareInfo.isCommonSharePopup"
@@ -74,6 +80,7 @@
   import CommonSharePopup from '../components/community/CommonSharePopup'
   import ObtainCoursePopup from '../components/community/ObtainCoursePopup'
   import CustomerServicePopup from '../components/community/CustomerServicePopup'
+  import CourseCustomerServicePopup from '../components/community/CourseCustomerServicePopup'
   import VideoPopup from '../components/VideoPopup'
   import NothingCommon from '../components/NothingCommon'
   import weixinConfig from '../mixin/weixinConfig'
@@ -95,6 +102,7 @@
       CommonSharePopup,
       ObtainCoursePopup,
       CustomerServicePopup,
+      CourseCustomerServicePopup,
       VideoPopup,
       NothingCommon
     },
@@ -137,23 +145,14 @@
           changePopupNumber: 0
         },
         isObtainCoursePopup: false, // 是否已经免费获得课程弹框
+        isCourseCustomerServicePopup: false, // 课程客服弹框
         courseInfo: { // 获取课程
           name: '',
           imgSrc: '',
           id: 0
         },
-        isCustomerServicePopup: false, // 客服二维码弹框
-        customerServiceData: { // 客服弹框值
-          differentiate: 1,
-          content: '',
-          codeSrc: ''
-        },
-        courseServiceData: { // 课程
-          differentiate: 1,
-          content: '',
-          codeSrc: ''
-        },
-        followData: { // 关注公众号
+        isCustomerServicePopup: false, // 关注公众号弹框
+        customerServiceData: { // 关注公众号
           differentiate: 2,
           content: '',
           codeSrc: ''
@@ -195,6 +194,10 @@
           }
         }
       },
+      isCourseCustomerServicePopup (val) {
+        this.$root.$emit('toggleModal', Boolean(val))
+        if (!val && this.isShowWaitPopup) this.isObtainCoursePopup = true
+      },
       isObtainCoursePopup (val) {
         this.$root.$emit('toggleModal', Boolean(val))
         if (!val) {
@@ -206,7 +209,7 @@
                 imgSrc: data.img_url,
                 id: data.id
               }
-              if (this.isShowSharePopup || this.isCustomerServicePopup) {
+              if (this.isShowSharePopup || this.isCustomerServicePopup || this.isCourseCustomerServicePopup) {
                 this.isShowWaitPopup = true
               } else {
                 this.isObtainCoursePopup = true
@@ -289,9 +292,7 @@
               id: giveInfo.give_course_id
             }
 
-            this.followData.codeSrc = data.member_info.subscribe_qr_code
-            this.courseServiceData.content = giveInfo.customer_text
-            this.courseServiceData.codeSrc = giveInfo.customer_qr_code
+            this.customerServiceData.codeSrc = data.member_info.subscribe_qr_code
           }
         })
         window.addEventListener('scroll', this.handleScroll)
@@ -470,12 +471,10 @@
       },
       // 联系客服
       obtainCourseService () {
-        this.customerServiceData = this.courseServiceData
-        this.isCustomerServicePopup = true
+        this.isCourseCustomerServicePopup = true
         this.isObtainCoursePopup = false
       },
       showFollowPopup () {
-        this.customerServiceData = this.followData
         this.isCustomerServicePopup = true
       }
     }
@@ -554,6 +553,10 @@
     color: #666;
     text-align: center;
     margin-bottom: .26rem;
+  }
+
+  .free {
+    color: #fc3a1b;
   }
 
   .course-list {

@@ -93,3 +93,11 @@ export function getVideoInfo (params) {
 export function getPayCommunity () {
   return Vue.axios.get('/pub/user/register')
 }
+
+/**
+ * 获取绑定的客服
+ * @returns {AxiosPromise<any>}
+ */
+export function getCourseServe () {
+  return Vue.axios.get('/pub/user/customer')
+}
