@@ -82,6 +82,8 @@
         background-color: #f8f8f8;
         overflow-y: scroll;
         -webkit-overflow-scrolling: touch;
+        border-bottom-left-radius: .12rem;
+        border-bottom-right-radius: .12rem;
       }
 
       &-item {

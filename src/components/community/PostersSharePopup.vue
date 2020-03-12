@@ -109,6 +109,17 @@
             let { naturalWidth, naturalHeight } = backImg
             let { x, y, w, h, dx, dy, dw, dh } = imageFit(naturalWidth, naturalHeight, canvasWidth, canvasHeight)
             ctx.drawImage(backImg, x, y, w, h, dx, dy, dw, dh)
+            drawRectangle()
+          }
+        }
+
+        // 矩形渐变
+        function drawRectangle () {
+          let backImg = new Image()
+          backImg.setAttribute('crossOrigin', 'anonymous')
+          backImg.src = require('../../assets/images/community/rectangle.png')
+          backImg.onload = function () {
+            ctx.drawImage(backImg, 0, 608, 518, 84)
             drawPortrait()
           }
         }
@@ -266,7 +277,7 @@
 
     .following {
       width: 5.18rem;
-      margin: auto;
+      margin: -.04rem auto auto;
     }
 
     .close {

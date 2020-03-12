@@ -78,7 +78,7 @@
       padding-top: .3rem;
       border-radius: .12rem;
       background-color: #fff;
-      margin: auto;
+      margin: -.04rem auto auto;
     }
 
     .title {

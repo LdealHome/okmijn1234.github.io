@@ -34,10 +34,10 @@
 
 <style scoped lang="less">
   .nothing {
-    background: url("~@images/nothing.png") no-repeat center top;
-    background-size: auto 3.7rem;
+    background: url("~@images/nothing.png") no-repeat center;
+    background-size: 3.26rem 2.02rem;
     text-align: center;
-    padding-top: 4rem;
+    padding-top: 3rem;
   }
 
   .video-back {

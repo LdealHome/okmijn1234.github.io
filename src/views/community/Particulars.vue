@@ -460,7 +460,7 @@
       display: flex;
       align-items: center;
       height: 1.2rem;
-      padding: 0 .32rem;
+      padding: 0 .1rem;
       background-color: #fff;
 
       .amount {
