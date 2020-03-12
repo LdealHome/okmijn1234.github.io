@@ -12,7 +12,6 @@
         div.above-img
           img.img(v-lazy="courseData.codeSrc")
           p.prompt 请务必关注，否则讲无法学习
-      a.dial(:href="'tel:'+ courseData.dial") 一键拨号
 </template>
 
 <script>
@@ -26,7 +25,6 @@
         courseData: {
           content: '',
           name: '',
-          dial: '',
           codeSrc: ''
         }
       }
@@ -39,7 +37,6 @@
           that.courseData = {
             content: data.customer_text,
             name: data.title,
-            dial: data.customer_mobile,
             codeSrc: data.customer_qr_code
           }
         }
@@ -96,7 +93,7 @@
       display: flex;
       align-items: center;
       flex-direction: column;
-      padding: .8rem 0;
+      padding: .8rem 0 .4rem 0;
       width: 5.8rem;
       border-radius: .12rem;
       background: #fff url("~@images/community/course-top.png") no-repeat center top;
@@ -129,7 +126,7 @@
       }
 
       &-content {
-        margin: .28rem;
+        margin: .3rem 0 .36rem 0;
         text-align: center;
         line-height: 1.4;
       }
@@ -153,34 +150,16 @@
     }
 
     .img {
-      width: 2rem;
-      height: 2rem;
+      width: 2.8rem;
+      height: 2.8rem;
       border-radius: .08rem;
     }
 
     .prompt {
       color: #f25622;
-      font-size: .24rem;
-      font-weight: bold;
-      transform: scale(.83);
-      margin-top: .24rem;
-    }
-
-    .dial {
-      display: block;
-      margin: .25rem auto;
-      width: 3.3rem;
-      height: .54rem;
-      color: #000;
-      line-height: .54rem;
-      text-align: center;
       font-size: .28rem;
-      background: url("~@images/community/course-btn.png") no-repeat center;
-      background-size: contain;
-
-      &:active {
-        transform: scale(1.06);
-      }
+      font-weight: bold;
+      margin-top: .38rem;
     }
   }
 </style>
