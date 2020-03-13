@@ -2,3 +2,4 @@
 
 liubo 2020-3-8 20:49:56: dev => b18514f - liubo, Sun Mar 8 20:49:24 2020 +0800--style: 更换依赖顺序解决打包警告
 wangsiyi 2020-3-8 23:43:46: dev => 72024d4 - wangsiyi, Sun Mar 8 22:58:31 2020 +0800--style: 链接不换行
+wangsiyi 2020-3-13 16:55:09: dev => 55fbb04 - wangsiyi, Thu Mar 12 19:38:55 2020 +0800--style: 课程客服二维码弹框修改样式
