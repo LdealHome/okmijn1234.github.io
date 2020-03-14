@@ -11,7 +11,7 @@
         div.above-content(v-html="courseData.content")
         div.above-img
           img.img(v-lazy="courseData.codeSrc")
-          p.prompt 请务必关注，否则讲无法学习
+          p.prompt 请务必关注，否则将无法学习
 </template>
 
 <script>

@@ -19,35 +19,34 @@
 
   let drawInvitePoster = {
     data: {
-      canvasWidth: 518,
-      canvasHeight: 692,
-      backSrc: '', // 背景
+      canvasWidth: 750,
+      canvasHeight: 1476,
       portraitSrc: '', // 头像
       nicknameText: '', // 昵称
       codeSrc: '', // 二维码
+      randomNumber: 1, // 随机切换背景
       portraitData: {
-        portraitX: 20,
-        portraitY: 616,
+        portraitX: 440,
+        portraitY: 24,
         portraitSize: 56,
         portraitBorderColor: '#fff'
       },
       nicknameData: {
-        nicknameX: 94,
-        nicknameY: 631,
+        nicknameY: 40,
         nicknameFont: '100 26px sans-serif',
-        nicknameWidth: 226
+        nicknameWidth: 200
       },
       codeData: {
-        codeX: 398,
-        codeY: 572,
-        codeSize: 100
+        codeX: 520,
+        codeY: 1208,
+        codeSize: 176
       },
       timeout: 10000,
       timer: null
     },
     /**
      * @param config {Object} 配置信息
-     * @param config.backSrc {String|require} 背景图
+     * @param config.randomNumber {Number|require} 随机数
      * @param config.portraitSrc {String|require} 头像
      * @param config.nicknameText {String|require} 昵称
      * @param config.codeSrc {String|require} 二维码
@@ -55,8 +54,8 @@
      * @param callback {Function} 画图成功之后执行的回调
      */
     init (config, callback) {
-      let { backSrc, portraitSrc, nicknameText, codeSrc } = config
-      if (backSrc && portraitSrc && nicknameText && codeSrc) {
+      let { randomNumber, portraitSrc, nicknameText, codeSrc } = config
+      if (randomNumber && portraitSrc && nicknameText && codeSrc) {
         this.data = { ...this.data, ...config }
         canvasWrapText()
         this.callback = callback
@@ -83,10 +82,10 @@
         let {
           canvasWidth,
           canvasHeight,
-          backSrc,
           portraitSrc,
           nicknameText,
-          codeSrc
+          codeSrc,
+          randomNumber
         } = drawInvitePoster.data
         canvas.width = canvasWidth
         canvas.height = canvasHeight
@@ -104,22 +103,16 @@
         function drawBack () {
           let backImg = new Image()
           backImg.setAttribute('crossOrigin', 'anonymous')
-          backImg.src = backSrc
+          if (randomNumber % 2 === 0) {
+            backImg.src = require('../../assets/images/community/poster-img.png')
+          } else {
+            backImg.src = require('../../assets/images/community/poster-img1.png')
+          }
+
           backImg.onload = function () {
             let { naturalWidth, naturalHeight } = backImg
             let { x, y, w, h, dx, dy, dw, dh } = imageFit(naturalWidth, naturalHeight, canvasWidth, canvasHeight)
             ctx.drawImage(backImg, x, y, w, h, dx, dy, dw, dh)
-            drawRectangle()
-          }
-        }
-
-        // 矩形渐变
-        function drawRectangle () {
-          let backImg = new Image()
-          backImg.setAttribute('crossOrigin', 'anonymous')
-          backImg.src = require('../../assets/images/community/rectangle.png')
-          backImg.onload = function () {
-            ctx.drawImage(backImg, 0, 608, 518, 84)
             drawPortrait()
           }
         }
@@ -156,16 +149,20 @@
         // 昵称
         function drawNickName () {
           let {
-            nicknameX,
             nicknameY,
             nicknameFont,
             nicknameWidth
           } = drawInvitePoster.data.nicknameData
           ctx.save()
           ctx.font = nicknameFont
-          ctx.fillStyle = '#fff'
+          if (randomNumber % 2 === 0) {
+            ctx.fillStyle = '#fff'
+          } else {
+            ctx.fillStyle = '#181717'
+          }
+          let testWidth = ctx.measureText(nicknameText).width > nicknameWidth ? nicknameWidth : ctx.measureText(nicknameText).width
           ctx.textBaseline = 'top'
-          ctx.wrapText(nicknameText, nicknameX, nicknameY, nicknameWidth, 30, 1)
+          ctx.wrapText(nicknameText, canvasWidth - 36 - testWidth, nicknameY, nicknameWidth, 30, 1)
           ctx.restore()
           drawCode()
         }
@@ -178,7 +175,7 @@
             codeSize
           } = drawInvitePoster.data.codeData
           ctx.save()
-          ctx.fillStyle = '#fff'
+          ctx.fillStyle = '#c6eafd'
           ctx.fillRect(codeX - 2, codeY - 2, codeSize + 4, codeSize + 4)
           ctx.drawImage(codeSrc, codeX, codeY, codeSize, codeSize)
           ctx.restore()
@@ -202,7 +199,7 @@
         required: true,
         default () {
           return {
-            backSrc: '', // 背景
+            randomNumber: '', // 随机数不需要传当前页面生成
             portraitSrc: '', // 头像
             nicknameText: '', // 昵称
             codeSrc: '' // 二维码
@@ -218,12 +215,46 @@
     },
     created () {
       let that = this
+      let randomNumber = 0
+      let getRandom = this.getRandom()
+      if (getRandom) {
+        randomNumber = getRandom
+      } else {
+        randomNumber = Math.floor(Math.random() * 100)
+        this.setRandom(randomNumber, 0.5)
+      }
       that.generateQR(this.posterInfo.codeSrc).then(res => {
         this.posterInfo.codeSrc = res
+        this.posterInfo.randomNumber = randomNumber
         drawInvitePoster.init(this.posterInfo, function (res) {
           that.imgSrc = res
         })
       })
+    },
+    methods: {
+      /**
+       * 缓存随机值
+       * @param number {Number} 存储在本地的随机数
+       * @param expires {Number} 随机数randomNumber的过期时间（小时数，默认为30分钟）
+       */
+      setRandom (number, expires = 0.5) {
+        let exp = new Date()
+        exp.setTime(exp.getTime() + expires * 60 * 60 * 1000)
+        localStorage.setItem('randomNumber', JSON.stringify({
+          number,
+          expires: exp.getTime()
+        }))
+      },
+      // 获取随机值
+      getRandom () {
+        let data = JSON.parse(localStorage.getItem('randomNumber') || '{}')
+        let timestamp = Date.now()
+        if (data.number && timestamp <= data.expires) {
+          return data.number
+        } else {
+          return null
+        }
+      }
     }
   }
 </script>
@@ -276,6 +307,9 @@
     }
 
     .following {
+      display: flex;
+      align-items: center;
+      flex-direction: column;
       width: 5.18rem;
       margin: -.04rem auto auto;
     }
@@ -293,8 +327,8 @@
     }
 
     .img {
-      width: 5.18rem;
-      height: 6.92rem;
+      width: 3.52rem;
+      height: 6.94rem;
       border-radius: .12rem;
     }
 

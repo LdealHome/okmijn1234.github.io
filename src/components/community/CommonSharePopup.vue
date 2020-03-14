@@ -100,7 +100,6 @@
         },
         linkShareList: [], // 链接分享弹框列表
         posterInfo: { // 海报分享弹框
-          backSrc: '', // 背景
           portraitSrc: '', // 头像
           nicknameText: '', // 昵称
           codeSrc: '' // 二维码
