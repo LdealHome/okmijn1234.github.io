@@ -7,7 +7,8 @@
         p 分享朋友圈、群或好友
         p.be-careful (注意：有效期30天)
       div.following
-        img.img(v-lazy="imgSrc")
+        div.following-img
+          img.img(v-lazy="imgSrc")
         p.prompt 长按可保存到手机相册或分享给好友
       div.close(@click="$emit('close')")
 </template>
@@ -25,6 +26,7 @@
       nicknameText: '', // 昵称
       codeSrc: '', // 二维码
       randomNumber: 1, // 随机切换背景
+      nicknameTextWidth: 0,
       portraitData: {
         portraitX: 440,
         portraitY: 24,
@@ -41,7 +43,7 @@
         codeY: 1208,
         codeSize: 176
       },
-      timeout: 10000,
+      timeout: 120000,
       timer: null
     },
     /**
@@ -103,7 +105,7 @@
         function drawBack () {
           let backImg = new Image()
           backImg.setAttribute('crossOrigin', 'anonymous')
-          if (randomNumber % 2 === 0) {
+          if (randomNumber % 2 === 0 || randomNumber === 0) {
             backImg.src = require('../../assets/images/community/poster-img.png')
           } else {
             backImg.src = require('../../assets/images/community/poster-img1.png')
@@ -113,8 +115,29 @@
             let { naturalWidth, naturalHeight } = backImg
             let { x, y, w, h, dx, dy, dw, dh } = imageFit(naturalWidth, naturalHeight, canvasWidth, canvasHeight)
             ctx.drawImage(backImg, x, y, w, h, dx, dy, dw, dh)
-            drawPortrait()
+            drawNickName()
           }
+        }
+
+        // 昵称
+        function drawNickName () {
+          let {
+            nicknameY,
+            nicknameFont,
+            nicknameWidth
+          } = drawInvitePoster.data.nicknameData
+          ctx.save()
+          ctx.font = nicknameFont
+          if (randomNumber % 2 === 0 || randomNumber === 0) {
+            ctx.fillStyle = '#fff'
+          } else {
+            ctx.fillStyle = '#181717'
+          }
+          drawInvitePoster.data.nicknameTextWidth = ctx.measureText(nicknameText).width > nicknameWidth ? nicknameWidth : ctx.measureText(nicknameText).width
+          ctx.textBaseline = 'top'
+          ctx.wrapText(nicknameText, canvasWidth - 36 - drawInvitePoster.data.nicknameTextWidth, nicknameY, nicknameWidth, 30, 1)
+          ctx.restore()
+          drawPortrait()
         }
 
         // 头像
@@ -130,9 +153,10 @@
           portrait.src = portraitSrc
           portrait.onload = function () {
             ctx.save()
+            let flexiblePortraitX = drawInvitePoster.data.nicknameTextWidth > 199 ? portraitX : portraitX + 186 - drawInvitePoster.data.nicknameTextWidth
             let { naturalWidth, naturalHeight } = portrait
             let { x, y, w, h, dx, dy, dw, dh } = imageFit(naturalWidth, naturalHeight, portraitSize, portraitSize)
-            ctx.translate(portraitX, portraitY)
+            ctx.translate(flexiblePortraitX, portraitY)
             ctx.beginPath()
             ctx.arc(portraitSize / 2, portraitSize / 2, portraitSize / 2, 0, 2 * Math.PI)
             ctx.lineWidth = 2
@@ -142,29 +166,8 @@
             ctx.drawImage(portrait, x, y, w, h, dx, dy, dw, dh)
             // 恢复画布
             ctx.restore()
-            drawNickName()
+            drawCode()
           }
-        }
-
-        // 昵称
-        function drawNickName () {
-          let {
-            nicknameY,
-            nicknameFont,
-            nicknameWidth
-          } = drawInvitePoster.data.nicknameData
-          ctx.save()
-          ctx.font = nicknameFont
-          if (randomNumber % 2 === 0) {
-            ctx.fillStyle = '#fff'
-          } else {
-            ctx.fillStyle = '#181717'
-          }
-          let testWidth = ctx.measureText(nicknameText).width > nicknameWidth ? nicknameWidth : ctx.measureText(nicknameText).width
-          ctx.textBaseline = 'top'
-          ctx.wrapText(nicknameText, canvasWidth - 36 - testWidth, nicknameY, nicknameWidth, 30, 1)
-          ctx.restore()
-          drawCode()
         }
 
         // 二维码
@@ -220,7 +223,7 @@
       if (getRandom) {
         randomNumber = getRandom
       } else {
-        randomNumber = Math.floor(Math.random() * 100)
+        randomNumber = Math.floor(Math.random() * 10)
         this.setRandom(randomNumber, 0.5)
       }
       that.generateQR(this.posterInfo.codeSrc).then(res => {
@@ -312,6 +315,14 @@
       flex-direction: column;
       width: 5.18rem;
       margin: -.04rem auto auto;
+
+      &-img {
+        width: 5.18rem;
+        height: 6.94rem;
+        text-align: center;
+        border-radius: .12rem;
+        background-color: #000;
+      }
     }
 
     .close {
@@ -329,7 +340,6 @@
     .img {
       width: 3.52rem;
       height: 6.94rem;
-      border-radius: .12rem;
     }
 
     .prompt {
