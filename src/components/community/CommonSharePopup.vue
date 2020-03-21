@@ -29,10 +29,10 @@
 </template>
 
 <script>
-  import SharePopup from '../../components/community/SharePopup'
+  import PostersSharePopup from '../../components/community/PostersSharePopup'
   import CircleFriendsSharePopup from '../../components/community/CircleFriendsSharePopup'
   import LinkSharePopup from '../../components/community/LinkSharePopup'
-  import PostersSharePopup from '../../components/community/PostersSharePopup'
+  import SharePopup from '../../components/community/SharePopup'
   import initClipBoard from '../../mixin/initClipBoard'
   import {
     getShareCircleFriends,
