@@ -205,11 +205,9 @@
        * 视频播放
        * @param itemIndex { Number } 选择视频父元素的角标
        * @param videoIndex { Number } 选择播放视频当前的角标
-       * @param video {Object} 视频播放
        */
-      videoPlay (itemIndex, videoIndex, video) {
+      videoPlay (itemIndex, videoIndex) {
         this.contentList[itemIndex].videoList[videoIndex].isVideoPlay = true
-        video.play()
       },
       /**
        * 跳转链接

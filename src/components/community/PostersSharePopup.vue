@@ -116,7 +116,11 @@
           let backImg = new Image()
           backImg.setAttribute('crossOrigin', 'anonymous')
           backImg.src = backSrc
-
+          backImg.onerror = function () {
+            $_.Indicator.close()
+            clearTimeout(drawInvitePoster.data.timer)
+            $_.Toast('图片错误')
+          }
           backImg.onload = function () {
             let { naturalWidth, naturalHeight } = backImg
             let { x, y, w, h, dx, dy, dw, dh } = imageFit(naturalWidth, naturalHeight, canvasWidth, canvasHeight)
@@ -226,8 +230,8 @@
         generateList: [],
         currentIndex: 0, // 海报选择的哪一个
         backgroundList: [
-          require('../../assets/images/community/poster-img.png'),
-          require('../../assets/images/community/poster-img1.png')
+          require('../../assets/images/community/draw-img.png'),
+          require('../../assets/images/community/draw-img-back.png')
         ], // 海报背景
         swiperOption: {
           speed: 500, // 切换速度

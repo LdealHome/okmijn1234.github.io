@@ -16,13 +16,13 @@
         template(v-for="(video, videoIndex) in item.videoList")
           div.cover(v-if="!video.isVideoPlay")
             img.img(:src="video.cover")
-            p.pause(@click="$emit('videoPlay', itemIndex, videoIndex, $refs[`video${itemIndex}-${videoIndex}`][0])")
+            p.pause(@click="$emit('videoPlay', itemIndex, videoIndex)")
           video.video(
-            v-show="video.isVideoPlay"
+            v-else
+            autoplay
             :src="video.src"
             controls="controls"
             :poster="video.cover"
-            :ref="`video${itemIndex}-${videoIndex}`"
             )
           p.text(v-show="video.text") {{video.text}}
       // 多视频
@@ -33,13 +33,13 @@
             div.item-cover
               template(v-if="!video.isVideoPlay")
                 img.item-img(:src="video.cover")
-                p.pause(@click="$emit('videoPlay', itemIndex, videoIndex, $refs[`video${itemIndex}-${videoIndex}`][0])")
+                p.pause(@click="$emit('videoPlay', itemIndex, videoIndex)")
               video.item-video(
-                v-show="video.isVideoPlay"
+                v-else
+                autoplay
                 :src="video.src"
                 controls="controls"
                 :poster="video.cover"
-                :ref="`video${itemIndex}-${videoIndex}`"
                 )
             p.item-text(v-show="video.text") {{video.text}}
       // 链接跳转
