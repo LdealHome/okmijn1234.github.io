@@ -8,16 +8,23 @@
         p.be-careful (注意：有效期30天)
       div.following
         div.following-img
-          img.img(v-lazy="imgSrc")
+          SwiperCommon(:slides="generateList" :swiperOptions="swiperOption")
+            template(
+              v-for="(item, index) in generateList"
+              :slot="index"
+            )
+              img.img(v-lazy="item")
         p.prompt 长按可保存到手机相册或分享给好友
       div.close(@click="$emit('close')")
 </template>
 
 <script>
+  import SwiperCommon from '../../components/SwiperCommon'
   import generateQR from '../../mixin/generateQR'
   import imageFit from '../../utils/image-fit'
   import { canvasWrapText } from '../../utils/canvas-polyfill'
 
+  let vm = ''
   let drawInvitePoster = {
     data: {
       canvasWidth: 750,
@@ -25,7 +32,8 @@
       portraitSrc: '', // 头像
       nicknameText: '', // 昵称
       codeSrc: '', // 二维码
-      randomNumber: 1, // 随机切换背景
+      templateIndex: -1, // 第几套海报
+      backSrc: '', // 背景图
       nicknameTextWidth: 0,
       portraitData: {
         portraitX: 440,
@@ -48,7 +56,8 @@
     },
     /**
      * @param config {Object} 配置信息
-     * @param config.randomNumber {Number|require} 随机数
+     * @param config.templateIndex {Number|require} 第几套海报
+     * @param config.backSrc {String|require} 背景图
      * @param config.portraitSrc {String|require} 头像
      * @param config.nicknameText {String|require} 昵称
      * @param config.codeSrc {String|require} 二维码
@@ -56,8 +65,8 @@
      * @param callback {Function} 画图成功之后执行的回调
      */
     init (config, callback) {
-      let { randomNumber, portraitSrc, nicknameText, codeSrc } = config
-      if (randomNumber && portraitSrc && nicknameText && codeSrc) {
+      let { backSrc, portraitSrc, nicknameText, codeSrc } = config
+      if (backSrc && portraitSrc && nicknameText && codeSrc) {
         this.data = { ...this.data, ...config }
         canvasWrapText()
         this.callback = callback
@@ -87,7 +96,8 @@
           portraitSrc,
           nicknameText,
           codeSrc,
-          randomNumber
+          templateIndex,
+          backSrc
         } = drawInvitePoster.data
         canvas.width = canvasWidth
         canvas.height = canvasHeight
@@ -105,11 +115,7 @@
         function drawBack () {
           let backImg = new Image()
           backImg.setAttribute('crossOrigin', 'anonymous')
-          if (randomNumber % 2 === 0 || randomNumber === 0) {
-            backImg.src = require('../../assets/images/community/poster-img.png')
-          } else {
-            backImg.src = require('../../assets/images/community/poster-img1.png')
-          }
+          backImg.src = backSrc
 
           backImg.onload = function () {
             let { naturalWidth, naturalHeight } = backImg
@@ -128,7 +134,7 @@
           } = drawInvitePoster.data.nicknameData
           ctx.save()
           ctx.font = nicknameFont
-          if (randomNumber % 2 === 0 || randomNumber === 0) {
+          if (templateIndex === 0) {
             ctx.fillStyle = '#fff'
           } else {
             ctx.fillStyle = '#181717'
@@ -202,61 +208,72 @@
         required: true,
         default () {
           return {
-            randomNumber: '', // 随机数不需要传当前页面生成
             portraitSrc: '', // 头像
             nicknameText: '', // 昵称
-            codeSrc: '' // 二维码
+            codeSrc: '', // 二维码
+            templateIndex: '', // 第几套海报不用传
+            backSrc: '' // 背景图不用传
           }
         }
       }
     },
     mixins: [generateQR],
+    components: {
+      SwiperCommon
+    },
     data () {
       return {
-        imgSrc: ''
+        generateList: [],
+        currentIndex: 0, // 海报选择的哪一个
+        backgroundList: [
+          require('../../assets/images/community/poster-img.png'),
+          require('../../assets/images/community/poster-img1.png')
+        ], // 海报背景
+        swiperOption: {
+          speed: 500, // 切换速度
+          watchOverflow: true, // 当没有足够的slide切换时，例如只有1个slide（非loop），swiper会失效且隐藏导航等。默认不开启这个功能。
+          loop: false, // 开启循环模式
+          slidesPerView: 1,
+          spaceBetween: 30,
+          preventClicksPropagation: true, // 阻止click冒泡。拖动Swiper时阻止click事件。
+          simulateTouch: false, // 鼠标模拟手机触摸。默认为true，Swiper接受鼠标点击、拖动。
+          centeredSlides: true,
+          initialSlide: 0,
+          swiperButton: true,
+          navigation: {
+            nextEl: '.swiper-button-next',
+            prevEl: '.swiper-button-prev'
+          },
+          on: {
+            slideChange () {
+              vm.generatePosterArray(this.activeIndex)
+            }
+          }
+        }
       }
     },
     created () {
-      let that = this
-      let randomNumber = 0
-      let getRandom = this.getRandom()
-      if (getRandom) {
-        randomNumber = getRandom
-      } else {
-        randomNumber = Math.floor(Math.random() * 10)
-        this.setRandom(randomNumber, 0.5)
-      }
-      that.generateQR(this.posterInfo.codeSrc).then(res => {
-        this.posterInfo.codeSrc = res
-        this.posterInfo.randomNumber = randomNumber
-        drawInvitePoster.init(this.posterInfo, function (res) {
-          that.imgSrc = res
-        })
+      vm = this
+      vm.generateList = vm.backgroundList
+      vm.generateQR(this.posterInfo.codeSrc).then(res => {
+        vm.posterInfo.codeSrc = res
+        vm.posterInfo.templateIndex = vm.currentIndex
+        vm.generatePosterArray(vm.currentIndex)
       })
     },
     methods: {
       /**
-       * 缓存随机值
-       * @param number {Number} 存储在本地的随机数
-       * @param expires {Number} 随机数randomNumber的过期时间（小时数，默认为30分钟）
+       * 海报切换的角标
        */
-      setRandom (number, expires = 0.5) {
-        let exp = new Date()
-        exp.setTime(exp.getTime() + expires * 60 * 60 * 1000)
-        localStorage.setItem('randomNumber', JSON.stringify({
-          number,
-          expires: exp.getTime()
-        }))
-      },
-      // 获取随机值
-      getRandom () {
-        let data = JSON.parse(localStorage.getItem('randomNumber') || '{}')
-        let timestamp = Date.now()
-        if (data.number && timestamp <= data.expires) {
-          return data.number
-        } else {
-          return null
+      generatePosterArray (index) {
+        if (/^data:/.test(vm.generateList[index])) { // 已经生成海报
+          return
         }
+        vm.posterInfo.backSrc = vm.backgroundList[index]
+        vm.posterInfo.templateIndex = index
+        drawInvitePoster.init(this.posterInfo, function (res) {
+          vm.generateList.splice(index, 1, res)
+        })
       }
     }
   }
@@ -349,4 +366,29 @@
       margin: .2rem 0;
     }
   }
+
+  /deep/ .swiper-button-prev,
+  /deep/ .swiper-button-next {
+    width: .6rem;
+    height: .6rem;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+    outline: none;
+
+    &:active {
+      transform: scale(1.06);
+    }
+  }
+
+  /deep/ .swiper-button-prev {
+    left: .06rem;
+    background-image: url("~@icon/community/arrow-left-circular.png");
+  }
+
+  /deep/ .swiper-button-next {
+    right: .06rem;
+    background-image: url("~@icon/community/arrow-right-circular.png");
+  }
+
 </style>
