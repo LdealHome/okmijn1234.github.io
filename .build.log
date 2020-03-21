@@ -4,3 +4,4 @@ liubo 2020-3-8 20:49:56: dev => b18514f - liubo, Sun Mar 8 20:49:24 2020 +0800--
 wangsiyi 2020-3-8 23:43:46: dev => 72024d4 - wangsiyi, Sun Mar 8 22:58:31 2020 +0800--style: 链接不换行
 wangsiyi 2020-3-13 16:55:09: dev => 55fbb04 - wangsiyi, Thu Mar 12 19:38:55 2020 +0800--style: 课程客服二维码弹框修改样式
 wangsiyi 2020-3-14 20:52:10: dev => e49e9f7 - wangsiyi, Sat Mar 14 20:46:34 2020 +0800--refactor: 邀请海报根据设计图修改
+wangsiyi 2020-3-21 15:10:11: dev => aab51bc - wangsiyi, Sat Mar 21 14:54:28 2020 +0800--refactor: 邀请海报修改为左右切换
