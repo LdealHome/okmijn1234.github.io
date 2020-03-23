@@ -3,9 +3,7 @@
   div.poster__bounced
     div.mask(@click="$emit('close')")
     div.content
-      div.above
-        p 分享朋友圈、群或好友
-        p.be-careful (注意：有效期30天)
+      div.above 分享朋友圈、群或好友
       div.following
         div.following-img
           SwiperCommon(:slides="generateList" :swiperOptions="swiperOption")
@@ -324,10 +322,6 @@
       padding-bottom: .26rem;
       background: url("~@images/community/share-guide.png") no-repeat 5.38rem center;
       background-size: contain;
-    }
-
-    .be-careful {
-      font-size: .24rem;
     }
 
     .following {
