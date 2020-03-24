@@ -7,3 +7,4 @@ wangsiyi 2020-3-14 20:52:10: dev => e49e9f7 - wangsiyi, Sat Mar 14 20:46:34 2020
 wangsiyi 2020-3-21 15:10:11: dev => aab51bc - wangsiyi, Sat Mar 21 14:54:28 2020 +0800--refactor: 邀请海报修改为左右切换
 wangsiyi 2020-3-21 21:12:33: dev => 8547157 - wangsiyi, Sat Mar 21 21:09:09 2020 +0800--refactor: 邀请海报增加图片错误提示并提前结束画图 详情页视频播放再加载
 wangsiyi 2020-3-23 20:16:17: dev => 22672e4 - wangsiyi, Mon Mar 23 14:15:45 2020 +0800--style: 海报分享删除有效时间
+wangsiyi 2020-3-24 19:09:06: dev => dc15d29 - wangsiyi, Tue Mar 24 14:22:32 2020 +0800--refactor: 分享弹框所有改成邀请海报弹框
