@@ -27,10 +27,10 @@
       @close="isWarmPromptPopup = false"
       @invite="invite"
     )
-    CommonSharePopup(
+    PostersSharePopup(
+      v-if="isPostersSharePopup"
       :fromUid="uid"
-      :isCommonSharePopup="commonShareInfo.isCommonSharePopup"
-      :changePopupNumber="commonShareInfo.changePopupNumber"
+      @close="isPostersSharePopup = false"
     )
     CourseCustomerServicePopup(
       v-if="isCourseCustomerServicePopup"
@@ -41,7 +41,7 @@
 
 <script>
   import DetailsContent from '../../components/community/DetailsContent'
-  import CommonSharePopup from '../../components/community/CommonSharePopup'
+  import PostersSharePopup from '../../components/community/PostersSharePopup'
   import CustomerServicePopup from '../../components/community/CustomerServicePopup'
   import CourseCustomerServicePopup from '../../components/community/CourseCustomerServicePopup'
   import WarmPromptPopup from '../../components/community/WarmPromptPopup'
@@ -59,7 +59,7 @@
       CustomerServicePopup,
       CourseCustomerServicePopup,
       WarmPromptPopup,
-      CommonSharePopup
+      PostersSharePopup
     },
     mixins: [weixinConfig],
     watch: {
@@ -71,6 +71,9 @@
         this.$root.$emit('toggleModal', Boolean(val))
       },
       isWarmPromptPopup (val) {
+        this.$root.$emit('toggleModal', Boolean(val))
+      },
+      isPostersSharePopup (val) {
         this.$root.$emit('toggleModal', Boolean(val))
       },
       isLoadGuestInfo () {
@@ -122,10 +125,7 @@
         }, // 群弹框
         isWarmPromptPopup: false, // 是否已经达到免费获取资格
         WarmPromptNumber: 0, // 提示还需多少个人
-        commonShareInfo: {
-          isCommonSharePopup: false,
-          changePopupNumber: 0
-        },
+        isPostersSharePopup: false, // 邀请海报
         shareInfo: null
       }
     },
@@ -231,8 +231,7 @@
       // 立即邀请
       invite () {
         this.isWarmPromptPopup = false
-        this.commonShareInfo.isCommonSharePopup = true
-        this.commonShareInfo.changePopupNumber++
+        this.isPostersSharePopup = true
       },
       // 重新加载
       reload () {

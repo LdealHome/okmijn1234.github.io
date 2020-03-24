@@ -67,17 +67,16 @@
       v-if="isCourseCustomerServicePopup"
       @close="isCourseCustomerServicePopup = false"
     )
-    CommonSharePopup(
+    PostersSharePopup(
+      v-if="isPostersSharePopup"
       :fromUid="uid"
-      :isCommonSharePopup="commonShareInfo.isCommonSharePopup"
-      :changePopupNumber="commonShareInfo.changePopupNumber"
-      @isShowShare="isShowShare"
+      @close="isPostersSharePopup = false"
     )
 </template>
 
 <script>
   import SwiperCommon from '../components/SwiperCommon'
-  import CommonSharePopup from '../components/community/CommonSharePopup'
+  import PostersSharePopup from '../components/community/PostersSharePopup'
   import ObtainCoursePopup from '../components/community/ObtainCoursePopup'
   import CustomerServicePopup from '../components/community/CustomerServicePopup'
   import CourseCustomerServicePopup from '../components/community/CourseCustomerServicePopup'
@@ -99,7 +98,7 @@
     name: 'Home',
     components: {
       SwiperCommon,
-      CommonSharePopup,
+      PostersSharePopup,
       ObtainCoursePopup,
       CustomerServicePopup,
       CourseCustomerServicePopup,
@@ -140,10 +139,6 @@
           tips: '暂时没有数据哦～'
         },
         friendList: [],
-        commonShareInfo: {
-          isCommonSharePopup: false,
-          changePopupNumber: 0
-        },
         isObtainCoursePopup: false, // 是否已经免费获得课程弹框
         isCourseCustomerServicePopup: false, // 课程客服弹框
         courseInfo: { // 获取课程
@@ -167,9 +162,9 @@
           videoUrl: ''
         },
         videoSceneInfo: {}, // 加载过的视频信息
+        isPostersSharePopup: false,
         shareInfo: null,
         isShowWaitPopup: false,
-        isShowSharePopup: false,
         isRollPage: false,
         showFollowBtnTimer: null
       }
@@ -209,7 +204,7 @@
                 imgSrc: data.img_url,
                 id: data.id
               }
-              if (this.isShowSharePopup || this.isCustomerServicePopup || this.isCourseCustomerServicePopup) {
+              if (this.isPostersSharePopup || this.isCustomerServicePopup || this.isCourseCustomerServicePopup) {
                 this.isShowWaitPopup = true
               } else {
                 this.isObtainCoursePopup = true
@@ -230,7 +225,8 @@
       bannerScene () {
         this.getBannerList()
       },
-      isShowSharePopup (val) {
+      isPostersSharePopup (val) {
+        this.$root.$emit('toggleModal', Boolean(val))
         if (!val && this.isShowWaitPopup) this.isObtainCoursePopup = true
       }
     },
@@ -455,19 +451,14 @@
           }
         })
       },
-      isShowShare (state) {
-        this.isShowSharePopup = state
-      },
       // 邀请好友
       inviteFriends () {
-        this.commonShareInfo.isCommonSharePopup = true
-        this.commonShareInfo.changePopupNumber++
+        this.isPostersSharePopup = true
       },
       // 课程邀请好友
       obtainCourseInvite () {
         this.isObtainCoursePopup = false
-        this.commonShareInfo.isCommonSharePopup = true
-        this.commonShareInfo.changePopupNumber++
+        this.isPostersSharePopup = true
       },
       // 联系客服
       obtainCourseService () {

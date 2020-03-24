@@ -21,6 +21,7 @@
   import generateQR from '../../mixin/generateQR'
   import imageFit from '../../utils/image-fit'
   import { canvasWrapText } from '../../utils/canvas-polyfill'
+  import { getSharePoster } from '../../services/community'
 
   let vm = ''
   let drawInvitePoster = {
@@ -205,18 +206,10 @@
   export default {
     name: 'PostersSharePopup',
     props: {
-      posterInfo: {
-        type: Object,
+      fromUid: { // 分享人的uid
+        type: [String, Number],
         required: true,
-        default () {
-          return {
-            portraitSrc: '', // 头像
-            nicknameText: '', // 昵称
-            codeSrc: '', // 二维码
-            templateIndex: '', // 第几套海报不用传
-            backSrc: '' // 背景图不用传
-          }
-        }
+        default: 0
       }
     },
     mixins: [generateQR],
@@ -225,6 +218,13 @@
     },
     data () {
       return {
+        posterInfo: {
+          portraitSrc: '', // 头像
+          nicknameText: '', // 昵称
+          codeSrc: '', // 二维码
+          templateIndex: '', // 第几套海报
+          backSrc: '' // 背景图
+        },
         generateList: [],
         currentIndex: 0, // 海报选择的哪一个
         backgroundList: [
@@ -257,13 +257,27 @@
     created () {
       vm = this
       vm.generateList = vm.backgroundList
-      vm.generateQR(this.posterInfo.codeSrc).then(res => {
-        vm.posterInfo.codeSrc = res
-        vm.posterInfo.templateIndex = vm.currentIndex
-        vm.generatePosterArray(vm.currentIndex)
-      })
+      vm.main()
     },
     methods: {
+      main () {
+        getSharePoster({ uid: vm.fromUid }).then(res => {
+          if (res.data.code === 1) {
+            let data = res.data.data
+            vm.posterInfo = {
+              portraitSrc: data.head_img,
+              nicknameText: data.nick_name,
+              codeSrc: data.qr_code
+            }
+
+            vm.generateQR(this.posterInfo.codeSrc).then(res => {
+              vm.posterInfo.codeSrc = res
+              vm.posterInfo.templateIndex = vm.currentIndex
+              vm.generatePosterArray(vm.currentIndex)
+            })
+          }
+        })
+      },
       /**
        * 海报切换的角标
        */

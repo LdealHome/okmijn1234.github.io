@@ -47,11 +47,10 @@
       v-if="isCourseCustomerServicePopup"
       @close="isCourseCustomerServicePopup = false"
     )
-    CommonSharePopup(
+    PostersSharePopup(
+      v-if="isPostersSharePopup"
       :fromUid="uid"
-      :isCommonSharePopup="commonShareInfo.isCommonSharePopup"
-      :changePopupNumber="commonShareInfo.changePopupNumber"
-      @isShowShare="isShowShare"
+      @close="isPostersSharePopup = false"
     )
     PaymentPopup(
       v-if="isPaymentPopup"
@@ -69,8 +68,8 @@
 
 <script>
   import SwiperCommon from '../../components/SwiperCommon'
+  import PostersSharePopup from '../../components/community/PostersSharePopup'
   import DetailsContent from '../../components/community/DetailsContent'
-  import CommonSharePopup from '../../components/community/CommonSharePopup'
   import InformationPopup from '../../components/community/InformationPopup'
   import CourseCustomerServicePopup from '../../components/community/CourseCustomerServicePopup'
   import ObtainCoursePopup from '../../components/community/ObtainCoursePopup'
@@ -90,7 +89,7 @@
     components: {
       SwiperCommon,
       DetailsContent,
-      CommonSharePopup,
+      PostersSharePopup,
       InformationPopup,
       CourseCustomerServicePopup,
       ObtainCoursePopup,
@@ -126,14 +125,10 @@
           imgSrc: '',
           id: 0
         },
-        commonShareInfo: {
-          isCommonSharePopup: false,
-          changePopupNumber: 0
-        },
         postList: [], // 完善信息职位列表
         shareInfo: null,
         isShowWaitPopup: false,
-        isShowSharePopup: false
+        isPostersSharePopup: false // 邀请海报
       }
     },
     watch: {
@@ -157,7 +152,7 @@
                 imgSrc: data.img_url,
                 id: data.id
               }
-              if (this.isShowSharePopup || this.isCourseCustomerServicePopup) {
+              if (this.isPostersSharePopup || this.isCourseCustomerServicePopup) {
                 this.isShowWaitPopup = true
               } else {
                 this.isObtainCoursePopup = true
@@ -177,7 +172,8 @@
       mUid () {
         this.configShareInfo(this.mUid)
       },
-      isShowSharePopup (val) {
+      isPostersSharePopup (val) {
+        this.$root.$emit('toggleModal', Boolean(val))
         if (!val && this.isShowWaitPopup) this.isObtainCoursePopup = true
       }
     },
@@ -260,8 +256,7 @@
       },
       // 分享
       share () {
-        this.commonShareInfo.isCommonSharePopup = true
-        this.commonShareInfo.changePopupNumber++
+        this.isPostersSharePopup = true
       },
       // 立即抢购
       immediately () {
@@ -352,16 +347,12 @@
       // 课程邀请好友
       obtainCourseInvite () {
         this.isObtainCoursePopup = false
-        this.commonShareInfo.isCommonSharePopup = true
-        this.commonShareInfo.changePopupNumber++
+        this.isPostersSharePopup = true
       },
       // 联系客服
       obtainCourseService () {
         this.isCourseCustomerServicePopup = true
         this.isObtainCoursePopup = false
-      },
-      isShowShare (state) {
-        this.isShowSharePopup = state
       },
       /**
        * 转换轮播数据
