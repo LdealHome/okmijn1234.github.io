@@ -228,8 +228,8 @@
         generateList: [],
         currentIndex: 0, // 海报选择的哪一个
         backgroundList: [
-          require('../../assets/images/community/draw-img.png'),
-          require('../../assets/images/community/draw-img-back.png')
+          require('../../assets/images/community/modify-img.png'),
+          require('../../assets/images/community/modify-img-back.png')
         ], // 海报背景
         swiperOption: {
           speed: 500, // 切换速度
