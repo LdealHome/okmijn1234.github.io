@@ -9,3 +9,4 @@ wangsiyi 2020-3-21 21:12:33: dev => 8547157 - wangsiyi, Sat Mar 21 21:09:09 2020
 wangsiyi 2020-3-23 20:16:17: dev => 22672e4 - wangsiyi, Mon Mar 23 14:15:45 2020 +0800--style: 海报分享删除有效时间
 wangsiyi 2020-3-24 19:09:06: dev => dc15d29 - wangsiyi, Tue Mar 24 14:22:32 2020 +0800--refactor: 分享弹框所有改成邀请海报弹框
 wangsiyi 2020-3-25 10:39:59: dev => 41c78cc - wangsiyi, Wed Mar 25 10:39:04 2020 +0800--style: 邀请海报修改图片名称
+wangsiyi 2020-4-1 19:14:09: dev => 8183519 - wangsiyi, Wed Apr 1 19:11:41 2020 +0800--style: 邀请海报替换图片
