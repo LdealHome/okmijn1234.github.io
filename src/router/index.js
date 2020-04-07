@@ -1,13 +1,14 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import routes from './routes'
+import mine from './mine/routes'
 
 Vue.use(Router)
 
 const router = new Router({
   mode: 'history',
   base: '/',
-  routes: [...routes],
+  routes: [...routes, ...mine],
   scrollBehavior (to, from, savedPosition) {
     return { x: 0, y: 0 }
   }
