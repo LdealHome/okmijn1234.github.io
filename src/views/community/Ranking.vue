@@ -51,6 +51,7 @@
       :fromUid="uid"
       @close="isPostersSharePopup = false"
       )
+    TechnicalSupport
 </template>
 
 <script>
@@ -58,6 +59,7 @@
   import NothingCommon from '../../components/NothingCommon'
   import VideoPopup from '../../components/VideoPopup'
   import PostersSharePopup from '../../components/community/PostersSharePopup'
+  import TechnicalSupport from '../../components/TechnicalSupport'
   import {
     getRankingList
   } from '../../services/community'
@@ -69,7 +71,8 @@
       SwiperCommon,
       NothingCommon,
       VideoPopup,
-      PostersSharePopup
+      PostersSharePopup,
+      TechnicalSupport
     },
     data () {
       return {

@@ -70,6 +70,8 @@
       :fromUid="uid"
       @close="isPostersSharePopup = false"
     )
+    TechnicalSupport
+    FooterCommon(:selectedTab="2")
 </template>
 
 <script>
@@ -80,6 +82,8 @@
   import CourseCustomerServicePopup from '../components/community/CourseCustomerServicePopup'
   import VideoPopup from '../components/VideoPopup'
   import NothingCommon from '../components/NothingCommon'
+  import TechnicalSupport from '../components/TechnicalSupport'
+  import FooterCommon from '../components/FooterCommon'
   import weixinConfig from '../mixin/weixinConfig'
   import {
     getCommunityInfo,
@@ -101,7 +105,9 @@
       CustomerServicePopup,
       CourseCustomerServicePopup,
       VideoPopup,
-      NothingCommon
+      NothingCommon,
+      TechnicalSupport,
+      FooterCommon
     },
     mixins: [weixinConfig],
     data () {
@@ -482,8 +488,8 @@
 <style scoped lang="less">
   .whole {
     min-height: 100vh;
-    overflow: hidden;
     background: #fff;
+    padding-bottom: 1.2rem;
   }
 
   .top-banner {
