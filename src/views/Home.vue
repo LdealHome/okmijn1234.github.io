@@ -8,15 +8,16 @@
         )
           img.banner-img(:src="item.pic")
     div.wallet
-      img.avatar(v-lazy="mBean.avatar" @click="jumpHomePage(mBean.homepageUrl)")
+      img.avatar(v-lazy="mBean.avatar")
       div.profit
-        p.profit-text
-          span 累计收益
-          span.profit-number {{mBean.profit}}
-          span 元
-        p.invitation-text 共集福{{mBean.invitationNumber}}人，已免费获得{{mBean.courseNumber}}门课程
-      img.withdraw-btn(src="~@icon/community/withdraw-btn.png" @click="withdrawal")
-    p.my-course 我的课程
+        p.invitation-text 共集福
+          span.invitation-number {{mBean.invitationNumber}}
+          | 人
+        p.awarded 已免费获得
+          span.awarded-number {{mBean.courseNumber}}
+          | 门课程
+      img.withdraw-btn(src="~@images/community/home-btn.png" @click="jumpParticulars")
+    p.title 成长银行
     p.tips-text （邀请新用户集福达标即可
       span.free 免费
       | 获得一门课程）
@@ -30,26 +31,23 @@
           p.locking-text 即可解锁
           div.details-btn 了解详情
         p.item-name {{item.name}}
-    div.btns-view
-      div.ranking-btn(@click="$router.push({ name: 'community-ranking' })")  排行榜
-      div.invitation-btn(@click="inviteFriends") 邀请好友
-    p.invitation-title 已邀请用户
-    ul(v-if="friendList.length")
-      li.friend-item(v-for="item in friendList" :key="item.uid")
-        img.friend-avatar(v-lazy="item.avatar" @click="jumpHomePage(item.link)")
-        div.friend-right
-          div.friend-info
-            p.friend-name {{item.name}}
-            p.register-time {{item.time}}
-          p.friend-course 已拥有{{item.number}}门课程
+    p.title 推广指南
+    ul.extension(v-if="extensionList.length")
+      li.extension-item(v-for="item in extensionList" :key="item.id")
+        div.extension-left(@click="videoPlay(item)")
+          img.cover(v-lazy="item.cover")
+          i.icon-video
+        div.extension-right
+          p.headline {{item.title}}
+          p.text {{item.text}}
     NothingCommon(v-else :config="nothingConfig")
     div.follow-btn(v-if="!mBean.isFollow" @click="showFollowPopup")
       img.static-btn(v-show="isRollPage" src="~@images/community/follow-btn.png")
       img.dynamic-btn(v-show="!isRollPage" src="~@images/community/follow-btn.gif")
     infinite-loading(@infinite="loadMore")
       div(slot="spinner")
-      div(slot="no-more")
-      div(slot="no-results")
+      div(slot="no-more") 没有更多了哦
+      div(slot="no-results") {{noResults}}
     VideoPopup(:isShow="isShowVideo" :video="videoInfo" @videoClose="isShowVideo = false")
     ObtainCoursePopup(
       v-if="isObtainCoursePopup"
@@ -85,8 +83,8 @@
   import weixinConfig from '../mixin/weixinConfig'
   import {
     getCommunityInfo,
-    getInviteList,
-    postReadTips
+    postReadTips,
+    getExtensionList
   } from '../services/community'
   import {
     getBannerList,
@@ -127,8 +125,6 @@
         isLoadBanner: false,
         mBean: {
           avatar: '', // 头像
-          homepageUrl: '', // 个人主页地址
-          profit: '', // 收益
           invitationNumber: '', // 邀请人数
           courseNumber: '', // 获得课程数
           courseList: [],
@@ -138,7 +134,7 @@
         nothingConfig: {
           tips: '暂时没有数据哦～'
         },
-        friendList: [],
+        extensionList: [], // 推广指南
         isObtainCoursePopup: false, // 是否已经免费获得课程弹框
         isCourseCustomerServicePopup: false, // 课程客服弹框
         courseInfo: { // 获取课程
@@ -152,9 +148,9 @@
           content: '',
           codeSrc: ''
         },
-        params: {
+        params: { // 请求的数据
           page: 1,
-          limit: 20
+          limit: 10
         },
         isShowVideo: false, // 视频弹框
         videoInfo: {
@@ -250,6 +246,9 @@
       // 是否加载访客信息
       isLoadGuestInfo () {
         return this.$store.state.isLoadGuestInfo
+      },
+      noResults () {
+        return this.extensionList.length ? '没有更多了哦' : ''
       }
     },
     methods: {
@@ -268,8 +267,6 @@
             this.configShareInfo()
             this.mBean = {
               avatar: data.member_info.img_url, // 头像
-              homepageUrl: data.link.home,
-              profit: data.member_info.amount, // 收益
               invitationNumber: data.member_info.invite_number, // 邀请人数
               courseNumber: data.member_info.course_number, // 获得课程数
               courseList: this.transformCourseList(data.course_list || []),
@@ -318,12 +315,12 @@
       /**
        * 获取邀请的好友列表
        */
-      getList () {
-        return getInviteList(this.params)
+      getExtensionList () {
+        return getExtensionList(this.params)
           .then(res => {
             if (res.data.code === 1) {
               let list = res.data.data.list || []
-              this.friendList.push(...this.transformInviteList(list))
+              this.extensionList.push(...this.transformExtensionList(list))
               return list
             }
           })
@@ -331,11 +328,14 @@
       async loadMore (res) {
         const that = this
         let isLastPage = false
-        await that.getList().then(list => {
+        if (isLastPage || (that.extensionList.length > 0 && that.extensionList.length < that.params.limit)) { // 不满一页
+          res.complete()
+          return
+        }
+        await that.getExtensionList().then(list => {
           isLastPage = that.$_.isLastPage(that.params.limit, list)
         })
         if (isLastPage) {
-          that.isLockingLoadMore = true
           res.complete()
         } else {
           res.loaded()
@@ -365,27 +365,27 @@
        * @param source {Object} 需要转换的数据源
        * @return {Object} 转换后可以直接使用的结构
        */
-      transformInviteList (source) {
+      transformExtensionList (source) {
         let list = []
         source.forEach(item => {
           list.push({
-            uid: item.uid,
-            avatar: item.img_url,
-            link: item.home_url,
-            name: item.nick_name,
-            time: item.create_time,
-            number: item.course_number
+            id: item.id,
+            videoSrc: item.video_src, // 视频地址
+            cover: item.poster, // 封面图
+            title: item.title,
+            text: item.desc_content
           })
         })
         return list
       },
-      // 跳转个人主页
-      jumpHomePage (url) {
-        this.$_.entryOtherPage(url)
-      },
-      // 提现
-      withdrawal () {
-        this.$_.Toast('即将上线，敬请期待！')
+      // 跳转到自动成交页
+      jumpParticulars () {
+        this.$router.push({
+          name: 'particulars',
+          params: {
+            from: this.uid
+          }
+        })
       },
       getBannerList () {
         if (!this.isLoadBanner && this.bannerScene && this.uid) {
@@ -451,9 +451,16 @@
           }
         })
       },
-      // 邀请好友
-      inviteFriends () {
-        this.isPostersSharePopup = true
+      /**
+       * 推广指南视频播放
+       * @param item {Object} 对应的数据
+       */
+      videoPlay (item) {
+        this.videoInfo = {
+          imgSrc: item.cover,
+          videoUrl: item.videoUrl
+        }
+        this.isShowVideo = true
       },
       // 课程邀请好友
       obtainCourseInvite () {
@@ -492,13 +499,15 @@
   }
 
   .wallet {
-    background: linear-gradient(90deg, rgba(255, 118, 6, 1), rgba(254, 64, 6, 1));
-    margin: 0 .2rem;
-    height: 1.16rem;
-    border-radius: .58rem;
     display: flex;
     align-items: center;
-    margin-bottom: .54rem;
+    width: 7.1rem;
+    height: 1.16rem;
+    border-radius: 1rem;
+    border: 1px solid #f0f0f0;
+    box-shadow: 0 1px 4px 0 rgba(205, 192, 202, .35);
+    background-color: #fff;
+    margin: auto;
   }
 
   .avatar {
@@ -506,37 +515,69 @@
     height: .78rem;
     border-radius: 50%;
     margin-left: .12rem;
-    margin-right: .18rem;
+    margin-right: .22rem;
   }
 
   .profit { flex: 1; }
 
-  .profit-text {
-    font-size: .32rem;
-    color: #fff;
+  .invitation {
+    &-text {
+      color: #333;
+      font-size: .28rem;
+    }
+
+    &-number {
+      color: #ff4c49;
+      font-size: .34rem;
+    }
   }
 
-  .profit-number {
-    font-size: .34rem;
-    color: #ffee2d;
-  }
-
-  .invitation-text {
+  .awarded {
+    color: #999;
     font-size: .24rem;
-    color: #f0f3f4;
+
+    &-number {
+      color: #ff4c49;
+    }
   }
 
   .withdraw-btn {
-    width: 1.04rem;
-    height: 1.04rem;
+    width: 2.96rem;
+    height: .76rem;
     margin-right: .1rem;
+
+    &:active {
+      transform: scale(1.02);
+    }
   }
 
-  .my-course {
-    font-size: .34rem;
+  .title {
+    position: relative;
     color: #333;
+    font-size: .34rem;
     font-weight: bold;
     text-align: center;
+    margin-top: .5rem;
+
+    &::after,
+    &::before {
+      display: inline-block;
+      content: '';
+      width: 1.6rem;
+      height: .12rem;
+      background: url("~@images/community/home-arrow-right.png") no-repeat center;
+      background-size: contain;
+      vertical-align: middle;
+    }
+
+    &::after {
+      padding-left: .16rem;
+    }
+
+    &::before {
+      padding-right: .16rem;
+      background-image: url("~@images/community/home-arrow-left.png");
+    }
   }
 
   .tips-text {
@@ -621,100 +662,6 @@
     line-height: .36rem;
   }
 
-  .btns-view {
-    display: flex;
-    justify-content: center;
-    margin-top: .3rem;
-    margin-bottom: .5rem;
-  }
-
-  .ranking-btn,
-  .invitation-btn {
-    width: 2.8rem;
-    height: .74rem;
-    border-radius: .37rem;
-    border: 2px solid #f9480c;
-    margin: 0 .19rem;
-    font-size: .3rem;
-    color: #ff7506;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    &:active {
-      opacity: .7;
-    }
-  }
-
-  .ranking-btn {
-    background: url('~@icon/community/ranking.png') no-repeat right .66rem center;
-    background-size: .5rem;
-    padding-right: .66rem;
-  }
-
-  .invitation-btn {
-    background: url('~@icon/community/invitation.png') no-repeat right .5rem center;
-    background-size: .5rem;
-    padding-right: .5rem;
-  }
-
-  .invitation-title {
-    font-size: .34rem;
-    color: #333;
-    text-align: center;
-  }
-
-  .friend-item {
-    position: relative;
-    height: 1.46rem;
-    display: flex;
-    padding: 0 .34rem;
-    align-items: center;
-
-    &::after {
-      position: absolute;
-      bottom: 0;
-      left: 1rem;
-      right: 0;
-      content: '';
-      border-bottom: 1px dashed #ebebeb;
-      transform: scaleY(.5);
-    }
-  }
-
-  .friend-avatar {
-    width: .8rem;
-    height: .8rem;
-    border-radius: 50%;
-    margin-right: .2rem;
-  }
-
-  .friend-right {
-    display: flex;
-    align-items: center;
-    flex: 1;
-  }
-
-  .friend-info {
-    flex: 1;
-  }
-
-  .friend-name {
-    font-size: .3rem;
-    color: #333;
-    .ellipsis(2.5rem);
-  }
-
-  .register-time {
-    font-size: .22rem;
-    color: #ccc;
-  }
-
-  .friend-course {
-    font-size: .32rem;
-    color: #999;
-  }
-
   .follow-btn {
     position: fixed;
     bottom: 2.16rem;
@@ -732,5 +679,67 @@
   .dynamic-btn {
     width: 2.4rem;
     height: 2.4rem;
+  }
+
+  .extension {
+    margin: .3rem;
+
+    &-item {
+      display: flex;
+      padding: .24rem .24rem .34rem .3rem;
+      border-radius: .1rem;
+      box-shadow: 1px 1px 6px 0 rgba(240, 240, 240, .8);
+      margin-bottom: .3rem;
+    }
+
+    &-left {
+      position: relative;
+      width: 1.9rem;
+      height: 1.32rem;
+      border-radius: .08rem;
+      overflow: hidden;
+
+      .cover {
+        width: 100%;
+        height: 100%;
+      }
+
+      .icon-video {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        width: .54rem;
+        height: .28rem;
+        background: rgba(0, 0, 0, .5) url("~@icon/community/pause.png") no-repeat .26rem top;
+        background-size: .22rem;
+        border-top-left-radius: .08rem;
+        border-bottom-left-radius: .08rem;
+      }
+    }
+
+    &-right {
+      flex: 1;
+      padding-left: .34rem;
+      line-height: 1.4;
+
+      .headline {
+        color: #1b1b1b;
+        font-size: .32rem;
+        font-weight: bold;
+        margin-bottom: .1rem;
+        .ellipsisLn(2);
+      }
+
+      .text {
+        color: #999;
+        font-size: .22rem;
+        transform: scale(.92) translateX(-.16rem);
+        .ellipsisLn(3);
+      }
+    }
+  }
+
+  .infinite-loading-container {
+    color: #ccc;
   }
 </style>

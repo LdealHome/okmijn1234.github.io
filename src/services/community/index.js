@@ -8,12 +8,11 @@ export function getCommunityInfo () {
 }
 
 /**
- * 获取邀请列表
- * @param params {Object} 请求携带的参数{ limit: 每页显示条数, page: 页码 }
- * @returns {AxiosPromise<any>}
+ * 获取推广指南列表
+ * @param params {Object} 请求携带的参数 { page: 页码, limit: 每页请求条数 }
  */
-export function getInviteList (params) {
-  return Vue.axios.get('/community/invite/list', { params })
+export function getExtensionList (params) {
+  return Vue.axios.get('/community/promotion/guide', { params })
 }
 
 /**
