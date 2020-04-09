@@ -28,7 +28,7 @@
         button.btn.participate(type="button" v-else @click="participate") 参与课程
     // 社群中心入口
     RouterLink.entrance(v-show="isParticipate" :to="{name: 'home'}")
-      span 社群
+      span 集福
       span 中心
     InformationPopup(
       v-if="isShowInformationPopup"
@@ -307,7 +307,7 @@
         if (!this.isPerfectInformation) { // 未完善信息
           this.isShowInformationPopup = true
         } else {
-          this.isCourseCustomerServicePopup = true
+          this.$_.Toast('跳转到365课程详情页')
         }
       },
       /**
