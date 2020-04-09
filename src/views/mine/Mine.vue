@@ -3,17 +3,18 @@
     div.top-back
       p.ranking 福报榜
         span.ranking-num NO.200
-      img.news-btn(src="@icon/mine/news.png")
-      div.data-info
+      img.news-btn(src="@icon/mine/news.png" @click="newsClick")
+      div.data-info(@click="editInfoClick")
         img.avatar(src="")
         div.data-right
           p.info-name 测试昵称
           p.edit-btn 编辑个人资料
+            span.edit-right
       div.data-account
-        div.account-item
+        div.account-item(@click="growthAccount")
           p.data-number 18
           p.account-name 成长账户
-        div.account-item
+        div.account-item(@click="blessingAccount")
           p.data-number 18
           p.account-name 福报账户
         div.account-item
@@ -76,6 +77,20 @@
             id: 1
           }
         ]
+      }
+    },
+    methods: {
+      editInfoClick () {
+        this.$router.push({ name: 'edit-info' })
+      },
+      newsClick () {
+        this.$router.push({ name: 'news' })
+      },
+      growthAccount () {
+        this.$router.push({ name: 'account-growth' })
+      },
+      blessingAccount () {
+        this.$router.push({ name: 'account-blessing' })
       }
     }
   }
@@ -163,6 +178,16 @@
     font-size: .26rem;
     color: #fff;
     margin-top: .08rem;
+    display: flex;
+    align-items: center;
+  }
+
+  .edit-right {
+    width: .1rem;
+    height: .2rem;
+    background: url('~@icon/mine/edit-right.png') no-repeat;
+    background-size: 100%;
+    margin-left: .23rem;
   }
 
   .data-account {
