@@ -1,44 +1,122 @@
 <template lang="pug">
-  div.whole(v-if="isLoad")
+  div.ranking(v-if="isLoad")
+    div.ranking-banner
+      SwiperCommon(:slides="bannerList" :swiperOptions="swiperOption")
+        template(
+          v-for="(item, index) in bannerList"
+          :slot="index"
+        )
+          img.img(:src="item.pic")
+    div.ranking-info
+      img.portrait(v-lazy="infoData.portrait")
+      div.middle
+        p.nickname {{infoData.nickname}}
+        p.text 集福{{infoData.number}}人
+      button.immediately(type="button" @click="isPostersSharePopup = true") 立即集福
     div.ranking-top
       p.title-ranking 排名
       p.title-name 用户
       p.title-course 已有课程
     ul.ranking-list(v-if="list.length")
       li.ranking-item(v-for="(item, index) in list" :key="index")
-        div.ranking-view
-          span(:class="index < 3 ? 'medal_icon_' + index : ''") {{index < 3 ? '' : index + 1}}
-        img.avatar(v-lazy="item.avatar" @click="jumpHomePage(item.link)")
-        div.item-right
+        div.item-left
+          div.item-view
+            span(:class="index < 3 ? 'medal_icon_' + index : ''") {{index < 3 ? '' : index + 1}}
+          div.item-info
+            img.avatar(v-lazy="item.avatar")
+            button.entry(
+              type="button"
+              v-if="item.isCard"
+              @click="jumpCardDetails(item.link)"
+              ) 进入名片
           p.item-name {{item.name}}
-          div.item-date
-            p.course-number 已拥有{{item.courseNumber}}门课程
-            p.invite-number 已邀请{{item.inviteNumber}}人
+        div.item-right
+          p 已拥有
+            span.number {{item.courseNumber}}
+            | 门课程
+          p 共获收益
+            span.number {{item.profitNumber}}
+            | 元
+          p 已邀请
+            span.number {{item.inviteNumber}}
+            | 人
     NothingCommon(v-else :config="nothingConfig")
     infinite-loading(@infinite="loadMore")
       div(slot="spinner")
       div(slot="no-more")
-      div(slot="no-results")
+      div(slot="no-results") {{noResults}}
+    VideoPopup(:isShow="isShowVideo" :video="videoInfo" @videoClose="isShowVideo = false")
+    PostersSharePopup(
+      v-if="isPostersSharePopup"
+      :fromUid="uid"
+      @close="isPostersSharePopup = false"
+      )
 </template>
 
 <script>
+  import SwiperCommon from '../../components/SwiperCommon'
   import NothingCommon from '../../components/NothingCommon'
+  import VideoPopup from '../../components/VideoPopup'
+  import PostersSharePopup from '../../components/community/PostersSharePopup'
   import {
     getRankingList
   } from '../../services/community'
+  import { getVideoInfo } from '../../services'
+  let vm
   export default {
     name: 'Ranking',
     components: {
-      NothingCommon
+      SwiperCommon,
+      NothingCommon,
+      VideoPopup,
+      PostersSharePopup
     },
     data () {
       return {
         isLoad: false,
-        list: [],
+        bannerList: [
+          {
+            category: 1,
+            url: '',
+            pic: 'http://hskimgtest.smsqmx.com/upload/head_img/2020_03_07/34173cb38f07f89ddbebc2ac9128303f.png'
+          },
+          {
+            category: 2,
+            url: '',
+            pic: 'http://hskimgtest.smsqmx.com/upload/head_img/2020_03_07/34173cb38f07f89ddbebc2ac9128303f.png'
+          }
+        ], // banner
+        swiperOption: { // 轮播设置对应属性
+          autoplay: true,
+          speed: 500, // 切换速度
+          watchOverflow: false, // 当没有足够的slide切换时，例如只有1个slide（非loop），swiper会失效且隐藏导航等
+          loop: true, // 开启循环模式
+          slidesPerView: 1,
+          preventClicksPropagation: true, // 阻止click冒泡。拖动Swiper时阻止click事件。
+          simulateTouch: false, // 鼠标模拟手机触摸。默认为true，Swiper接受鼠标点击、拖动。
+          on: {
+            click () {
+              vm.clickBanner(this.realIndex)
+            }
+          }
+        },
+        infoData: { // 个人信息
+          portrait: 'http://hskimgtest.smsqmx.com/upload/head_img/2020_03_07/34173cb38f07f89ddbebc2ac9128303f.png', // 头像
+          nickname: '用户昵称', // 用户昵称
+          number: 2 // 集福人数
+        },
+        isPostersSharePopup: false, // 邀请海报
+        list: [], // 排行榜
         params: {
           page: 1,
           limit: 20
         },
+        isShowVideo: false, // 视频弹框
+        videoInfo: { // 视频弹框值
+          imgSrc: '',
+          videoUrl: ''
+        },
+        videoSceneInfo: {}, // 加载过的视频信息
         nothingConfig: {
           tips: '暂时没有数据哦～'
         }
@@ -47,6 +125,9 @@
     watch: {
       isLoadGuestInfo () {
         this.main()
+      },
+      isShowVideo (val) {
+        this.$root.$emit('toggleModal', Boolean(val))
       }
     },
     computed: {
@@ -60,9 +141,13 @@
       // 是否加载访客信息
       isLoadGuestInfo () {
         return this.$store.state.isLoadGuestInfo
+      },
+      noResults () {
+        return this.list.length ? '没有更多了哦' : ''
       }
     },
     created () {
+      vm = this
       if (this.isLoadGuestInfo) {
         this.main()
       }
@@ -74,6 +159,45 @@
           return
         }
         this.isLoad = true
+      },
+      /**
+       * 点击banner图
+       * @param index {Number} 点击的banner图索引
+       */
+      clickBanner (index) {
+        switch (this.bannerList[index].category) {
+        case 1: // 链接地址
+          this.$_.entryOtherPage(this.bannerList[index].url)
+          break
+        case 2: // 视频
+          this.getBannerVideo(this.$store.state.sceneInfo.video_course.community_course_home)
+          break
+        default:
+          break
+        }
+      },
+      /**
+       * 获取banner视频信息
+       * @param scene {String} 视频场景值
+       */
+      getBannerVideo (scene) {
+        if (this.videoSceneInfo[scene]) {
+          this.videoInfo = this.videoSceneInfo[scene]
+          this.isShowVideo = true
+        } else {
+          getVideoInfo({ scene }).then(res => {
+            if (res.data.code === 1) {
+              let mBean = res.data.data
+              let data = {
+                imgSrc: mBean.poster, // 封面图
+                videoUrl: mBean.path // 视频地址
+              }
+              this.videoSceneInfo[scene] = data
+              this.videoInfo = data
+              this.isShowVideo = true
+            }
+          })
+        }
       },
       /**
        * 获取邀请的好友列表
@@ -102,9 +226,12 @@
           that.params.page++
         }
       },
-      // 跳转个人主页
-      jumpHomePage (url) {
-        this.$_.entryOtherPage(url)
+      /**
+       * 跳转到链脉名片
+       * @param link{String} 跳转链接地址
+       */
+      jumpCardDetails (link) {
+        this.$_.entryOtherPage(link)
       },
       /**
        * 排行榜列表数据转换
@@ -112,14 +239,16 @@
        * @return {Object} 转换后可以直接使用的结构
        */
       transformRankingList (source) {
-        let list = [] 
+        let list = []
         source.forEach(item => {
           list.push({
             uid: item.uid,
             avatar: item.img_url,
+            isCard: false,
             link: item.home_url,
             name: item.nick_name,
             courseNumber: item.course_number,
+            profitNumber: item.course_number,
             inviteNumber: item.invite_number
           })
         })
@@ -130,114 +259,204 @@
 </script>
 
 <style scoped lang="less">
-  .whole {
+  .ranking {
     min-height: 100vh;
-    overflow: hidden;
-    background: #fff url('~@images/community/community-ranking-back.png') no-repeat top center;
-    background-size: auto 3.16rem;
-  }
+    background-color: #fff;
 
-  .ranking-top {
-    margin-top: 2.96rem;
-    height: .9rem;
-    display: flex;
-    align-items: center;
-    background: #fff;
-    border-radius: .22rem .22rem 0 0;
-    font-size: .32rem;
-    color: #666;
-    text-align: center;
-  }
+    &-banner {
+      width: 7.1rem;
+      height: 1.8rem;
+      margin: auto;
+      border-bottom-left-radius: .22rem;
+      border-bottom-right-radius: .22rem;
+      overflow: hidden;
 
-  .title-ranking { width: 1.04rem; }
+      .img {
+        width: 100%;
+        height: 100%;
+      }
+    }
 
-  .title-name {
-    flex: 1;
-    padding-left: .8rem;
-  }
+    &-info {
+      display: flex;
+      align-items: center;
+      width: 7rem;
+      margin: .48rem auto;
+      height: 1.4rem;
+      padding: 0 .22rem;
+      box-shadow: 0 1px 4px 0 rgba(204, 204, 204, .35);
+      border-radius: .08rem;
 
-  .title-course { width: 2.9rem; }
+      .portrait {
+        width: .74rem;
+        height: .74rem;
+        border-radius: 1rem;
+      }
 
-  .ranking-list { border-top: 1px solid #e4e4e4; }
+      .middle {
+        flex: 1;
+        margin-left: .2rem;
+        line-height: 1.4;
+      }
 
-  .ranking-item {
-    position: relative;
-    height: 1.46rem;
-    display: flex;
-    align-items: center;
+      .nickname {
+        color: #333;
+        font-size: .34rem;
+        .ellipsis(2.8rem);
+      }
 
-    &::after {
-      position: absolute;
-      bottom: 0;
-      left: 1rem;
-      right: 0;
-      content: '';
-      border-bottom: 1px dashed #ebebeb;
-      transform: scaleY(.5);
+      .text {
+        color: #999;
+        font-size: .28rem;
+      }
+
+      .immediately {
+        color: #fff;
+        font-size: .3rem;
+        width: 1.8rem;
+        height: .5rem;
+        border-radius: 1rem;
+        margin-right: .14rem;
+        background: linear-gradient(to right, #fec901, #ff9104);
+
+        &:active {
+          background: linear-gradient(to left, #fec901, #ff9104);
+        }
+      }
+    }
+
+    &-top {
+      height: .9rem;
+      display: flex;
+      align-items: center;
+      background: #fff;
+      border-radius: .22rem .22rem 0 0;
+      font-size: .32rem;
+      color: #666;
+      text-align: center;
+    }
+    &-list { border-top: 1px solid #e4e4e4; }
+
+    &-item {
+      position: relative;
+      display: flex;
+      padding: .24rem 0 .42rem 0;
+
+      &::after {
+        position: absolute;
+        bottom: 0;
+        left: 1rem;
+        right: 0;
+        content: '';
+        border-bottom: 1px dashed #ebebeb;
+        transform: scaleY(.5);
+      }
     }
   }
 
-  .ranking-view {
-    width: 1.04rem;
-    text-align: center;
-    font-size: .3rem;
-    color: #666;
-    font-weight: bold;
+  .title {
+    &-ranking {
+      width: 1.04rem;
+    }
+
+    &-name {
+      flex: 1;
+      padding-left: .8rem;
+    }
+
+    &-course {
+      width: 2.9rem;
+    }
   }
 
-  .avatar {
-    width: .8rem;
-    height: .8rem;
-    border-radius: 50%;
+  .item {
+    &-left {
+      flex: 1;
+      display: flex;
+      align-items: center;
+    }
+
+    &-view {
+      width: 1rem;
+      font-size: .3rem;
+      color: #666;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    &-info {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-right: .06rem;
+      min-width: 1.2rem;
+
+      .avatar {
+        width: .8rem;
+        height: .8rem;
+        border-radius: 50%;
+      }
+
+      .entry {
+        position: absolute;
+        bottom: -.32rem;
+        left: 0;
+        color: #fbbc05;
+        font-size: .24rem;
+        transform: scale(.84);
+        border: 1px solid #fbbc05;
+        border-radius: .04rem;
+        padding: .02rem .06rem;
+        line-height: 1.4;
+        box-shadow: 0 1px 2px 0 rgba(179, 123, 3, .48);
+        background-color: #fff;
+
+        &:active {
+          background-color: darken(#fff, 5%);
+        }
+      }
+    }
+
+    &-right {
+      color: #999;
+      font-size: .26rem;
+      text-align: right;
+      padding-right: .3rem;
+
+      .number {
+        color: #ff4c49;
+      }
+    }
+
+    &-name {
+      font-size: .3rem;
+      color: #333;
+      .ellipsis(2.4rem);
+    }
   }
 
-  .item-right {
-    flex: 1;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .item-name {
-    font-size: .3rem;
-    color: #333;
-    .ellipsis(2.4rem);
-
-    margin-left: .2rem;
-  }
-
-  .item-date {
-    width: 2.94rem;
-    text-align: center;
-    font-size: .3rem;
-    color: #999;
-  }
-
-  .medal_icon_0 {
-    display: block;
-    width: .5rem;
-    height: .58rem;
-    background: url('~@icon/community/medal_icon_1.png') no-repeat;
-    background-size: 100%;
-    margin: .06rem auto 0;
-  }
-
-  .medal_icon_1 {
-    display: block;
-    width: .5rem;
-    height: .58rem;
-    background: url('~@icon/community/medal_icon_2.png') no-repeat;
-    background-size: 100%;
-    margin: .06rem auto 0;
-  }
-
+  .medal_icon_0,
+  .medal_icon_1,
   .medal_icon_2 {
     display: block;
     width: .5rem;
     height: .58rem;
-    background: url('~@icon/community/medal_icon_3.png') no-repeat;
-    background-size: 100%;
-    margin: .06rem auto 0;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+    margin: auto;
+  }
+
+  .medal_icon_0 {
+    background-image: url('~@icon/community/medal_icon_1.png');
+  }
+
+  .medal_icon_1 {
+    background-image: url('~@icon/community/medal_icon_2.png');
+  }
+
+  .medal_icon_2 {
+    background-image: url('~@icon/community/medal_icon_3.png');
   }
 </style>
