@@ -33,7 +33,7 @@ export default [
     name: 'home',
     component: () => import(/* webpackChunkName: "home" */ '../views/Home.vue'),
     meta: {
-      title: '社群中心'
+      title: '集福中心'
     }
   },
   {
@@ -49,7 +49,7 @@ export default [
     name: 'community-ranking',
     component: () => import(/* webpackChunkName: "community-ranking" */ '../views/community/Ranking.vue'),
     meta: {
-      title: '排行榜'
+      title: '福报榜'
     }
   },
   {
