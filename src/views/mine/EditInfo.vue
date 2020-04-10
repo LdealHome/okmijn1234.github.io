@@ -2,31 +2,81 @@
   div.whole
     div.item.item-avatar
       span.text 头像
-      img.avatar()
+      img.avatar(:src="avatar")
     div.item
       span.text 昵称
-      input.item-input(placeholder="请输入昵称")
+      input.item-input(placeholder="请输入昵称" v-model.trim="name" v-ios-focus)
     div.item
       span.text 真实姓名
-      input.item-input(placeholder="请输入真实姓名")
+      input.item-input(placeholder="请输入真实姓名" v-model.trim="realName" v-ios-focus)
     div.item
       span.text 手机号
-      input.item-input(placeholder="请输入手机号")
+      input.item-input(placeholder="请输入手机号" v-model.trim="phone" v-ios-focus)
     div.item
       span.text 验证码
-      div.verified-back
-        input.verified-input(placeholder="请输入验证码")
+      div.verified-right
+        div.verified-back
+          input.verified-input(placeholder="请输入验证码" v-model.trim="code" v-ios-focus)
+          img.empty-btn(v-show="code" src="@icon/mine/delete-icon.png" @click="code = ''")
         div.send-btn.send-btn-active 获取验证码
-    div.save-btn 保存
+    div.save-btn(@click="saveBtnClick") 保存
     MorePupup
 </template>
 
 <script>
   import MorePupup from '../../components/MorePupup'
+  import {
+    getEditInfo,
+    postSaveEditInfo
+  } from '../../services/mine'
   export default {
     name: 'EditInfo',
     components: {
       MorePupup
+    },
+    data () {
+      return {
+        avatar: '',
+        name: '',
+        realName: '',
+        phone: '',
+        code: ''
+      }
+    },
+    created () {
+      this.main()
+    },
+    methods: {
+      main () {
+        getEditInfo().then(res => {
+          if (res.data.code === 1) {
+            let data = res.data.data
+            this.avatar = data.head_img
+            this.realName = data.real_name
+            this.phone = data.mobile
+            this.name = data.nick_name
+          }
+        })
+      },
+      saveBtnClick () {
+        if (!this.name) {
+          this.$_.Toast('昵称不能为空')
+          return
+        }
+        postSaveEditInfo({
+          code: this.code,
+          head_img: this.avatar,
+          mobile: this.phone,
+          nick_name: this.name,
+          real_name: this.realName
+        })
+          .then(res => {
+            if (res.data.code === 1) {
+              this.$_.Toast('保存成功')
+              this.$router.go(-1)
+            }
+          })
+      }
     }
   }
 </script>
@@ -71,15 +121,32 @@
     text-align: right;
   }
 
-  .verified-back {
+  .verified-right {
     flex: 1;
     display: flex;
+    align-items: center;
     justify-content: space-between;
     margin-left: .88rem;
   }
 
+  .verified-back {
+    display: flex;
+    align-items: center;
+  }
+
+  .empty-btn {
+    width: .3rem;
+    height: .3rem;
+    padding: .1rem 0 .1rem .1rem;
+    box-sizing: content-box;
+
+    &:active {
+      transform: scale(1.1);
+    }
+  }
+
   .verified-input {
-    width: 2.4rem;
+    width: 2.3rem;
     font-size: .32rem;
     color: #333;
   }
