@@ -1,17 +1,17 @@
 <template lang="pug">
   ul
-    li.curriculum-item
+    li.curriculum-item(v-for="item in list" :key="item.id")
       div.curriculum-info
-        div.item-covar
-          img.item-img
+        div.item-cover
+          img.item-img(:src="item.cover")
         div.item-right
-          p.name 测试
+          p.name {{item.name}}
           div.item-state
-            div.live-broadcast(v-if="false") 直播中
+            div.live-broadcast(v-if="item.isLiveBroadcast") 直播中
             div.playback(v-else) 回放
-            p.study-speed  学习50%
+            p.study-speed  学习{{item.speed}}%
       div.total-progress
-        div.speed-view
+        div.speed-view(:style="{ 'width': `${item.speed}%` }")
 </template>
 
 <script>
@@ -45,7 +45,7 @@
     display: flex;
   }
 
-  .item-covar {
+  .item-cover {
     width: 1.9rem;
     height: 1.32rem;
     border-radius: .08rem;
@@ -136,7 +136,6 @@
   }
 
   .speed-view {
-    width: 50%;
     height: 100%;
     background: #fba627;
   }

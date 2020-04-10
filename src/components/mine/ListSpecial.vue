@@ -1,13 +1,13 @@
 <template lang="pug">
   ul
-    li.special-item
+    li.special-item(v-for="(item, index) in list" :key="index")
       div.item-info 
-        img.item-cover
+        img.item-cover(:src="item.cover")
         div.item-right
-          p.name 测试
-          p.item-stage 已更新15期
+          p.name {{item.title}}
+          p.item-stage {{item.tips}}
       div.item-describe
-        p.describe 课程民资
+        p.describe {{item.name}}
         div.study-btn 去学习
 </template>
 

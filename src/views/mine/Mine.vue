@@ -2,23 +2,23 @@
   div.whole
     div.top-back
       p.ranking 福报榜
-        span.ranking-num NO.200
+        span.ranking-num NO.{{mBean.ranking}}
       img.news-btn(src="@icon/mine/news.png" @click="newsClick")
       div.data-info(@click="editInfoClick")
-        img.avatar(src="")
+        img.avatar(:src="mBean.avatar")
         div.data-right
-          p.info-name 测试昵称
+          p.info-name {{mBean.name}}
           p.edit-btn 编辑个人资料
             span.edit-right
       div.data-account
         div.account-item(@click="growthAccount")
-          p.data-number 18
+          p.data-number {{mBean.growthAccount}}
           p.account-name 成长账户
         div.account-item(@click="blessingAccount")
-          p.data-number 18
+          p.data-number {{mBean.growthAccount}}
           p.account-name 福报账户
         div.account-item
-          p.data-number 18
+          p.data-number {{mBean.growthAccount}}
           p.account-name 银行账户
     div.content
       div.go-home
@@ -26,35 +26,38 @@
         p.tips 赚一生福报
       div.learning-data
         p.cumulative-learning 累计学习
-          span.cumulative-time 146
+          span.cumulative-time {{mBean.studyTime}}
           span 分钟
         div.learning-report 学习报告
       div.learning-type
         div.learning-item
-          p.item-time 18
-            span.item-company 天
+          p.item-time {{mBean.learningToday}}
+            span.item-company 分钟
           p.item-type 今日学习
         div.learning-item
-          p.item-time 18
+          p.item-time {{mBean.continuityDay}}
             span.item-company 天
-          p.item-type 今日学习
+          p.item-type 连续学习
         div.learning-item
-          p.item-time 18
-            span.item-company 天
-          p.item-type 今日学习
+          p.item-time {{mBean.completeCourse}}
+            span.item-company 节
+          p.item-type 完成课程
       p.curriculum-text 在学课程
       div.curriculum-type
         div.curriculum-item(
           :class="{ 'curriculum-active': curriculumType === 1 }"
-          @click="curriculumType = 1"
+          @click="curriculumTypeClick(1)"
         ) 专栏
         div.curriculum-item(
           :class="{ 'curriculum-active': curriculumType === 2 }"
-          @click="curriculumType = 2"
+          @click="curriculumTypeClick(2)"
         ) 单课
-      ListSpecial(:list="list")
-      ListSingle(:list="list")
+      component(:is="type" :list="list")
       p.bottom-tips 链脉云提供技术支持
+    infinite-loading(@infinite="loadMore" :identifier="infinite")
+      div(slot="spinner")
+      div(slot="no-more")
+      div(slot="no-results")
     FooterCommon(selectedTab="3")
 </template>
 
@@ -62,6 +65,11 @@
   import ListSpecial from '../../components/mine/ListSpecial'
   import ListSingle from '../../components/mine/ListSingle'
   import FooterCommon from '../../components/FooterCommon'
+  import {
+    getPersonalInfo,
+    getSpecialList,
+    getSingleList
+  } from '../../services/mine'
   export default {
     name: 'Mine',
     components: {
@@ -72,14 +80,55 @@
     data () {
       return {
         curriculumType: 1,
-        list: [
-          {
-            id: 1
-          }
-        ]
+        mBean: {
+          ranking: 1, // 排名
+          avatar: '', // 头像
+          name: '', // 昵称
+          growthAccount: 0, // 成长账户
+          blessingAccount: 0, // 福报账号
+          bankAccount: 0, // 银行账户
+          studyTime: 0, // 累计学习时长
+          learningToday: 0, // 今日学习时长
+          continuityDay: 0, // 连续天数
+          completeCourse: 0 // 完成课程
+        },
+        list: [],
+        params: {
+          limit: 20,
+          page: 1
+        },
+        infinite: 0
+      }
+    },
+    created () {
+      this.main()
+    },
+    computed: {
+      type () {
+        let list = ['ListSpecial', 'ListSingle']
+        return list[this.curriculumType - 1]
       }
     },
     methods: {
+      main () {
+        getPersonalInfo().then(res => {
+          if (res.data.code === 1) {
+            let data = res.data.data
+            this.mBean = {
+              ranking: data.rank, // 排名
+              avatar: data.head_img, // 头像
+              name: data.nick_name, // 昵称
+              growthAccount: data.grow_up_num, // 成长账户
+              blessingAccount: data.fubao_num, // 福报账号
+              bankAccount: data.bank, // 银行账户
+              studyTime: data.total_learn_time, // 累计学习时长
+              learningToday: data.today_learn_time, // 今日学习时长
+              continuityDay: data.continuous_learn_day, // 连续天数
+              completeCourse: data.complete_course_num // 完成课程
+            }
+          }
+        })
+      },
       editInfoClick () {
         this.$router.push({ name: 'edit-info' })
       },
@@ -91,6 +140,86 @@
       },
       blessingAccount () {
         this.$router.push({ name: 'account-blessing' })
+      },
+      async loadMore (res) {
+        const that = this
+        let isLastPage = false
+        await that.getCurriculumList().then(list => {
+          isLastPage = that.$_.isLastPage(that.params.limit, list)
+        })
+        if (isLastPage) {
+          res.complete()
+        } else {
+          res.loaded()
+          that.params.page++
+        }
+      },
+      /**
+       * 获取课程列表信息
+       */
+      getCurriculumList () {
+        if (this.curriculumType === 1) {
+          return getSpecialList(this.params).then(res => {
+            if (res.data.code === 1) {
+              let list = res.data.data.list || []
+              this.list.push(...this.transformSpecialList(list))
+              return list
+            }
+          })
+        } else {
+          return getSingleList(this.params).then(res => {
+            if (res.data.code === 1) {
+              let list = res.data.data.list || []
+              this.list.push(...this.transformSpecialList(list))
+              return list
+            }
+          })
+        }
+      },
+      curriculumTypeClick (type) {
+        if (type === this.curriculumType) {
+          return
+        }
+        this.curriculumType = type
+        this.list = []
+        this.params.page = 1
+        this.infinite++
+      },
+      /**
+       * 专栏课程列表数据转换
+       * @param source {Object} 需要转换的数据源
+       * @return {Object} 转换后可以直接使用的结构
+       */
+      transformSpecialList (source) {
+        let list = []
+        source.forEach(item => {
+          list.push({
+            id: item.id,
+            name: item.newest_course,
+            cover: item.poster,
+            tips: item.stage,
+            title: item.title
+          })
+        })
+        return list
+      },
+      /**
+       * 单课课程列表数据转换
+       * @param source {Object} 需要转换的数据源
+       * @return {Object} 转换后可以直接使用的结构
+       */
+      transformSingleList (source) {
+        let list = []
+        source.forEach(item => {
+          list.push({
+            id: item.id,
+            name: item.title,
+            cover: item.poster,
+            speed: item.speed,
+            isLiveBroadcast: item.status === 1
+          })
+        })
+        return list
       }
     }
   }
