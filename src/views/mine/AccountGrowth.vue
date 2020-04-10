@@ -3,7 +3,7 @@
     div.type-back
       div.type-item(:class="typeItemClass(1)" @click="selectedType = 1") 已购课程
       div.type-item(:class="typeItemClass(2)" @click="selectedType = 2") 免费课程
-    ul
+    ul(v-if="false")
       li.item
         div.item-info
           img.item-cover
@@ -11,6 +11,9 @@
             p.item-name 测试昵称
             p.item-time 测试昵称
         p.item-tips 最近更新
+    div
+      div.empty-tips 你还没有获得任何课程
+      div.obtain-btn 去免费获取
 </template>
 
 <script>
@@ -122,5 +125,32 @@
     color: #999;
     margin-right: .2rem;
     .ellipsisLn(1);
+  }
+
+  .empty-tips {
+    font-size: .28rem;
+    color: #999;
+    text-align: center;
+    background: url('~@images/mine/empty-tips.png') no-repeat top center;
+    background-size: 2.54rem;
+    margin-top: 3.9rem;
+    padding-top: 1.7rem;
+  }
+
+  .obtain-btn {
+    width: 5.8rem;
+    height: .78rem;
+    line-height: .78rem;
+    text-align: center;
+    font-size: .3rem;
+    color: #313131;
+    border-radius: .39rem;
+    background: #f9d400;
+    box-shadow: 0 0 .1rem 0 rgba(249, 212, 0, 1);
+    position: fixed;
+    bottom: .56rem;
+    left: 0;
+    right: 0;
+    margin: 0 auto;
   }
 </style>
