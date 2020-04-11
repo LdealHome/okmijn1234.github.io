@@ -70,6 +70,14 @@ export default [
     }
   },
   {
+    path: `/column`,
+    name: 'column-details',
+    component: () => import(/* webpackChunkName: "column-details" */ '../views/community/ColumnDetails.vue'),
+    meta: {
+      title: '润阳365蜕变营'
+    }
+  },
+  {
     path: `/end`,
     name: 'end',
     component: () => import(/* webpackChunkName: "default" */ '../views/community/CourseEnd.vue'),
