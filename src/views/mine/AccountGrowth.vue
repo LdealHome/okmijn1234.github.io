@@ -3,25 +3,25 @@
     div.type-back
       div.type-item(:class="typeItemClass(1)" @click="selectedType = 1") 已购课程
       div.type-item(:class="typeItemClass(2)" @click="selectedType = 2") 免费课程
-    ul(v-if="false")
-      li.item
-        div.item-info
-          img.item-cover
-          div.item-right
-            p.item-name 测试昵称
-            p.item-time 测试昵称
-        p.item-tips 最近更新
-    div
+    component(:is="listType" :list="list")
+    div(v-show="!list.length")
       div.empty-tips 你还没有获得任何课程
       div.obtain-btn 去免费获取
 </template>
 
 <script>
+  import ListCourseGratis from '../../components/mine/ListCourseGratis'
+  import ListCoursePurchase from '../../components/mine/ListCoursePurchase'
   export default {
     name: 'AccountGrowth',
+    components: {
+      ListCourseGratis,
+      ListCoursePurchase
+    },
     data () {
       return {
-        selectedType: 1
+        selectedType: 1,
+        list: []
       }
     },
     computed: {
@@ -29,6 +29,10 @@
         return type => {
           return { 'type-active-item': this.selectedType === type }
         }
+      },
+      listType () {
+        let list = ['ListCoursePurchase', 'ListCourseGratis']
+        return list[this.selectedType - 1]
       }
     }
   }
@@ -72,59 +76,6 @@
       content: '';
       position: absolute;
     }
-  }
-
-  .item {
-    margin: .3rem .3rem 0;
-    border-radius: .1rem;
-    box-shadow: 1px 1px .06rem 0 rgba(240, 240, 240, .8);
-    padding: .24rem .24rem .2rem .3rem;
-  }
-
-  .item-info {
-    display: flex;
-  }
-
-  .item-cover {
-    width: 1.9rem;
-    height: 1.32rem;
-    border-radius: .08rem;
-    margin-right: .32rem;
-  }
-
-  .item-right {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    position: relative;
-    flex: 1;
-  }
-
-  .item-name {
-    font-size: .32rem;
-    color: #1b1b1b;
-    font-weight: bold;
-    .ellipsisLn(2);
-
-    line-height: .4rem;
-  }
-
-  .item-time {
-    position: absolute;
-    bottom: .1rem;
-    left: 0;
-    font-size: .4rem;
-    color: #ccc;
-    transform: scale(.5);
-    transform-origin: 0 100%;
-  }
-
-  .item-tips {
-    margin-left: 2.22rem;
-    font-size: .22rem;
-    color: #999;
-    margin-right: .2rem;
-    .ellipsisLn(1);
   }
 
   .empty-tips {
