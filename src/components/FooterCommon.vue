@@ -3,16 +3,19 @@
     ul.list
       li.item(
         :class="itemClass(1)"
+        @click="switchTab(1)"
       )
         span.item-icon.hammer
         span.text 自动成交页
       li.item(
         :class="itemClass(2)"
+        @click="switchTab(2)"
       )
         span.item-icon.home
         span.text 集福中心
       li.item(
         :class="itemClass(3)"
+        @click="switchTab(3)"
       )
         span.item-icon.study
         span.text 学习中心
@@ -32,6 +35,29 @@
       itemClass (index) {
         return index => {
           return { 'item-active': index === +this.selectedTab }
+        }
+      },
+      uid () {
+        return this.$store.state.personalInfo.uid
+      }
+    },
+    methods: {
+      switchTab (index) {
+        if (index === +this.selectedTab) {
+          return
+        }
+        switch (index) {
+        case 1:
+          this.$router.push({ name: 'particulars', params: { from: this.uid } })
+          break
+        case 2:
+          this.$router.push({ name: 'home' })
+          break
+        case 3:
+          this.$router.push({ name: 'mine' })
+          break
+        default:
+          break
         }
       }
     }

@@ -28,7 +28,7 @@
         p.cumulative-learning 累计学习
           span.cumulative-time {{mBean.studyTime}}
           span 分钟
-        div.learning-report 学习报告
+        div.learning-report(@click="learningReport") 学习报告
       div.learning-type
         div.learning-item
           p.item-time {{mBean.learningToday}}
@@ -140,6 +140,9 @@
       },
       blessingAccount () {
         this.$router.push({ name: 'account-blessing' })
+      },
+      learningReport () {
+        this.$router.push({ name: 'learning-report' })
       },
       async loadMore (res) {
         const that = this
