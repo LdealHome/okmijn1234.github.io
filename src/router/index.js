@@ -3,13 +3,14 @@ import Router from 'vue-router'
 import routes from './routes'
 import mine from './mine/routes'
 import news from './news/routes'
+import exam from './exam/routes'
 
 Vue.use(Router)
 
 const router = new Router({
   mode: 'history',
   base: '/',
-  routes: [...routes, ...mine, ...news],
+  routes: [...routes, ...mine, ...news, ...exam],
   scrollBehavior (to, from, savedPosition) {
     return { x: 0, y: 0 }
   }
@@ -30,7 +31,7 @@ router.beforeEach((to, from, next) => {
     if (!$_.store.state.isLoadGuestInfo) {
       $_.store.dispatch('getPayCommunityState')
     }
-    
+
     // 上传接口响应错误信息
     let errorInfo = localStorage.getItem('errorInfo')
     if (errorInfo) {
