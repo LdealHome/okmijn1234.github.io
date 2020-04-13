@@ -3,7 +3,9 @@
     div.top-back
       p.ranking 福报榜
         span.ranking-num NO.{{mBean.ranking}}
-      img.news-btn(src="@icon/mine/news.png" @click="newsClick")
+      div.news-btn
+        img.news-btn-img(src="@icon/mine/news.png" @click="newsClick")
+        span.news-num(v-if="mBean.newsUnreadNum") {{mBean.newsUnreadNum}}
       div.data-info(@click="editInfoClick")
         img.avatar(:src="mBean.avatar")
         div.data-right
@@ -90,7 +92,8 @@
           studyTime: 0, // 累计学习时长
           learningToday: 0, // 今日学习时长
           continuityDay: 0, // 连续天数
-          completeCourse: 0 // 完成课程
+          completeCourse: 0, // 完成课程
+          newsUnreadNum: 0 // 新消息数
         },
         list: [],
         params: {
@@ -124,7 +127,8 @@
               studyTime: data.total_learn_time, // 累计学习时长
               learningToday: data.today_learn_time, // 今日学习时长
               continuityDay: data.continuous_learn_day, // 连续天数
-              completeCourse: data.complete_course_num // 完成课程
+              completeCourse: data.complete_course_num, // 完成课程
+              newsUnreadNum: data.complete_course_num // 新消息数
             }
           }
         })
@@ -245,10 +249,35 @@
 
   .news-btn {
     position: absolute;
+    width: .5rem;
+    height: .5rem;
+    top: .3rem;
+    right: .7rem;
+  }
+
+  .news-btn-img {
     width: .4rem;
     height: .4rem;
-    top: .4rem;
-    right: .8rem;
+    padding: .1rem;
+    box-sizing: content-box;
+  }
+
+  .news-num {
+    min-width: .64rem;
+    height: .64rem;
+    line-height: .64rem;
+    text-align: center;
+    border-radius: .32rem;
+    background: #f35151;
+    font-size: .4rem;
+    color: #fff;
+    padding: 0 .12rem;
+    transform: scale(.5);
+    transform-origin: 0 0;
+    display: block;
+    position: absolute;
+    top: -.06rem;
+    left: .5rem;
   }
 
   .ranking {
