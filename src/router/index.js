@@ -4,13 +4,14 @@ import routes from './routes'
 import mine from './mine/routes'
 import news from './news/routes'
 import exam from './exam/routes'
+import course from './course/routes'
 
 Vue.use(Router)
 
 const router = new Router({
   mode: 'history',
   base: '/',
-  routes: [...routes, ...mine, ...news, ...exam],
+  routes: [...routes, ...mine, ...news, ...exam, ...course],
   scrollBehavior (to, from, savedPosition) {
     return { x: 0, y: 0 }
   }
