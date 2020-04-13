@@ -41,3 +41,11 @@ export function getEditInfo () {
 export function postSaveEditInfo (data) {
   return Vue.axios.get('/api/user/personal/save', data)
 }
+
+/**
+ * 获取学习报告信息
+ * @returns {AxiosPromise<any>}
+ */
+export function getLearningReport () {
+  return Vue.axios.get('/api/user/learn/report')
+}

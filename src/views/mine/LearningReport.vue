@@ -8,6 +8,7 @@
   import imageFit from '../../utils/image-fit'
   import generateQR from '../../mixin/generateQR'
   import { canvasWrapText } from '../../utils/canvas-polyfill'
+  import { getLearningReport } from '../../services/mine'
   canvasWrapText()
   let vm
   let poster = {
@@ -230,16 +231,20 @@
     mixins: [generateQR],
     created () {
       vm = this
-      const that = this
-      poster.init({
-        avatar: 'http://hskimgtest.smsqmx.com/upload/hks/video/2020/01/17/202001175e21978c77fd3399307730.png',
-        name: '测试昵称',
-        cycle: '学习报告（10/30-10/20）',
-        studyTime: 15, // 学习时长
-        courseNum: 4, // 课程数量
-        latestList: ['凌晨', '03', '点', '05', '分']
-      }, function () {
-        that.posterImg = poster.canvas.toDataURL('image/jpeg', 1)
+      getLearningReport().then(res => {
+        if (res.data.code === 1) {
+          let data = res.data.data
+          poster.init({
+            avatar: data.head_img,
+            name: data.nick_name,
+            cycle: data.cycle,
+            studyTime: data.learn_length, // 学习时长
+            courseNum: data.complete_course_num, // 课程数量
+            latestList: data.latest_time
+          }, function () {
+            vm.posterImg = poster.canvas.toDataURL('image/jpeg', 1)
+          })
+        }
       })
     }
   }
