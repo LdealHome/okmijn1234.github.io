@@ -112,3 +112,12 @@ export function getColumnDetails () {
 export function getLiveListMore () {
   return Vue.axios.get('course/catalogue/list')
 }
+
+/**
+ * 获取365课程详情直播列表
+ * @param params {Object} 请求携带的参数{ limit: 每页显示条数, page: 页码, scope: 范围场景值 }
+ * @returns {AxiosPromise<any>>}
+ */
+export function getLiveBroadcastList (params) {
+  return Vue.axios.get('/course/single/live/list', { params })
+}

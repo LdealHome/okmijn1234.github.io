@@ -37,7 +37,7 @@
             v-for="(item, index) in moreList"
             :key="index"
             :class="{active: moreIndex === index}"
-            @click="moreChoose(index)"
+            @click="moreChoose(index, item.enum)"
             ) {{item.text}}
         button.more-text(
           type="button"
@@ -49,7 +49,7 @@
             v-for="(item, index) in moreList"
             :key="index"
             :class="{active: moreIndex === index}"
-            @click="moreChoose(index)"
+            @click="moreChoose(index, item.enum)"
           ) {{item.text}}
         button.up(
           type="button"
@@ -63,7 +63,7 @@
       @jumpLink="jumpLink"
       )
     // 直播列表
-    ul.column__broadcast(v-show="currentIndex === 1")
+    ul.column__broadcast(v-show="currentIndex === 1 && this.liveBroadcastList.length")
       li.broadcast-item(v-for="(item, index) in liveBroadcastList" :key="item.id")
         div.broadcast-above
           div.synopsis
@@ -82,11 +82,16 @@
           li.following-item(
             v-for="(itm, index) in item.list"
             :key="index"
-            @click="operationBroadcast(item.isUnlock, itm)"
+            @click="operationBroadcast(item, itm)"
             )
-            span.following-state {{itm.isState === 0 ? '直播' : itm.isState === 1 ? '视频' : itm.isState === 2 ? '考试' : '预告'}}
+            span.following-state {{itm.isState === 1 ? '直播' : itm.isState === 2 ? '考试' : itm.isState === 3 ? '预告' : '视频'}}
             span.following-text(:class="{unlock: item.isUnlock || itm.isState ===3}") {{itm.text}}
             span.following-lock(v-if="!item.isUnlock && itm.isState !==3")
+    NothingCommon(:config="config" v-if="currentIndex === 1 && this.liveBroadcastList.length === 0")
+    infinite-loading(@infinite="loadMore" :identifier="chooseCurrent" v-if="isLoadMoreShow")
+      div(slot="spinner")
+      div(slot="no-more")
+      div(slot="no-results") {{noResults}}
     // 关注公众号
     div.follow(
       v-if="!isFollow"
@@ -133,9 +138,11 @@
   import VideoPopup from '../../components/VideoPopup'
   import TechnicalSupport from '../../components/TechnicalSupport'
   import FooterCommon from '../../components/FooterCommon'
+  import NothingCommon from '../../components/NothingCommon'
   import {
     getColumnDetails,
-    getLiveListMore
+    getLiveListMore,
+    getLiveBroadcastList
   } from '../../services/community'
   export default {
     name: 'ColumnDetails',
@@ -147,11 +154,15 @@
       GraduationCertificatePopup,
       VideoPopup,
       TechnicalSupport,
-      FooterCommon
+      FooterCommon,
+      NothingCommon
     },
     computed: {
       fromUid () {
         return this.$store.state.personalInfo.uid
+      },
+      noResults () {
+        return this.liveBroadcastList.length ? '没有更多了哦' : ''
       }
     },
     data () {
@@ -170,125 +181,11 @@
         isShowCertificate: false, // 毕业证书弹框
         navbarList: ['课程介绍', '直播列表'], // 导航
         currentIndex: 0, // 导航默认选择
-        moreList: [
-          {
-            enum: 'asldj',
-            isCurrent: false,
-            text: '1-30天'
-          },
-          {
-            enum: 'sds',
-            isCurrent: true,
-            text: '22-22天'
-          },
-          {
-            enum: 'asldj',
-            isCurrent: false,
-            text: '1-30天'
-          },
-          {
-            enum: 'asldj',
-            isCurrent: false,
-            text: '1-30天'
-          },
-          {
-            enum: 'asldj',
-            isCurrent: false,
-            text: '1-30天'
-          },
-          {
-            enum: 'asldj',
-            isCurrent: false,
-            text: '1-30天'
-          },
-          {
-            enum: 'asldj',
-            isCurrent: false,
-            text: '1-30天'
-          },
-          {
-            enum: 'asldj',
-            isCurrent: false,
-            text: '1-30天'
-          },
-          {
-            enum: 'asldj',
-            isCurrent: false,
-            text: '1-30天'
-          },
-          {
-            enum: 'asldj',
-            isCurrent: false,
-            text: '1-30天'
-          }
-        ], // 更多日期选择
+        moreList: [], // 更多日期选择
         isMore: false, // 是否点击更多日期选择
         moreIndex: 0, // 选择日期角标
         contentList: [], // 课程介绍
-        liveBroadcastList: [
-          {
-            id: 22,
-            title: '社群学习第几阶段社群学习第几阶段社群学习第几阶段社群学习第几阶段',
-            date: '2月22日',
-            time: '2天后',
-            isOngoing: true, // 是否正在直播
-            isUnlock: true, // 是否解锁
-            list: [
-              {
-                isState: 0, // 0表示直播，1表示视频，2表示考试，3预告
-                text: '标题社群学习第几阶段社群学习第几阶段社群学习第几阶段社群学习第几阶段',
-                videoUrl: '', // 视频路径
-                cover: '' // 封面图
-              },
-              {
-                isState: 1,
-                text: '标题',
-                videoUrl: '',
-                cover: ''
-              },
-              {
-                isState: 2,
-                text: '标题',
-                videoUrl: '',
-                cover: ''
-              },
-              {
-                isState: 3,
-                text: '标题',
-                videoUrl: '',
-                cover: ''
-              }
-            ]
-          },
-          {
-            id: 12,
-            title: '社群学习第几阶段',
-            date: '2月22日',
-            time: '2天后',
-            isOngoing: false, // 是否正在直播
-            isUnlock: false, // 是否解锁
-            list: [
-              {
-                isState: 1,
-                text: '标题',
-                videoUrl: '',
-                cover: ''
-              },
-              {
-                isState: 2,
-                text: '标题',
-                videoUrl: '',
-                cover: ''
-              },
-              {
-                isState: 3,
-                text: '标题',
-                videoUrl: '',
-                cover: ''
-              }
-            ]
-          }
-        ], // 直播列表
+        liveBroadcastList: [], // 直播列表
         upIndex: 0, // 展示隐藏列表的角标
         isShowVideo: false, // 视频弹框
         videoInfo: { // 视频弹框
@@ -299,9 +196,19 @@
         isShowCustomerService: false, // 关注公众号弹框
         followInfo: {
           differentiate: 2, // 0客服二维码，2关注公众号
-          codeSrc: 'http://imgtest.qiniu.xy22.cn/upload/aiyin/bg/2020/01/14/202001145e1d7ccce0634605402868.jpg' // 二维码
+          codeSrc: '' // 二维码
         },
-        countdownTimer: null // 倒计时定时器
+        countdownTimer: null, // 倒计时定时器
+        params: {
+          page: 1,
+          limit: 10,
+          scope: '' // 范围场景值
+        },
+        config: {
+          tips: '暂无数据'
+        },
+        chooseCurrent: 0, // 改变数据变化
+        isLoadMoreShow: false // 自动加载数据是否显示，默认为false
       }
     },
     beforeRouteLeave (to, from, next) {
@@ -312,6 +219,7 @@
       this.mine()
     },
     methods: {
+      // 课程信息
       mine () {
         let that = this
         getColumnDetails().then(res => {
@@ -320,6 +228,7 @@
             let courseInfo = data.course_info
             that.contentList = that.transformContentList(courseInfo.contents)
             that.countdown = data.differ_time
+            document.title = courseInfo.title
             that.courseInfo = {
               imgSrc: courseInfo.video_cover, // 封面
               countdown: data.differ_time, // 倒计时
@@ -336,9 +245,7 @@
           }
         })
       },
-      /**
-       * 课程倒计时
-       */
+      // 课程倒计时
       countdownStarts () {
         let newData = (new Date().getTime()) / 1000
         let countDown = this.countdown - newData // 倒计时的时间戳秒
@@ -370,8 +277,41 @@
         getLiveListMore().then(res => {
           if (res.data.code === 1) {
             this.moreList = this.transformMoreList(res.data.data.list)
+            this.moreList.forEach((item, index) => {
+              if (item.isCurrent) { // 用户当前期数
+                let deleteItem = this.moreList.splice(index, 1)
+                this.moreList.unshift(deleteItem[0])
+                this.params.scope = item.enum
+              }
+            })
           }
         })
+      },
+      // 直播列表
+      getLiveBroadcastList () {
+        return getLiveBroadcastList(this.params).then(res => {
+          if (res.data.code === 1) {
+            this.liveBroadcastList = this.transformLiveBroadcastList(res.data.data.list)
+            this.liveBroadcastList.forEach((item, index) => {
+              if (item.isCurrent) {
+                this.upIndex = index
+              }
+            })
+          }
+        })
+      },
+      async loadMore (res) {
+        const that = this
+        let isLastPage = false
+        await that.getLiveBroadcastList().then(list => {
+          isLastPage = that.$_.isLastPage(that.params.limit, list)
+        })
+        if (isLastPage) {
+          res.complete()
+        } else {
+          res.loaded()
+          that.params.page++
+        }
       },
       /**
        * 导航切换
@@ -379,6 +319,12 @@
        */
       chooseNav (index) {
         this.currentIndex = index
+        if (index === 1) {
+          if (!this.isLoadMoreShow) {
+            this.isLoadMoreShow = true
+          }
+          this.chooseCurrent++
+        }
       },
       /**
        * 视频播放
@@ -397,10 +343,14 @@
       },
       /**
        * 选择日期
+       * @param scope {String} 对应的枚举值
        * @param index {Number} 选择的角标
        */
-      moreChoose (index) {
+      moreChoose (index, scope) {
         this.moreIndex = index
+        this.chooseCurrent++
+        this.liveBroadcastList = []
+        this.params.scope = scope
       },
       /**
        * 直播列表的收起和展开
@@ -415,27 +365,32 @@
       },
       /**
        * 直播列表点击直播、视频、考试
-       * @param isUnlock {Boolean} 是否解锁
        * @param item {Object} 对应数据
+       * @param itm {Object} 对应数据
        */
-      operationBroadcast (isUnlock, item) {
+      operationBroadcast (item, itm) {
         let that = this
-        // 0表示直播，1表示视频，2表示考试，3预告
-        switch (item.isState) {
-        case 0: // 直播
+        // 1表示直播，2表示考试，3表示预告视频，4表示辅助视频
+        switch (itm.isState) {
+        case 1: // 直播
           console.log('跳转直播页')
           break
         case 2: // 考试
-          if (isUnlock) {
-            console.log('跳转到考试页')
+          if (item.isUnlock) {
+            this.$router.push({
+              name: 'exam',
+              params: {
+                liveVideoId: item.id
+              }
+            })
           } else {
             this.$_.Toast('还没到该课程的学习时间不能参加哦~')
           }
           break
         default: // 视频、预告
           that.videoInfo = {
-            videoUrl: item.videoUrl,
-            imgSrc: item.cover
+            videoUrl: itm.videoUrl,
+            imgSrc: itm.cover
           }
           that.isShowVideo = true
           break
@@ -487,6 +442,44 @@
             isCurrent: item.is_underway, // 是否选中
             enum: item.key, // 枚举值
             text: item.scope_str
+          })
+        })
+        return list
+      },
+      /**
+       * 转换直播列表数据
+       * @param source {Object} 需要转换的数据源
+       * @return {Object} 转换后可以直接使用的结构
+       */
+      transformLiveBroadcastList (source) {
+        let list = []
+        source.forEach(item => {
+          list.push({
+            id: item.id, // 直播课程id
+            title: item.title, // 标题
+            date: item.live_date, // 日期
+            time: item.start_time, // 时间
+            isOngoing: item.is_underway === 1, // 是否正在直播
+            isUnlock: item.is_start === 1, // 是否解锁
+            isCurrent: item.is_intraday === 1, // 是否展开
+            list: this.transformList(item.video_info)
+          })
+        })
+        return list
+      },
+      /**
+       * 转换直播列表数据
+       * @param source {Object} 需要转换的数据源
+       * @return {Object} 转换后可以直接使用的结构
+       */
+      transformList (source) {
+        let list = []
+        source.forEach(item => {
+          list.push({
+            isState: item.type, // 1表示直播，2表示考试，3表示预告视频，4表示辅助视频
+            text: item.title, // 标题
+            videoUrl: item.video_src, // 视频路径
+            cover: item.video_cover // 封面图
           })
         })
         return list
