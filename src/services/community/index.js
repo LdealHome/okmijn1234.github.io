@@ -96,3 +96,19 @@ export function getShareLink (params) {
 export function getSharePoster (params) {
   return Vue.axios.get('/community/share/poster', { params })
 }
+
+/**
+ * 获取365课程详情
+ * @returns {AxiosPromise<any>>}
+ */
+export function getColumnDetails () {
+  return Vue.axios.get('/course/expect/info')
+}
+
+/**
+ * 获取365课程详情直播列表更多
+ * @returns {AxiosPromise<any>>}
+ */
+export function getLiveListMore () {
+  return Vue.axios.get('course/catalogue/list')
+}

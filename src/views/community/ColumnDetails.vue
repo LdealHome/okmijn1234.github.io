@@ -4,8 +4,8 @@
       div.above
         img.img(:src="courseInfo.imgSrc")
         div.share(@click="isShowPostersShare = true") 分享
-        div.countdown
-          span 倒计时
+        div.countdown(v-if="countdown !== 0")
+          span 倒计时：
           span {{courseInfo.countdown}}
       div.following
         h2.title {{courseInfo.title}}
@@ -35,7 +35,7 @@
         ul.more-list
           li.more-item(
             v-for="(item, index) in moreList"
-            :key="item.id"
+            :key="index"
             :class="{active: moreIndex === index}"
             @click="moreChoose(index)"
             ) {{item.text}}
@@ -47,7 +47,7 @@
         ul.choose-list
           li.choose-item(
             v-for="(item, index) in moreList"
-            :key="item.id"
+            :key="index"
             :class="{active: moreIndex === index}"
             @click="moreChoose(index)"
           ) {{item.text}}
@@ -133,6 +133,10 @@
   import VideoPopup from '../../components/VideoPopup'
   import TechnicalSupport from '../../components/TechnicalSupport'
   import FooterCommon from '../../components/FooterCommon'
+  import {
+    getColumnDetails,
+    getLiveListMore
+  } from '../../services/community'
   export default {
     name: 'ColumnDetails',
     components: {
@@ -153,12 +157,13 @@
     data () {
       return {
         courseInfo: {
-          imgSrc: 'http://imgtest.qiniu.xy22.cn/upload/aiyin/bg/2020/01/14/202001145e1d7ccce0634605402868.jpg', // 封面
-          countdown: '02天22时22分22秒', // 倒计时
-          title: '演说蜕变营的标题', // 标题
-          describe: '演说蜕变营的描述', // 描述
-          time: '02月22日' // 时间
+          imgSrc: '', // 封面
+          countdown: '', // 倒计时
+          title: '', // 标题
+          describe: '', // 描述
+          time: '' // 时间
         }, // 课程相关信息
+        countdown: 1587830400, // 倒计时
         isShowPostersShare: false, // 邀请海报弹框
         isShowCourseCustomerService: false, // 客服弹框
         isGraduation: false, // 是否毕业
@@ -167,52 +172,54 @@
         currentIndex: 0, // 导航默认选择
         moreList: [
           {
-            id: 0,
-            text: '1~30'
+            enum: 'asldj',
+            isCurrent: false,
+            text: '1-30天'
           },
           {
-            id: 1,
-            text: '1~30'
+            enum: 'sds',
+            isCurrent: true,
+            text: '22-22天'
           },
           {
-            id: 2,
-            text: '1~30'
+            enum: 'asldj',
+            isCurrent: false,
+            text: '1-30天'
           },
           {
-            id: 3,
-            text: '1~30'
+            enum: 'asldj',
+            isCurrent: false,
+            text: '1-30天'
           },
           {
-            id: 4,
-            text: '1~30'
+            enum: 'asldj',
+            isCurrent: false,
+            text: '1-30天'
           },
           {
-            id: 5,
-            text: '1~30'
+            enum: 'asldj',
+            isCurrent: false,
+            text: '1-30天'
           },
           {
-            id: 6,
-            text: '1~30'
+            enum: 'asldj',
+            isCurrent: false,
+            text: '1-30天'
           },
           {
-            id: 7,
-            text: '1~30'
+            enum: 'asldj',
+            isCurrent: false,
+            text: '1-30天'
           },
           {
-            id: 8,
-            text: '1~30'
+            enum: 'asldj',
+            isCurrent: false,
+            text: '1-30天'
           },
           {
-            id: 9,
-            text: '1~30'
-          },
-          {
-            id: 10,
-            text: '1~30'
-          },
-          {
-            id: 11,
-            text: '1~30'
+            enum: 'asldj',
+            isCurrent: false,
+            text: '1-30天'
           }
         ], // 更多日期选择
         isMore: false, // 是否点击更多日期选择
@@ -293,10 +300,79 @@
         followInfo: {
           differentiate: 2, // 0客服二维码，2关注公众号
           codeSrc: 'http://imgtest.qiniu.xy22.cn/upload/aiyin/bg/2020/01/14/202001145e1d7ccce0634605402868.jpg' // 二维码
-        }
+        },
+        countdownTimer: null // 倒计时定时器
       }
     },
+    beforeRouteLeave (to, from, next) {
+      clearInterval(this.countdownTimer)
+      next()
+    },
+    created () {
+      this.mine()
+    },
     methods: {
+      mine () {
+        let that = this
+        getColumnDetails().then(res => {
+          if (res.data.code === 1) {
+            let data = res.data.data
+            let courseInfo = data.course_info
+            that.contentList = that.transformContentList(courseInfo.contents)
+            that.countdown = data.differ_time
+            that.courseInfo = {
+              imgSrc: courseInfo.video_cover, // 封面
+              countdown: data.differ_time, // 倒计时
+              title: courseInfo.title, // 标题
+              describe: courseInfo.desc_content, // 描述
+              time: data.start_time // 时间
+            }
+            that.isGraduation = data.is_graduate === 1 // 是否毕业1是
+            that.isFollow = data.is_focus === 1 // 是否关注公众号1是
+            that.followInfo.codeSrc = data.focus_code
+            that.isShowCustomerService = data.is_focus === 1
+            that.getLiveListMore()
+            that.countdownStarts()
+          }
+        })
+      },
+      /**
+       * 课程倒计时
+       */
+      countdownStarts () {
+        let newData = (new Date().getTime()) / 1000
+        let countDown = this.countdown - newData // 倒计时的时间戳秒
+        if (countDown > 0) {
+          this.countdownTimer = setInterval(() => {
+            if (countDown <= 1) {
+              clearInterval(this.countdownTimer)
+            } else {
+              countDown--
+              // 天
+              let day = parseInt(countDown / 86400)
+              day = day > 9 ? day : ('0' + day)
+              // 时
+              let hour = parseInt((countDown % 86400) / 3600)
+              hour = hour > 9 ? hour : ('0' + hour)
+              // 分
+              let minute = parseInt((countDown % 86400 % 3600) / 60)
+              minute = minute > 9 ? minute : ('0' + minute)
+              // 秒
+              let second = parseInt(countDown % 60)
+              second = second > 9 ? second : ('0' + second)
+              this.courseInfo.countdown = `${day}天${hour}时${minute}分${second}秒`
+            }
+          }, 1000)
+        }
+      },
+      // 更多
+      getLiveListMore () {
+        getLiveListMore().then(res => {
+          if (res.data.code === 1) {
+            this.moreList = this.transformMoreList(res.data.data.list)
+          }
+        })
+      },
       /**
        * 导航切换
        * @param index {Number} 选择的角标
@@ -364,6 +440,56 @@
           that.isShowVideo = true
           break
         }
+      },
+      /**
+       * 转换内容数据
+       * @param source {Object} 需要转换的数据源
+       * @return {Object} 转换后可以直接使用的结构
+       */
+      transformContentList (source) {
+        let list = []
+        source.forEach(item => {
+          list.push({
+            videoList: this.transformVideoList(item.list_data), // 视频列表/多个链接
+            type: item.mark_format, // 类型 1图片 2文本 3单个视频 4多个视频 6多链接
+            title: item.title, // 标题
+            text: item.resource // 文本内容
+          })
+        })
+        return list
+      },
+      /**
+       * 转换视频列表数据
+       * @param source {Object} 需要转换的数据源
+       * @return {Object} 转换后可以直接使用的结构
+       */
+      transformVideoList (source) {
+        let list = []
+        source.forEach(item => {
+          list.push({
+            src: item.url, // 视频路径
+            cover: item.img_url, // 封面图
+            text: item.title,
+            isVideoPlay: false
+          })
+        })
+        return list
+      },
+      /**
+       * 转换更多列表数据
+       * @param source {Object} 需要转换的数据源
+       * @return {Object} 转换后可以直接使用的结构
+       */
+      transformMoreList (source) {
+        let list = []
+        source.forEach(item => {
+          list.push({
+            isCurrent: item.is_underway, // 是否选中
+            enum: item.key, // 枚举值
+            text: item.scope_str
+          })
+        })
+        return list
       }
     }
   }
