@@ -63,7 +63,10 @@
   import {
     getRankingList
   } from '../../services/community'
-  import { getVideoInfo } from '../../services'
+  import {
+    getBannerList,
+    getVideoInfo
+  } from '../../services'
   let vm
   export default {
     name: 'Ranking',
@@ -77,18 +80,7 @@
     data () {
       return {
         isLoad: false,
-        bannerList: [
-          {
-            category: 1,
-            url: '',
-            pic: 'http://hskimgtest.smsqmx.com/upload/head_img/2020_03_07/34173cb38f07f89ddbebc2ac9128303f.png'
-          },
-          {
-            category: 2,
-            url: '',
-            pic: 'http://hskimgtest.smsqmx.com/upload/head_img/2020_03_07/34173cb38f07f89ddbebc2ac9128303f.png'
-          }
-        ], // banner
+        bannerList: [], // banner
         swiperOption: { // 轮播设置对应属性
           autoplay: true,
           speed: 500, // 切换速度
@@ -103,9 +95,10 @@
             }
           }
         },
+        isLoadBanner: false,
         infoData: { // 个人信息
-          portrait: 'http://hskimgtest.smsqmx.com/upload/head_img/2020_03_07/34173cb38f07f89ddbebc2ac9128303f.png', // 头像
-          nickname: '用户昵称', // 用户昵称
+          portrait: '', // 头像
+          nickname: '', // 用户昵称
           number: 2 // 集福人数
         },
         isPostersSharePopup: false, // 邀请海报
@@ -131,6 +124,9 @@
       },
       isShowVideo (val) {
         this.$root.$emit('toggleModal', Boolean(val))
+      },
+      bannerScene () {
+        this.getBannerList()
       }
     },
     computed: {
@@ -147,6 +143,10 @@
       },
       noResults () {
         return this.list.length ? '没有更多了哦' : ''
+      },
+      // banner的场景值
+      bannerScene () {
+        return this.$store.state.sceneInfo.ad.community_course_rank
       }
     },
     created () {
@@ -163,6 +163,19 @@
         }
         this.isLoad = true
       },
+      getBannerList () {
+        if (!this.isLoadBanner && this.bannerScene && this.uid) {
+          getBannerList({
+            scene: this.bannerScene,
+            uid: this.uid
+          }).then(res => {
+            if (res.data.code === 1) {
+              this.bannerList = res.data.data.list
+              this.isLoadBanner = true
+            }
+          })
+        }
+      },
       /**
        * 点击banner图
        * @param index {Number} 点击的banner图索引
@@ -173,7 +186,7 @@
           this.$_.entryOtherPage(this.bannerList[index].url)
           break
         case 2: // 视频
-          this.getBannerVideo(this.$store.state.sceneInfo.video_course.community_course_home)
+          this.getBannerVideo(this.$store.state.sceneInfo.video_course.community_course_rank)
           break
         default:
           break
@@ -210,6 +223,12 @@
           .then(res => {
             if (res.data.code === 1) {
               let list = res.data.data.list || []
+              let memberInfo = res.data.data.member_info
+              this.infoData = {
+                portrait: memberInfo.head_img, // 头像
+                nickname: memberInfo.nick_name, // 用户昵称
+                number: memberInfo.invite_num // 集福人数
+              }
               this.list.push(...this.transformRankingList(list))
               return list
             }
@@ -247,11 +266,11 @@
           list.push({
             uid: item.uid,
             avatar: item.img_url,
-            isCard: false,
-            link: item.home_url,
+            isCard: !!item.card_url,
+            link: item.card_url,
             name: item.nick_name,
             courseNumber: item.course_number,
-            profitNumber: item.course_number,
+            profitNumber: item.amount,
             inviteNumber: item.invite_number
           })
         })

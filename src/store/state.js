@@ -30,13 +30,15 @@ export default {// 是否已经加载过全局的用户信息
   // 场景值信息
   sceneInfo: {
     ad: {
-      community_course_home: ''
+      community_course_home: '', // 集福中心
+      community_course_rank: '' // 排行榜
     },
     customer: { // 客服二维码
       activity_curriculum: '' // 活动课程
     },
     video_course: {
-      community_course_home: ''
+      community_course_home: '', // 集福中心
+      community_course_rank: '' // 排行榜
     }
   },
   // 账号状态
