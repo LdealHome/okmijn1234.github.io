@@ -1,15 +1,14 @@
 <template lang="pug">
   div.whole
-    div 123
-    RewardPopup
+    CouresHorizontal
 </template>
 
 <script>
-  import RewardPopup from '../../components/course/RewardPopup'
+  import CouresHorizontal from './CouresHorizontal'
   export default {
     name: 'Course',
     components: {
-      RewardPopup
+      CouresHorizontal
     }
   }
 </script>

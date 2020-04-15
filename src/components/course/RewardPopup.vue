@@ -3,13 +3,13 @@
     mt-popup.popup-content(
       v-model="isShow"
     )
-      img.close(src="@icon/close/close-reward.png" @click="$emit('close')")
+      img.close(src="@icon/close/close-reward.png" @click="isShow = false")
       p.top-text {{rewardInfo.title}}
       img.avatar(:src="rewardInfo.avatar")
       p.name {{rewardInfo.name}}
       div.reward-list(v-if="isFixed")
         div.reward-item(
-          v-for="(amountItem, index) in rewardInfo.amountList"
+          v-for="(amountItem, index) in amountList"
           :key="index"
           :style="{'margin-right': (index+1)%3 === 0 ? 0 : '2%'}"
           @click="$emit('rewardClick', amountItem)"
@@ -38,19 +38,11 @@
         required: false,
         default () {
           return {
+            isShow: true,
             title: '喜欢讲师',
             avatar: '',
-            name: '册撒发给',
-            amountList: [1, 2, 5, 10, 20, 50]
+            name: '册撒发给'
           }
-        }
-      }
-    },
-    watch: {
-      isShow (val) {
-        this.$root.$emit('toggleModal', Boolean(val))
-        if (!val) {
-          this.$emit('close')
         }
       }
     },
@@ -60,7 +52,29 @@
         isFixed: true, // 是否选择打赏固定金额
         isShowMessageBox: false, // 是否显示消息框
         editSum: '', // 输入的打赏金额
-        beforeChange: '' // 打赏金额输入前的值
+        beforeChange: '', // 打赏金额输入前的值
+        amountList: [1, 2, 5, 10, 20, 50]
+      }
+    },
+    created () {
+      this.isShow = this.isShowPopup
+    },
+    watch: {
+      isShow (val) {
+        this.$root.$emit('toggleModal', Boolean(val))
+        if (!val) {
+          this.$emit('close')
+        }
+      },
+      isShowPopup (val) {
+        if (val) {
+          this.isShow = true
+        }
+      }
+    },
+    computed: {
+      isShowPopup () {
+        return this.rewardInfo.isShow
       }
     },
     methods: {
