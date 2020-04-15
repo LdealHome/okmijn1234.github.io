@@ -121,3 +121,11 @@ export function getLiveListMore () {
 export function getLiveBroadcastList (params) {
   return Vue.axios.get('/course/single/live/list', { params })
 }
+
+/**
+ * 获取毕业证书
+ * @return {AxiosPromise<any>>}
+ */
+export function getGraduationCertificate () {
+  return Vue.axios.get('/course/graduate/info')
+}

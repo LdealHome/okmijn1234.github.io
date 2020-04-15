@@ -12,6 +12,10 @@
 <script>
   import imageFit from '../../utils/image-fit'
   import { canvasWrapText } from '../../utils/canvas-polyfill'
+  import generateQR from '../../mixin/generateQR'
+  import {
+    getGraduationCertificate
+  } from '../../services/community'
 
   let drawCertificate = {
     data: {
@@ -22,7 +26,7 @@
       curriculumText: '', // 课程名称
       taskNumber: 9, // 完成任务多少项
       learningCurriculum: 2, // 学习课程
-      dailyAttendance: 2222, // 连续打卡天数
+      dailyAttendance: 2222, // 集福人数
       numberExaminations: 22, // 考试次数
       codeSrc: '', // 二维码
       sentenceText: '', // 励志语
@@ -102,11 +106,10 @@
      * @param config.curriculumText {String|require} 课程名称
      * @param config.taskNumber {Number} 完成任务多少项
      * @param config.learningCurriculum {Number} 学习课程
-     * @param config.dailyAttendance  {Number} 连续打卡天数
+     * @param config.dailyAttendance  {Number} 集福人数
      * @param config.numberExaminations {Number}: 考试次数
      * @param config.codeSrc  {String|require} 二维码
      * @param config.sentenceText {String|require} 励志语
-     * @param config.technicalSupportText {String|require} 技术支持
      * @param config.timeout {Number} 加载图片超时 默认10000(ms)
      * @param callback {Function} 画图成功之后执行的回调
      */
@@ -120,10 +123,9 @@
         dailyAttendance,
         numberExaminations,
         codeSrc,
-        sentenceText,
-        technicalSupportText
+        sentenceText
       } = config
-      if (portraitSrc && nicknameText && curriculumText && taskNumber && learningCurriculum && dailyAttendance && numberExaminations && codeSrc && sentenceText && technicalSupportText) {
+      if (portraitSrc && nicknameText && curriculumText && taskNumber && learningCurriculum && dailyAttendance && numberExaminations && codeSrc && sentenceText) {
         this.data = { ...this.data, ...config }
         canvasWrapText()
         this.callback = callback
@@ -360,7 +362,7 @@
           ctx.fillText('参与考试', numberExaminationsX, durationTextY)
           ctx.restore()
 
-          // 完成打卡
+          // 集福人数
           ctx.save()
           ctx.fillText('集福人数', dailyAttendanceX, durationTextY)
           ctx.restore()
@@ -399,7 +401,7 @@
           ctx.fillText(numberExaminations, numberExaminationsTextX, durationNumberY)
           ctx.restore()
 
-          // 完成打卡
+          // 集福人数
           ctx.save()
           let dailyAttendanceText = Number(ctx.measureText(dailyAttendance).width.toFixed(2))
           let dailyAttendanceLength = dailyAttendance.toString().length
@@ -497,28 +499,51 @@
   }
   export default {
     name: 'GraduationCertificatePopup',
+    mixins: [generateQR],
     data () {
       return {
         drawCertificateInfo: {
-          portraitSrc: 'http://hskimgtest.smsqmx.com/upload/head_img/2020_03_07/34173cb38f07f89ddbebc2ac9128303f.png', // 头像
-          nicknameText: '复杂人生', // 昵称
-          curriculumText: '365蜕变营', // 课程名称
+          portraitSrc: '', // 头像
+          nicknameText: '', // 昵称
+          curriculumText: '', // 课程名称
           taskNumber: 9, // 完成任务多少项
           learningCurriculum: 2, // 学习课程
-          dailyAttendance: 2222, // 连续打卡天数
+          dailyAttendance: 2222, // 集福人数
           numberExaminations: 22, // 考试次数
-          codeSrc: 'http://hskimgtest.smsqmx.com/upload/head_img/2020_03_07/34173cb38f07f89ddbebc2ac9128303f.png', // 二维码
-          sentenceText: '每天成长一小步，人生成长一大步', // 励志语
-          technicalSupportText: '链脉云提供技术支持' // 技术支持
+          codeSrc: '', // 二维码
+          sentenceText: '' // 励志语
         },
         imgSrc: ''
       }
     },
-    mounted () {
-      let that = this
-      drawCertificate.init(this.drawCertificateInfo, function (res) {
-        that.imgSrc = res
-      })
+    created () {
+      this.mine()
+    },
+    methods: {
+      mine () {
+        getGraduationCertificate().then(res => {
+          if (res.data.code === 1) {
+            let that = this
+            let data = res.data.data
+            this.generateQR(data.invite_url).then(res => {
+              this.drawCertificateInfo = {
+                portraitSrc: data.head_img,
+                nicknameText: data.nick_name,
+                curriculumText: data.title,
+                taskNumber: data.task_number,
+                learningCurriculum: data.course_number,
+                dailyAttendance: data.invite_number,
+                numberExaminations: data.exam_number,
+                sentenceText: data.desc_encourage,
+                codeSrc: res
+              }
+              drawCertificate.init(that.drawCertificateInfo, function (res) {
+                that.imgSrc = res
+              })
+            })
+          }
+        })
+      }
     }
   }
 </script>
