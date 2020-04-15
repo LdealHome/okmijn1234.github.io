@@ -1,24 +1,44 @@
 <template lang="pug">
   div.whole
-    div.item(@click="newsClick(1)") 服务通知
-      span.news-num 18
-    div.item(@click="newsClick(2)") 系统消息
-    div.item(@click="newsClick(3)") 开播提醒
-    div.item(@click="newsClick(4)") 邀约消息
+    div.item(
+      v-for="(item, index) in list"
+      :key="index"
+      @click="newsClick(index)"
+    ) {{item.name}}
+      span.news-num(v-if="item.news") {{item.news}}
     div.save-btn 保存
     MorePupup
 </template>
 
 <script>
   import MorePupup from '../../components/MorePupup'
+  import { getNewsType } from '../../services/news'
   export default {
     name: 'News',
     components: {
       MorePupup
     },
+    data () {
+      return {
+        list: []
+      }
+    },
+    created () {
+      getNewsType().then(res => {
+        if (res.data.code === 1 && res.data.data.list) {
+          res.data.data.list.forEach(item => {
+            this.list.push({
+              name: item.name,
+              type: item.type,
+              news: item.message_num
+            })
+          })
+        }
+      })
+    },
     methods: {
-      newsClick (type = 1) {
-        this.$router.push({ name: 'news-details', params: { type } })
+      newsClick (type) {
+        this.$router.push({ name: 'news-details', params: { type: this.list[type] } })
       }
     }
   }

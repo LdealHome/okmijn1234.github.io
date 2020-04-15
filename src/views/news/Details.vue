@@ -1,20 +1,69 @@
 <template lang="pug">
   div.whole
     ul
-      li.item(v-for="item in 10")
-        p.title 开播提醒
-        p.content 测啊是否
-          span.link 老是
-        p.time 10分钟
+      li.item(v-for="item in list" :key="item.id")
+        p.title {{item.title}}
+        p.content {{item.content}}
+          span.link(@click="entryOtherPage(item.link)") {{item.linkText}}
+        p.time {{item.time}}
+    infinite-loading(@infinite="loadMore")
+      div(slot="spinner")
+      div(slot="no-more")
+      div(slot="no-results")
     MorePupup
 </template>
 
 <script>
   import MorePupup from '../../components/MorePupup'
+  import { getNewsList } from '../../services/news'
   export default {
     name: 'Details',
     components: {
       MorePupup
+    },
+    data () {
+      return {
+        params: {
+          limit: 20,
+          page: 1
+        },
+        list: []
+      }
+    },
+    computed: {
+      type () {
+        return this.$route.params.type
+      }
+    },
+    methods: {
+      async loadMore (res) {
+        const that = this
+        let isLastPage = false
+        await that.getList().then(list => {
+          isLastPage = that.$_.isLastPage(that.params.limit, list)
+        })
+        if (isLastPage) {
+          res.complete()
+        } else {
+          res.loaded()
+          that.params.page++
+        }
+      },
+      getList () {
+        return getNewsList({ ...this.params, type: this.type }).then(res => {
+          if (res.data.code === 1) {
+            let list = res.data.data.list || []
+            list.forEach(item => {
+              this.list.push({
+                ...item,
+                link: item.url,
+                linkText: '新增字段'
+              })
+            })
+            return list
+          }
+        })
+      }
     }
   }
 </script>
