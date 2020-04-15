@@ -6,7 +6,7 @@
       div.following
         p.text {{examInfo.title}}
         div.portrait
-          img.portrait-img( v-for="item in examInfo.portraitList" :src="item")
+          img.portrait-img( v-for="item in examInfo.portraitList" :src="item.img_url")
           span.portrait-text 等人参与考试
     div.exam__info
       h2.title 考试信息
@@ -26,7 +26,7 @@
             span.number {{examInfo.totalScore}}
             span.small 分
           p.text 总分
-    div.exam__details
+    div.exam__details(v-if="examInfo.encourage")
       h2.title 考试详情
       p.text 考前勉励：{{examInfo.encourage}}
     div.exam__course
@@ -44,14 +44,17 @@
     )
     MorePupup
     TechnicalSupport
-    RouterLink.jump-exam(:to="{name: 'accomplish-exam'}" v-if="isExamination") 查看成绩
-    RouterLink.jump-exam(:to="{name: 'start-exam'}" v-else) 开始考试
+    RouterLink.jump-exam(:to="{name: 'accomplish-exam', params: { liveVideoId: liveVideoId }}" v-if="isExamination") 查看成绩
+    RouterLink.jump-exam(:to="{name: 'start-exam', params: { liveVideoId: liveVideoId }}" v-else) 开始考试
 </template>
 
 <script>
   import PostersSharePopup from '../../components/community/PostersSharePopup'
   import MorePupup from '../../components/MorePupup'
   import TechnicalSupport from '../../components/TechnicalSupport'
+  import {
+    getExam
+  } from '../../services/exam'
   export default {
     name: 'Examination',
     components: {
@@ -62,32 +65,60 @@
     computed: {
       fromUid () {
         return this.$store.state.personalInfo.uid
+      },
+      liveVideoId () {
+        return this.$route.params.liveVideoId
       }
     },
     data () {
       return {
         isExamination: false, // 是否已经考试
         examInfo: {
-          cover: 'http://imgtest.qiniu.xy22.cn/upload/aiyin/bg/2020/01/14/202001145e1d7ccce0634605402868.jpg', // 封面图
-          title: '考试第一课', // 标题
-          portraitList: [
-            'http://imgtest.qiniu.xy22.cn/upload/aiyin/bg/2020/01/14/202001145e1d7ccce0634605402868.jpg',
-            'http://imgtest.qiniu.xy22.cn/upload/aiyin/bg/2020/01/14/202001145e1d7ccce0634605402868.jpg',
-            'http://imgtest.qiniu.xy22.cn/upload/aiyin/bg/2020/01/14/202001145e1d7ccce0634605402868.jpg',
-            'http://imgtest.qiniu.xy22.cn/upload/aiyin/bg/2020/01/14/202001145e1d7ccce0634605402868.jpg',
-            'http://imgtest.qiniu.xy22.cn/upload/aiyin/bg/2020/01/14/202001145e1d7ccce0634605402868.jpg'
-          ], // 考试最新的头像
+          cover: '', // 封面图
+          title: '', // 标题
+          portraitList: [], // 考试最新的头像
           duration: 15, // 考试时长
           topicNumber: 10, // 题目量
           totalScore: 10, // 总分
-          encourage: '阿克苏的骄傲和会计师的' // 考前勉励
+          encourage: '' // 考前勉励
         },
         courseInfo: { // 关联课程
-          img: 'http://imgtest.qiniu.xy22.cn/upload/aiyin/bg/2020/01/14/202001145e1d7ccce0634605402868.jpg',
-          title: '课程标题',
+          id: 0, // 课程id
+          img: '',
+          title: '',
           number: 222 // 学习人数
         },
         isShowPostersShare: false // 邀请海报弹框
+      }
+    },
+    created () {
+      this.mine()
+    },
+    methods: {
+      mine () {
+        getExam({ course_single_id: this.liveVideoId })
+          .then(res => {
+            if (res.data.code === 1) {
+              let data = res.data.data
+              let courseInfo = data.course_info
+              this.courseInfo = {
+                id: courseInfo.course_id,
+                img: courseInfo.cover,
+                title: courseInfo.title,
+                number: courseInfo.study_number
+              }
+              this.examInfo = {
+                title: '',
+                portraitList: data.take_member,
+                cover: data.cover,
+                encourage: data.description,
+                duration: data.answer_length,
+                topicNumber: data.answer_number,
+                totalScore: data.grade
+              }
+              this.isExamination = data.is_examination === 1
+            }
+          })
       }
     }
   }

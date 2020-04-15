@@ -29,24 +29,26 @@
         )
           div.above
             p.headline {{item.title}}
-            p.question-type {{item.typeText}}
+            p.question-type ({{item.type === 1 ? `判断题：${item.typeText}分` : item.type === 2 ? `单选题：${item.typeText}分` : `多选题：${item.typeText}分`}})
             div.choose(v-for="itm in item.list")
               label.choose-label
                 span.choose-text {{itm.text}}
                 input.choose-type(
-                  :type="item.type !== 2 ? 'radio' : 'checkbox'"
+                  :type="item.type !== 3 ? 'radio' : 'checkbox'"
                   :value="itm.text"
                   :checked="itm.isCheck"
                   disabled
                   )
-              span.choose-icon(v-if="itm.isCheck" :class="{error: !itm.isCorrectIcon}")
+              span.choose-icon(v-if="itm.isCheck || itm.isCorrectIcon" :class="{error: !itm.isCorrectIcon}")
           div.following
             div.answer
               p.answer-left
-                span.answer-state 回答正确
+                span.answer-state {{item.isCorrect ? '回答正确' : '回答错误'}}
                 span.answer-icon(:class="{error: !item.isCorrect}")
-              p.answer-text (得分: 1分)
-            div.analysis 解析： 大雨后的车站大雪后的场景我都梦的见
+              p.answer-text (得分: {{item.isCorrect ? item.typeText : 0}}分)
+            div.analysis
+              p 答案：{{item.answer}}
+              p 解析： {{item.analysis}}
     MorePupup
     TechnicalSupport
 </template>
@@ -54,129 +56,110 @@
 <script>
   import MorePupup from '../../components/MorePupup'
   import TechnicalSupport from '../../components/TechnicalSupport'
+  import {
+    getAchievement,
+    getAnalysisList
+  } from '../../services/exam'
   export default {
     name: 'AccomplishExam',
     components: {
       MorePupup,
       TechnicalSupport
     },
+    computed: {
+      // 直播课程id
+      liveVideoId () {
+        return this.$route.params.liveVideoId
+      }
+    },
     data () {
       return {
         infoData: {
-          portraitSrc: 'http://imgtest.qiniu.xy22.cn/upload/aiyin/bg/2020/01/14/202001145e1d7ccce0634605402868.jpg', // 头像
-          nickname: '用户昵称', // 用户昵称
-          time: '2020.02.22', // 时间
-          fraction: '99' // 成绩
+          portraitSrc: '', // 头像
+          nickname: '', // 用户昵称
+          time: '', // 时间
+          fraction: '' // 成绩
         },
         courseInfo: { // 关联课程
-          img: 'http://imgtest.qiniu.xy22.cn/upload/aiyin/bg/2020/01/14/202001145e1d7ccce0634605402868.jpg',
-          title: '课程标题',
+          id: '', // 课程id
+          img: '',
+          title: '',
           number: 222 // 学习人数
         },
-        accomplishList: [
-          {
-            id: 2,
-            title: '1、擦过多少肩在时间尽头我也会守在你的身后',
-            type: 0, // 0判断题，1单选题，2多选题
-            typeText: '(判断题：1分)',
-            isCorrect: false,
-            list: [
-              {
-                id: 0,
-                text: '正确',
-                isCheck: true,
-                isCorrectIcon: false
-              },
-              {
-                id: 1,
-                text: '错误',
-                isCheck: false,
-                isCorrectIcon: false
+        accomplishList: [] // 解析列表
+      }
+    },
+    created () {
+      this.mine()
+    },
+    methods: {
+      mine () {
+        getAchievement({ course_single_id: this.liveVideoId })
+          .then(res => {
+            if (res.data.code === 1) {
+              let data = res.data.data
+              let courseInfo = data.course_info
+              document.title = data.exam_title
+              this.infoData = {
+                portraitSrc: data.head_img, // 头像
+                nickname: data.user_name, // 用户昵称
+                time: data.finish_time, // 时间
+                fraction: data.grade // 成绩
               }
-            ]
-          },
-          {
-            id: 22,
-            title: '2、我的心早已被你愈合加快的脉搏你小心翼翼对我说永远在说身后唱喜欢的我唱心动的歌',
-            type: 2, // 0判断题，1单选题，多选题
-            typeText: '(多选题：1分)',
-            isCorrect: false,
-            list: [
-              {
-                id: 3,
-                text: '复杂人生',
-                isCheck: true,
-                isCorrectIcon: true
-              },
-              {
-                id: 4,
-                text: '旅程',
-                isCheck: true,
-                isCorrectIcon: true
-              },
-              {
-                id: 5,
-                text: '不变',
-                isCheck: true,
-                isCorrectIcon: false
-              },
-              {
-                id: 6,
-                text: '没有到不了的地方',
-                isCheck: true,
-                isCorrectIcon: true
-              },
-              {
-                id: 7,
-                text: '哈喽',
-                isCheck: true,
-                isCorrectIcon: false
+              this.courseInfo = {
+                id: courseInfo.course_id,
+                img: courseInfo.cover,
+                title: courseInfo.title,
+                number: courseInfo.study_number
               }
-            ]
-          },
-          {
-            id: 222,
-            title: '3、曾经多少个牵肠挂肚的何必那真心与寂寞去纠缠',
-            type: 1, // 0判断题，1单选题，2多选题
-            typeText: '(单选题：1分)',
-            isCorrect: true,
-            list: [
-              {
-                id: 8,
-                text: '早安',
-                isCheck: false,
-                isCorrectIcon: true
-              },
-              {
-                id: 9,
-                text: '晚安',
-                isCheck: true,
-                isCorrectIcon: false
-              }
-            ]
-          },
-          {
-            id: 2222,
-            title: '4、蓝色的天空轻轻的亲吻着晚霞雪花落下你看见了吗紧握这你的手也不会害怕',
-            type: 1, // 0判断题，1单选题，2多选题
-            typeText: '(单选题：1分)',
-            isCorrect: true, // 是否回答正确
-            list: [
-              {
-                id: 10,
-                text: '早安',
-                isCheck: true,
-                isCorrectIcon: true
-              },
-              {
-                id: 11,
-                text: '晚安',
-                isCheck: false,
-                isCorrectIcon: false
-              }
-            ]
-          }
-        ]
+            }
+          })
+        // 试题解析列表
+        getAnalysisList({ course_single_id: this.liveVideoId })
+          .then(res => {
+            if (res.data.code === 1) {
+              this.accomplishList = this.transformAccomplishList(res.data.data.list)
+            }
+          })
+      },
+      /**
+       * 转换考试列表
+       * @param source {Object} 需要转换的数据源
+       * @return {Object} 转换后可以直接使用的结构
+       */
+      transformAccomplishList (source) {
+        let list = []
+        source.forEach(item => {
+          list.push({
+            id: item.id,
+            courseID: item.s_id, // 课程id
+            title: item.title,
+            type: item.type_mark, // 1判断题，2单选题，3多选题
+            typeText: item.fraction,
+            isCorrect: item.is_correct === 1, // 是否回答正确
+            answer: '',
+            analysis: item.analysis_content, // 答案解析
+            list: this.transformOptionList(item.option_list)
+          })
+        })
+        return list
+      },
+      /**
+       * 转换考试列表
+       * @param source {Object} 需要转换的数据源
+       * @return {Object} 转换后可以直接使用的结构
+       */
+      transformOptionList (source) {
+        let list = []
+        source.forEach(item => {
+          list.push({
+            id: item.id,
+            text: item.title,
+            isCheck: item.is_checked === 1, // 是否选中
+            isCorrectIcon: item.is_answer_correct === 1 // 是否正确
+          })
+        })
+        return list
       }
     }
   }

@@ -1,7 +1,10 @@
 const ROUTES_NAME = '/exam'
+/**
+ * liveVideoId 直播视频id
+ */
 export default [
   {
-    path: `${ROUTES_NAME}/`,
+    path: `${ROUTES_NAME}/:liveVideoId`,
     name: 'exam',
     component: () => import(/* webpackChunkName: "exam" */ '../../views/exam/Examination.vue'),
     meta: {
@@ -9,7 +12,7 @@ export default [
     }
   },
   {
-    path: `${ROUTES_NAME}/start`,
+    path: `${ROUTES_NAME}/start/:liveVideoId`,
     name: 'start-exam',
     component: () => import(/* webpackChunkName: "start-exam" */ '../../views/exam/StartExam.vue'),
     meta: {
@@ -17,7 +20,7 @@ export default [
     }
   },
   {
-    path: `${ROUTES_NAME}/accomplish`,
+    path: `${ROUTES_NAME}/accomplish/:liveVideoId`,
     name: 'accomplish-exam',
     component: () => import(/* webpackChunkName: "accomplish-exam" */ '../../views/exam/AccomplishExam.vue'),
     meta: {

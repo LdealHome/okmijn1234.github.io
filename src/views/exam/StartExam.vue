@@ -3,7 +3,7 @@
     ul.exam__above
       li.item
         span.item-icon.time
-        span.item-text {{time}}
+        span.item-text {{duration}}
       li.item
         span.item-icon.topic
         span.item-text 共10题
@@ -19,11 +19,11 @@
           )
           div.item(:class="{active: item.isChoose}")
             p.title {{item.title}}
-            p.question-type {{item.typeText}}
+            p.question-type ({{item.type === 1 ? `判断题：${item.typeText}分` : item.type === 2 ? `单选题：${item.typeText}分` : `多选题：${item.typeText}分`}})
             template(v-for="itm in item.list")
               label.choose(:for="`choose${itm.id}`" :key="itm.id")
                 span.choose-text {{itm.text}}
-                input.choose-type(:type="item.type !== 2 ? 'radio' : 'checkbox'" :id="`choose${itm.id}`" :value="itm.text" v-model='item.choose')
+                input.choose-type(:type="item.type !== 3 ? 'radio' : 'checkbox'" :id="`choose${itm.id}`" :value="itm.text" v-model='item.choose')
       TechnicalSupport
     button.exam__determine(type="button" @click="determine") 提交试卷
     MorePupup
@@ -35,6 +35,10 @@
   import {
     MessageBox
   } from 'mint-ui'
+  import {
+    getStartExamList,
+    postSubmitPapers
+  } from '../../services/exam'
   export default {
     name: 'StartExam',
     components: {
@@ -65,98 +69,19 @@
       // 取出缓存数据
       getLocalCache () {
         return this.$store.getters.getLocalCache(this.cacheKey)
+      },
+      // 课程id
+      liveVideoId () {
+        return this.$route.params.liveVideoId
       }
     },
     data () {
       return {
-        time: '', // 考试时间
-        timeRush: 900000, // 考试时间戳
-        examList: [
-          {
-            id: 2,
-            title: '1、擦过多少肩在时间尽头我也会守在你的身后',
-            type: 0, // 0判断题，1单选题，2多选题
-            typeText: '(判断题：1分)',
-            choose: [], // 选择的选项
-            isChoose: false,
-            list: [
-              {
-                id: 0,
-                text: '正确'
-              },
-              {
-                id: 1,
-                text: '错误'
-              }
-            ]
-          },
-          {
-            id: 22,
-            title: '2、我的心早已被你愈合加快的脉搏你小心翼翼对我说永远在说身后唱喜欢的我唱心动的歌',
-            type: 2, // 0判断题，1单选题，多选题
-            typeText: '(多选题：1分)',
-            choose: [],
-            isChoose: false,
-            list: [
-              {
-                id: 3,
-                text: '复杂人生'
-              },
-              {
-                id: 4,
-                text: '旅程'
-              },
-              {
-                id: 5,
-                text: '不变'
-              },
-              {
-                id: 6,
-                text: '没有到不了的地方'
-              },
-              {
-                id: 7,
-                text: '哈喽'
-              }
-            ]
-          },
-          {
-            id: 222,
-            title: '3、曾经多少个牵肠挂肚的何必那真心与寂寞去纠缠',
-            type: 1, // 0判断题，1单选题，2多选题
-            typeText: '(单选题：1分)',
-            choose: [], // 选择的选项
-            isChoose: false,
-            list: [
-              {
-                id: 8,
-                text: '早安'
-              },
-              {
-                id: 9,
-                text: '晚安'
-              }
-            ]
-          },
-          {
-            id: 2222,
-            title: '4、蓝色的天空轻轻的亲吻着晚霞雪花落下你看见了吗紧握这你的手也不会害怕',
-            type: 1, // 0判断题，1单选题，2多选题
-            typeText: '(单选题：1分)',
-            choose: [], // 选择的选项
-            isChoose: false,
-            list: [
-              {
-                id: 10,
-                text: '早安'
-              },
-              {
-                id: 11,
-                text: '晚安'
-              }
-            ]
-          }
-        ],
+        duration: '00:00:00', // 考试时长
+        durationRush: 900, // 考试时间戳
+        topicNumber: 10, // 题目量
+        totalScore: 10, // 总分
+        examList: [], // 试题列表
         listHeight: [],
         scrollTimer: null,
         isRoll: false, // 是否已经找到未答题的题目
@@ -197,31 +122,56 @@
       this.calculateHeight()
     },
     created () {
-      let that = this
-      // 考试未完成是否离开过页面
-      if (this.getLocalCache) {
-        that.timeRush = that.getLocalCache.storageTime
-        // 清空缓存
-        this.$store.commit($_.commits.REMOVE_LOCAL_CACHE, this.cacheKey)
-      }
-      // 考试时间
-      that.timer = setInterval(() => {
-        // 分
-        let minute = (that.timeRush / 1000) % 3600 / 60
-        minute = minute > 9 ? Math.floor(minute) : '0' + Math.floor(minute)
-        // 秒
-        let second = (that.timeRush / 1000) % 60
-        second = second > 9 ? Math.floor(second) : '0' + Math.floor(second)
-        if (that.timeRush < 0) {
-          clearInterval(this.timer)
-          this.isTimeOut = true
-        } else {
-          that.timeRush = that.timeRush - 1000
-          this.time = `00:${minute}:${second}`
-        }
-      }, 1000)
+      this.mine()
     },
     methods: {
+      mine () {
+        getStartExamList({ course_single_id: this.liveVideoId }).then(res => {
+          if (res.data.code === 1) {
+            let that = this
+            let data = res.data.data
+            document.title = data.exam_title
+            let duration
+            // 考试未完成是否离开过页面
+            if (that.getLocalCache) {
+              duration = that.getLocalCache.storageTime
+              console.log(duration)
+              // 清空缓存
+              this.$store.commit($_.commits.REMOVE_LOCAL_CACHE, that.cacheKey)
+            } else {
+              duration = data.answer_length
+            }
+            that.durationRush = duration // 考试时长秒
+            this.topicNumber = data.answer_number // 考试题目量
+            this.totalScore = data.grade // 总分
+            that.timeCountDown()
+            that.examList = that.transformExamList(data.list)
+          }
+        })
+      },
+      // 考试时间倒计时
+      timeCountDown () {
+        let that = this
+        // 考试时间
+        that.timer = setInterval(() => {
+          // 时
+          let hour = that.durationRush / 3600
+          hour = hour > 9 ? Math.floor(hour) : '0' + Math.floor(hour)
+          // 分
+          let minute = that.durationRush % 3600 / 60
+          minute = minute > 9 ? Math.floor(minute) : '0' + Math.floor(minute)
+          // 秒
+          let second = that.durationRush % 60
+          second = second > 9 ? Math.floor(second) : '0' + Math.floor(second)
+          if (that.durationRush < 0) {
+            clearInterval(this.timer)
+            this.isTimeOut = true
+          } else {
+            that.durationRush--
+            this.duration = `${hour}:${minute}:${second}`
+          }
+        }, 1000)
+      },
       // 提交试卷
       determine () {
         let list = []
@@ -233,15 +183,31 @@
             item.isChoose = true
             if (!this.isRoll) {
               this.$refs.indexWrap.scrollTop = that.listHeight[index]
-              this.isRoll = true
+              that.isRoll = true
             }
           }
-          list.push(item.choose)
+          item.list.forEach(itm => {
+            list.push({
+              option_id: itm.id,
+              q_id: itm.subjectId
+            })
+          })
         })
-        if (!this.isRoll) { // 全部答完或者答题时间到
-          console.log(list)
-          this.$router.push({
-            name: 'accomplish-exam'
+        if (!that.isRoll) { // 全部答完或者答题时间到
+          let params = {
+            list: list,
+            s_id: that.liveVideoId
+          }
+          console.log(params)
+          postSubmitPapers(params).then(res => {
+            if (res.data.code === 1) {
+              that.$router.push({
+                name: 'accomplish-exam',
+                params: {
+                  liveVideoId: that.liveVideoId
+                }
+              })
+            }
           })
         }
       },
@@ -271,6 +237,43 @@
             }
           }
         }, 20)
+      },
+      /**
+       * 转换考试列表
+       * @param source {Object} 需要转换的数据源
+       * @return {Object} 转换后可以直接使用的结构
+       */
+      transformExamList (source) {
+        let list = []
+        source.forEach(item => {
+          list.push({
+            id: item.id, // 题目id
+            courseId: item.s_id, // 单课id
+            title: item.title,
+            type: item.type_mark, // 1判断题 2单选题 3多选题
+            typeText: item.fraction,
+            choose: [], // 作答选项
+            isChoose: false, // 是否作答
+            list: this.transformOptionList(item.option_list)
+          })
+        })
+        return list
+      },
+      /**
+       * 转换考试选项列表
+       * @param source {Object} 需要转换的数据源
+       * @return {Object} 转换后可以直接使用的结构
+       */
+      transformOptionList (source) {
+        let list = []
+        source.forEach(item => {
+          list.push({
+            id: item.id, // 选项id
+            subjectId: item.q_id, // 题目id
+            text: item.title // 选项标题
+          })
+        })
+        return list
       }
     }
   }
