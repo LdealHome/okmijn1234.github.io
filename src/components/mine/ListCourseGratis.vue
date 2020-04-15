@@ -1,10 +1,10 @@
 <template lang="pug">
   ul
-    li.item
-      img.item-cover
+    li.item(v-for="item in list" :key="item.id")
+      img.item-cover(item.cover)
       div.item-right
-        p.item-name 测试昵称
-        p.item-time 购买时间2020/02/23 08:23:09
+        p.item-name {{item.title}}
+        p.item-time {{item.time}}
 </template>
 
 <script>

@@ -49,3 +49,21 @@ export function postSaveEditInfo (data) {
 export function getLearningReport () {
   return Vue.axios.get('/api/user/learn/report')
 }
+
+/**
+ * 获取支付购买的课程列表
+ * @param params {Object} 请求携带的参数 { page: 页码, limit: 每页请求条数 }
+ * @returns {AxiosPromise<any>}
+ */
+export function getBuyCourse (params) {
+  return Vue.axios.get('/api/user/grow/up/pay', { params })
+}
+
+/**
+ * 获取免费获得的课程列表
+ * @param params {Object} 请求携带的参数 { page: 页码, limit: 每页请求条数 }
+ * @returns {AxiosPromise<any>}
+ */
+export function getGratisCourse (params) {
+  return Vue.axios.get('/api/user/grow/up/free', { params })
+}

@@ -1,12 +1,12 @@
 <template lang="pug">
   ul
-    li.item
+    li.item(v-for="item in list" :key="item.id")
       div.item-info
-        img.item-cover
+        img.item-cover(:src="item.cover")
         div.item-right
-          p.item-name 测试昵称
-          p.item-time 测试昵称
-      p.item-tips 最近更新
+          p.item-name {{item.title}}
+          p.item-time {{item.time}}
+      p.item-tips {{item.newest}}
 </template>
 
 <script>
