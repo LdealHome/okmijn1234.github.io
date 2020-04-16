@@ -101,3 +101,12 @@ export function getPayCommunity () {
 export function getCourseServe () {
   return Vue.axios.get('/pub/user/customer')
 }
+
+/**
+ * 获取手机号验证码
+ * @param data {Object<phone>} 发送的手机号
+ * @returns {AxiosPromise<any>}
+ */
+export function postSendVerificationCode (data) {
+  return Vue.axios.post('/api/user/verify/code', data)
+}

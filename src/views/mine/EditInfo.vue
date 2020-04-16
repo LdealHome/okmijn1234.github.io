@@ -2,7 +2,7 @@
   div.whole
     div.item.item-avatar
       span.text 头像
-      img.avatar(:src="avatar")
+      img.avatar(:src="avatar" @click="avatarClick")
     div.item
       span.text 昵称
       input.item-input(placeholder="请输入昵称" v-model.trim="name" v-ios-focus)
@@ -11,49 +11,86 @@
       input.item-input(placeholder="请输入真实姓名" v-model.trim="realName" v-ios-focus)
     div.item
       span.text 手机号
-      input.item-input(placeholder="请输入手机号" v-model.trim="phone" v-ios-focus)
-    div.item
+      input.item-input(placeholder="请输入手机号" v-model.trim="phone" maxlength="11" v-ios-focus)
+    div.item(v-show="isShowObtainBtn")
       span.text 验证码
       div.verified-right
         div.verified-back
           input.verified-input(placeholder="请输入验证码" v-model.trim="code" v-ios-focus)
           img.empty-btn(v-show="code" src="@icon/mine/delete-icon.png" @click="code = ''")
-        div.send-btn.send-btn-active 获取验证码
+        div.send-btn(
+          :class="{ 'send-btn-active': !isClickableObtainBtn }"
+          @click="obtainCodeClick"
+        ) {{obtainBtnText}}
     div.save-btn(@click="saveBtnClick") 保存
     MorePupup
 </template>
 
 <script>
   import MorePupup from '../../components/MorePupup'
+  import qiniuUpload from '../../mixin/qiniuUpload'
+  import wexinConfig from '../../mixin/weixinConfig'
   import {
     getEditInfo,
     postSaveEditInfo
   } from '../../services/mine'
+  import { postSendVerificationCode } from '../../services'
   export default {
     name: 'EditInfo',
     components: {
       MorePupup
     },
+    mixins: [wexinConfig, qiniuUpload],
     data () {
       return {
         avatar: '',
         name: '',
         realName: '',
         phone: '',
-        code: ''
+        code: '',
+        originalPhone: '',
+        countDown: 60,
+        timer: null,
+        avatarData: null
       }
     },
+    beforeRouteLeave (to, from, next) {
+      if (this.timer) {
+        clearInterval(this.timer)
+      }
+      next()
+    },
     created () {
+      // 获取微信配置信息
+      this.getWeiXinConfig({ desc: '', img: '', title: '' })
+        .then(this.setWeiXinConfig)
       this.main()
+    },
+    computed: {
+      isShowObtainBtn () {
+        return this.originalPhone !== this.phone
+      },
+      isClickableObtainBtn () {
+        return this.countDown >= 60
+      },
+      obtainBtnText () {
+        return this.isClickableObtainBtn ? '获取验证码' : `${this.countDown}s`
+      },
+      avatarScene () {
+        return this.$store.state.sceneInfo.upload_img.radio_bg
+      }
     },
     methods: {
       main () {
+        // 设置上传图片的环境
+        this.$store.dispatch('getQiniuToken', [this.avatarScene])
         getEditInfo().then(res => {
           if (res.data.code === 1) {
             let data = res.data.data
             this.avatar = data.head_img
             this.realName = data.real_name
             this.phone = data.mobile
+            this.originalPhone = data.mobile
             this.name = data.nick_name
           }
         })
@@ -63,19 +100,76 @@
           this.$_.Toast('昵称不能为空')
           return
         }
-        postSaveEditInfo({
-          code: this.code,
-          head_img: this.avatar,
-          mobile: this.phone,
-          nick_name: this.name,
-          real_name: this.realName
+        if (!this.realName) {
+          this.$_.Toast('真实姓名不能为空')
+          return
+        }
+        if (!this.phone) {
+          this.$_.Toast('手机号不能为空')
+          return
+        }
+        if (this.isShowObtainBtn && !this.code) {
+          this.$_.Toast('验证码不能为空')
+          return
+        }
+        this.uploadAvatarImg().then(img => {
+          postSaveEditInfo({
+            code: this.isShowObtainBtn ? this.code : '',
+            head_img: img,
+            mobile: this.phone,
+            nick_name: this.name,
+            real_name: this.realName
+          })
+            .then(res => {
+              if (res.data.code === 1) {
+                this.$_.Toast('保存成功')
+                this.$router.go(-1)
+              }
+            })
         })
-          .then(res => {
+      },
+      uploadAvatarImg () {
+        return new Promise((resolve, reject) => {
+          if (/^blob:/.test(this.avatar)) {
+            let imgList = [{
+              scene: this.avatarScene,
+              blob: this.avatarData.blob
+            }]
+            this.uploadImages(imgList).then(list => {
+              resolve(list[0].url)
+            })
+          } else {
+            resolve(this.avatar)
+          }
+        })
+      },
+      avatarClick () {
+        this.getChooseImageData(1)
+          .then(list => {
+            let data = list[0]
+            this.avatarData = data
+            this.avatar = data.url
+          })
+      },
+      /**
+       * 点击获取短信验证码
+       */
+      obtainCodeClick () {
+        if (this.isClickableObtainBtn) {
+          postSendVerificationCode().then(res => {
             if (res.data.code === 1) {
-              this.$_.Toast('保存成功')
-              this.$router.go(-1)
+              this.countDown--
+              this.timer = setInterval(() => {
+                if (this.countDown <= 1) {
+                  clearInterval(this.timer)
+                  this.timer = null
+                } else {
+                  this.countDown--
+                }
+              }, 1000)
             }
           })
+        }
       }
     }
   }
@@ -162,10 +256,7 @@
     background: #fba627;
   }
 
-  .send-btn-active {
-    background: #ccc;
-    color: #fffefe;
-  }
+  .send-btn-active { background: #ccc; }
 
   .save-btn {
     width: 5.8rem;
