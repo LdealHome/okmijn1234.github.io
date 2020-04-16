@@ -1,6 +1,6 @@
 <template lang="pug">
   ul
-    li.item(v-for="item in list" :key="item.id")
+    li.item(v-for="item in list" :key="item.id" @click="$router.push({ name: 'course', params: { courseId: item.id } })")
       img.item-cover(item.cover)
       div.item-right
         p.item-name {{item.title}}

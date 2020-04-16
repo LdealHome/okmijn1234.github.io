@@ -67,3 +67,20 @@ export function getBuyCourse (params) {
 export function getGratisCourse (params) {
   return Vue.axios.get('/api/user/grow/up/free', { params })
 }
+
+/**
+ * 获取邀请的好友列表
+ * @param params {Object} 请求携带的参数 { keywords: 关键字, page: 页码, limit: 每页请求条数 }
+ * @returns {AxiosPromise<any>}
+ */
+export function getInviteList (params) {
+  return Vue.axios.get('/api/community/invite/list', { params })
+}
+
+/**
+ * 获取邀请信息
+ * @returns {AxiosPromise<any>}
+ */
+export function getInviteInfo () {
+  return Vue.axios.get('/api/community/invite/info')
+}

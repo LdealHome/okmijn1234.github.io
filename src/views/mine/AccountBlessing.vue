@@ -2,31 +2,123 @@
   div.whole
     div.inviter-back
       p.inviter-text 我的传爱天使:
-      img.inviter-avatar
-      p.inviter-name 测试
+      img.inviter-avatar(:src="superiorInfo.avatar")
+      p.inviter-name {{superiorInfo.name}}
     div.list-title
       p.title-text 已邀约好友
       div.title-right
-        input.key-input(placeholder="请输入昵称" v-ios-focus)
-        div.search-btn 搜索
+        input.key-input(placeholder="请输入昵称" v-model="searchText" v-ios-focus)
+        div.search-btn(@click="searchClick" :style="searchBtnColor") {{searchBtnText}}
     ul
-      li.item
-        img.item-avatar
+      li.item(v-for="item in list" :key="item.id")
+        img.item-avatar(:src="item.avatar")
         div.item-info
-          p.item-name 测试
-          p.item-time 测试
-        p.item-course 已免费获取423门课程
+          p.item-name {{item.name}}
+          p.item-time {{item.time}}
+        p.item-course 已免费获取{{item.courseNum}}门课程
+    infinite-loading(@infinite="loadMore" :identifier="infinite")
+      div(slot="spinner")
+      div(slot="no-more")
+      div(slot="no-results")
     div.bottom-btn
-      div.total-number 共6个人
+      div.total-number 共{{inviteNumber}}人
     TechnicalSupport
 </template>
 
 <script>
   import TechnicalSupport from '../../components/TechnicalSupport'
+  import {
+    getInviteList,
+    getInviteInfo
+  } from '../../services/mine'
   export default {
     name: 'AccountBlessing',
     components: {
       TechnicalSupport
+    },
+    data () {
+      return {
+        list: [],
+        params: {
+          limit: 20,
+          page: 1,
+          keywords: ''
+        },
+        superiorInfo: {
+          avatar: '',
+          name: ''
+        },
+        searchText: '',
+        inviteNumber: 0,
+        infinite: 0
+      }
+    },
+    created () {
+      // 获取邀请人信息、一共邀请的人数
+      getInviteInfo().then(res => {
+        if (res.data.code === 1) {
+          let data = res.data.data
+          this.superiorInfo = {
+            avatar: data.parent_head_img,
+            name: data.parent_nick_name
+          }
+          this.inviteNumber = data.count
+        }
+      })
+    },
+    computed: {
+      isShowCancel () {
+        return this.params.keywords === this.searchText && this.searchText
+      },
+      searchBtnText () {
+        return this.isShowCancel ? '取消' : '搜索'
+      },
+      searchBtnColor () {
+        return { 'color': this.isShowCancel ? '#FBA627' : '#333' }
+      }
+    },
+    methods: {
+      searchClick () {
+        this.list = []
+        this.params.page = 1
+        if (this.isShowCancel) {
+          this.searchText = ''
+          this.params.keywords = ''
+        } else {
+          this.params.keywords = this.searchText
+        }
+        this.infinite++
+      },
+      async loadMore (res) {
+        const that = this
+        let isLastPage = false
+        await that.getList().then(list => {
+          isLastPage = that.$_.isLastPage(that.params.limit, list)
+        })
+        if (isLastPage) {
+          res.complete()
+        } else {
+          res.loaded()
+          that.params.page++
+        }
+      },
+      getList () {
+        return getInviteList(this.params).then(res => {
+          if (res.data.code === 1) {
+            let list = res.data.data.list || []
+            list.forEach(item => {
+              this.list.push({
+                id: item.uid,
+                avatar: item.img_url,
+                name: item.nick_name,
+                time: item.create_time,
+                courseNum: item.course_number
+              })
+            })
+            return list
+          }
+        })
+      }
     }
   }
 </script>
@@ -98,6 +190,7 @@
   .search-btn {
     padding: .1rem;
     margin-left: .08rem;
+    font-size: .32rem;
   }
 
   .item {

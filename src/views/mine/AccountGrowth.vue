@@ -6,7 +6,7 @@
     component(:is="listType" :list="list")
     div(v-show="!list.length")
       div.empty-tips 你还没有获得任何课程
-      div.obtain-btn 去免费获取
+      div.obtain-btn(@click="obtainCourse") 去免费获取
     infinite-loading(@infinite="loadMore" :identifier="infinite")
       div(slot="spinner")
       div(slot="no-more")
@@ -49,6 +49,13 @@
       }
     },
     methods: {
+      obtainCourse () {
+        this.$router.push({ name: 'home' })
+      },
+      /**
+       * 切换课程类型
+       * @param type {Number} 1:已购课程 2:免费课程
+       */
       switchType (type) {
         this.selectedType = type
         this.list = []
@@ -72,13 +79,17 @@
         if (this.selectedType === 1) {
           return getBuyCourse(this.params).then(res => {
             if (res.data.code === 1) {
-              this.list.push(...this.transformBuyCourseList(res.data.data.list || []))
+              let list = res.data.data.list || []
+              this.list.push(...this.transformBuyCourseList(list))
+              return list
             }
           })
         } else {
           return getGratisCourse(this.params).then(res => {
             if (res.data.code === 1) {
-              this.list.push(...this.transformGratisCourseList(res.data.data.list || []))
+              let list = res.data.data.list || []
+              this.list.push(...this.transformGratisCourseList(list))
+              return list
             }
           })
         }
@@ -92,7 +103,7 @@
         let list = []
         source.forEach(item => {
           list.push({
-            id: item.id,
+            id: item.uid,
             title: item.title,
             time: item.pay_time,
             cover: item.poster,
