@@ -110,7 +110,7 @@ export function getColumnDetails () {
  * @returns {AxiosPromise<any>>}
  */
 export function getLiveListMore () {
-  return Vue.axios.get('course/catalogue/list')
+  return Vue.axios.get('/course/catalogue/list')
 }
 
 /**

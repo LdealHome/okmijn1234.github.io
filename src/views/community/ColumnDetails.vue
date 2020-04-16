@@ -85,8 +85,8 @@
             @click="operationBroadcast(item, itm)"
             )
             span.following-state {{itm.isState === 1 ? '直播' : itm.isState === 2 ? '考试' : itm.isState === 3 ? '预告' : '视频'}}
-            span.following-text(:class="{unlock: item.isUnlock || itm.isState ===3}") {{itm.text}}
-            span.following-lock(v-if="!item.isUnlock && itm.isState !==3")
+            span.following-text(:class="{unlock: item.isUnlock || itm.isState ===3 || itm.isState ===4}") {{itm.text}}
+            span.following-lock(v-if="!item.isUnlock && (itm.isState ===1 || itm.isState === 2)")
     NothingCommon(:config="config" v-if="currentIndex === 1 && this.liveBroadcastList.length === 0")
     infinite-loading(@infinite="loadMore" :identifier="chooseCurrent" v-if="isLoadMoreShow")
       div(slot="spinner")
@@ -202,7 +202,7 @@
         params: {
           page: 1,
           limit: 10,
-          scope: '' // 范围场景值
+          scope: 1 // 范围场景值
         },
         config: {
           tips: '暂无数据'
@@ -216,6 +216,7 @@
       next()
     },
     created () {
+      // this.getLiveListMore()
       this.mine()
     },
     methods: {
@@ -240,15 +241,14 @@
             that.isFollow = data.is_focus === 1 // 是否关注公众号1是
             that.followInfo.codeSrc = data.focus_code
             that.isShowCustomerService = data.is_focus === 1
-            that.getLiveListMore()
             that.countdownStarts()
+            that.getLiveListMore()
           }
         })
       },
       // 课程倒计时
       countdownStarts () {
-        let newData = (new Date().getTime()) / 1000
-        let countDown = this.countdown - newData // 倒计时的时间戳秒
+        let countDown = this.countdown
         if (countDown > 0) {
           this.countdownTimer = setInterval(() => {
             if (countDown <= 1) {
@@ -276,7 +276,7 @@
       getLiveListMore () {
         getLiveListMore().then(res => {
           if (res.data.code === 1) {
-            this.moreList = this.transformMoreList(res.data.data.list)
+            this.moreList.push(...this.transformMoreList(res.data.data.list))
             this.moreList.forEach((item, index) => {
               if (item.isCurrent) { // 用户当前期数
                 let deleteItem = this.moreList.splice(index, 1)
@@ -289,24 +289,34 @@
       },
       // 直播列表
       getLiveBroadcastList () {
-        return getLiveBroadcastList(this.params).then(res => {
-          if (res.data.code === 1) {
-            this.liveBroadcastList = this.transformLiveBroadcastList(res.data.data.list)
-            this.liveBroadcastList.forEach((item, index) => {
-              if (item.isCurrent) {
-                this.upIndex = index
-              }
-            })
-          }
-        })
+        return getLiveBroadcastList(this.params)
+          .then(res => {
+            if (res.data.code === 1) {
+              let list = res.data.data.list
+              this.liveBroadcastList.push(...this.transformLiveBroadcastList(list))
+              this.liveBroadcastList.forEach((item, index) => {
+                if (item.isCurrent) {
+                  this.upIndex = index
+                }
+              })
+              return list
+            }
+          })
       },
       async loadMore (res) {
         const that = this
         let isLastPage = false
-        await that.getLiveBroadcastList().then(list => {
-          isLastPage = that.$_.isLastPage(that.params.limit, list)
-        })
+        if (isLastPage || (that.liveBroadcastList.length > 0 && that.liveBroadcastList.length < that.params.limit)) { // 不满一页
+          this.isLoadMoreShow = false
+          res.complete()
+          return
+        }
+        await that.getLiveBroadcastList()
+          .then(list => {
+            isLastPage = that.$_.isLastPage(that.params.limit, list)
+          })
         if (isLastPage) {
+          this.isLoadMoreShow = false
           res.complete()
         } else {
           res.loaded()
@@ -351,6 +361,7 @@
         this.chooseCurrent++
         this.liveBroadcastList = []
         this.params.scope = scope
+        this.getLiveBroadcastList()
       },
       /**
        * 直播列表的收起和展开
@@ -439,7 +450,7 @@
         let list = []
         source.forEach(item => {
           list.push({
-            isCurrent: item.is_underway, // 是否选中
+            isCurrent: item.is_underway === 1, // 是否选中
             enum: item.key, // 枚举值
             text: item.scope_str
           })
@@ -457,8 +468,8 @@
           list.push({
             id: item.id, // 直播课程id
             title: item.title, // 标题
-            date: item.live_date, // 日期
-            time: item.start_time, // 时间
+            date: item.start_date, // 日期
+            time: item.queen_time, // 时间
             isOngoing: item.is_underway === 1, // 是否正在直播
             isUnlock: item.is_start === 1, // 是否解锁
             isCurrent: item.is_intraday === 1, // 是否展开

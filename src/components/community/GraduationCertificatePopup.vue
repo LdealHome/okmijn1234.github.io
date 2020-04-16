@@ -293,7 +293,7 @@
           ctx.font = curriculumFont
           ctx.fillStyle = curriculumColor
           ctx.textBaseline = 'top'
-          let splicing = `恭喜你完成了润阳老师${curriculumText}课程`
+          let splicing = `恭喜你完成了${curriculumText}课程`
           let curriculumTextWidth = ctx.measureText(splicing).width > curriculumWidth ? curriculumWidth : ctx.measureText(splicing).width
           ctx.wrapText(splicing, (canvasWidth - curriculumTextWidth) / 2, curriculumY, curriculumWidth, 30, 1)
           ctx.restore()
@@ -458,7 +458,7 @@
           ctx.fillStyle = codeNameColor
           ctx.textBaseline = 'top'
           ctx.textAlign = 'left'
-          let codeNameText = `润阳${curriculumText}`
+          let codeNameText = curriculumText
           let codeNameWidth = ctx.measureText(codeNameText).width
           ctx.fillText(codeNameText, (canvasWidth - codeNameWidth) / 2, codeNameY)
           ctx.restore()
