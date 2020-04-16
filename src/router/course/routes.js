@@ -1,4 +1,4 @@
-const ROUTES_NAME = '/course'
+const ROUTES_NAME = '/curriculum'
 /**
  * 可以分享的页面，meta中添加share字段值为true
  * 禁止游客访问的页面，meta中添加auth字段为true
@@ -6,8 +6,8 @@ const ROUTES_NAME = '/course'
 export default [
   {
     path: `${ROUTES_NAME}/`,
-    name: 'course',
-    component: () => import(/* webpackChunkName: "course" */ '../../views/course/Course.vue'),
+    name: 'curriculum',
+    component: () => import(/* webpackChunkName: "curriculum" */ '../../views/course/Course.vue'),
     meta: {
       title: '课程'
     }

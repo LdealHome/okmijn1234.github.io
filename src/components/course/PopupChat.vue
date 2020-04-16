@@ -40,6 +40,9 @@
         isShow: true
       }
     },
+    created () {
+      this.isShow = this.isShowPopup
+    },
     watch: {
       isShowPopup (val) {
         this.isShow = val
