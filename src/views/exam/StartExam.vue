@@ -6,10 +6,10 @@
         span.item-text {{duration}}
       li.item
         span.item-icon.topic
-        span.item-text 共10题
+        span.item-text 共{{topicNumber}}题
       li.item
         span.item-icon.total
-        span.item-text 合计10分
+        span.item-text 合计{{totalScore}}分
     div.exam__content(ref="indexWrap"  @scroll="onListWrapScroll")
       ul.exam__list
         li.exam__item(
@@ -23,7 +23,7 @@
             template(v-for="itm in item.list")
               label.choose(:for="`choose${itm.id}`" :key="itm.id")
                 span.choose-text {{itm.text}}
-                input.choose-type(:type="item.type !== 3 ? 'radio' : 'checkbox'" :id="`choose${itm.id}`" :value="itm.text" v-model='item.choose')
+                input.choose-type(:type="item.type !== 3 ? 'radio' : 'checkbox'" :id="`choose${itm.id}`" :value="itm" v-model='item.choose')
       TechnicalSupport
     button.exam__determine(type="button" @click="determine") 提交试卷
     MorePupup
@@ -86,11 +86,12 @@
         scrollTimer: null,
         isRoll: false, // 是否已经找到未答题的题目
         isTimeOut: false, // 答题时间是否到
+        isAnswer: false, // 是否答完并提交试卷
         timer: null
       }
     },
     beforeRouteLeave (to, from, next) {
-      if (this.isRoll) {
+      if (!this.isAnswer) {
         MessageBox({
           message: '你还没有提交试卷，退出后再次进入会从当前的时间继续开始，保存已做的考试题目，确认要退出吗？',
           confirmButtonText: '确定',
@@ -102,7 +103,8 @@
             this.$store.commit($_.commits.SET_LOCAL_CACHE, {
               key: this.cacheKey,
               value: {
-                storageTime: this.timeRush
+                storageTime: this.durationRush,
+                examList: this.examList
               }
             })
             next()
@@ -118,9 +120,6 @@
     destroyed () {
       clearTimeout(this.scrollTimer)
     },
-    mounted () {
-      this.calculateHeight()
-    },
     created () {
       this.mine()
     },
@@ -131,21 +130,22 @@
             let that = this
             let data = res.data.data
             document.title = data.exam_title
-            let duration
             // 考试未完成是否离开过页面
-            if (that.getLocalCache) {
-              duration = that.getLocalCache.storageTime
-              console.log(duration)
+            if (that.getLocalCache) { // 有缓存
+              that.durationRush = that.getLocalCache.storageTime
+              that.examList = that.getLocalCache.examList
               // 清空缓存
               this.$store.commit($_.commits.REMOVE_LOCAL_CACHE, that.cacheKey)
-            } else {
-              duration = data.answer_length
+            } else { // 没有缓存
+              that.durationRush = data.answer_length // 考试时长秒
+              that.examList = that.transformExamList(data.list)
             }
-            that.durationRush = duration // 考试时长秒
             this.topicNumber = data.answer_number // 考试题目量
             this.totalScore = data.grade // 总分
             that.timeCountDown()
-            that.examList = that.transformExamList(data.list)
+            setTimeout(() => {
+              this.calculateHeight()
+            }, 500)
           }
         })
       },
@@ -186,21 +186,41 @@
               that.isRoll = true
             }
           }
-          item.list.forEach(itm => {
-            list.push({
-              option_id: itm.id,
-              q_id: itm.subjectId
+          let perItem = item.choose // 选择的每项
+          let optionId = [] // 选择每项的选项id
+          let topicId // 多项选择时题目id是一样的
+          if (Array.isArray(perItem)) {
+            perItem.forEach(itm => {
+              optionId.push(itm.id)
+              topicId = itm.subjectId
             })
-          })
-        })
-        if (!that.isRoll) { // 全部答完或者答题时间到
-          let params = {
-            list: list,
-            s_id: that.liveVideoId
+            list.push({
+              option_id: optionId
+            })
+            list.forEach(listId => {
+              if (!listId.q_id) {
+                listId.q_id = topicId
+              }
+            })
+          } else {
+            optionId.push(perItem.id)
+            list.push({
+              option_id: optionId,
+              q_id: perItem.subjectId
+            })
           }
-          console.log(params)
+        })
+        if (!that.isRoll || that.isTimeOut) { // 全部答完或者答题时间到
+          let params = {
+            data: {
+              list: list,
+              s_id: that.liveVideoId
+            }
+          }
           postSubmitPapers(params).then(res => {
             if (res.data.code === 1) {
+              that.isAnswer = true
+              clearInterval(this.timer)
               that.$router.push({
                 name: 'accomplish-exam',
                 params: {
