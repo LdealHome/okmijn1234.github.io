@@ -12,6 +12,7 @@
             span.time {{item.time}}
     DetailsContent(
       :contentList="contentList"
+      :countdownData="countdownData"
       @videoPlay="videoPlay"
       @jumpLink="jumpLink"
       )
@@ -128,7 +129,14 @@
         postList: [], // 完善信息职位列表
         shareInfo: null,
         isShowWaitPopup: false,
-        isPostersSharePopup: false // 邀请海报
+        isPostersSharePopup: false, // 邀请海报
+        countdownData: { // 倒计时数据
+          day: [], // 天
+          hour: [], // 时
+          minute: [], // 分
+          second: [] // 秒
+        },
+        countdownTimer: null // 倒计时
       }
     },
     watch: {
@@ -188,6 +196,10 @@
         return this.mUid || this.fromUid
       }
     },
+    beforeRouteLeave (to, from, next) {
+      clearInterval(this.countdownTimer)
+      next()
+    },
     created () {
       this.mine()
     },
@@ -222,6 +234,42 @@
             that.isObtainCoursePopup = data.is_give === 2
 
             that.postList = data.position_enums
+            this.countdownStarts()
+          }
+        })
+      },
+      // 倒计时
+      countdownStarts () {
+        this.contentList.forEach(item => {
+          if (item.type === 7) {
+            let countDown = 180000 || item.countdown
+            if (countDown > 0) {
+              this.countdownTimer = setInterval(() => {
+                if (countDown <= 1) {
+                  clearInterval(this.countdownTimer)
+                } else {
+                  countDown--
+                  // 天
+                  let day = parseInt(countDown / 86400)
+                  day = day > 9 ? day : ('0' + day)
+                  // 时
+                  let hour = parseInt((countDown % 86400) / 3600)
+                  hour = hour > 9 ? hour : ('0' + hour)
+                  // 分
+                  let minute = parseInt((countDown % 86400 % 3600) / 60)
+                  minute = minute > 9 ? minute : ('0' + minute)
+                  // 秒
+                  let second = parseInt(countDown % 60)
+                  second = second > 9 ? second : ('0' + second)
+                  this.countdownData = {
+                    day: day.toString().split(''),
+                    hour: hour.toString().split(''),
+                    minute: minute.toString().split(''),
+                    second: second.toString().split('')
+                  }
+                }
+              }, 1000)
+            }
           }
         })
       },
@@ -379,9 +427,10 @@
         source.forEach(item => {
           list.push({
             videoList: this.transformVideoList(item.list_data), // 视频列表/多个链接
-            type: item.mark_format, // 类型 1图片 2文本 3单个视频 4多个视频 6多链接
+            type: item.mark_format, // 类型 1图片 2文本 3单个视频 4多个视频 6多链接 7倒计时
             title: item.title, // 标题
-            text: item.resource // 文本内容
+            text: item.resource, // 文本内容
+            countdown: item.time // 倒计时秒
           })
         })
         return list

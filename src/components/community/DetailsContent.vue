@@ -47,6 +47,26 @@
         li.item(v-for="(video, videoIndex) in item.videoList" @click="$emit('jumpLink', video.src)" :key="videoIndex")
           img.img(:src="video.cover")
           span.name {{video.text}}
+      // 倒计时
+      div.module__countdown(v-if="item.type === 7")
+        h2.headline {{item.title}}
+        div.countdown
+          p.countdown-number
+            span.number {{countdownData.day[0]}}
+            span.number {{countdownData.day[1]}}
+          p.countdown-text 天
+          p.countdown-number
+            span.number {{countdownData.hour[0]}}
+            span.number {{countdownData.hour[1]}}
+          p.countdown-text 时
+          p.countdown-number
+            span.number {{countdownData.minute[0]}}
+            span.number {{countdownData.minute[1]}}
+          p.countdown-text 分
+          p.countdown-number
+            span.number {{countdownData.second[0]}}
+            span.number {{countdownData.second[1]}}
+          p.countdown-text 秒
 </template>
 
 <script>
@@ -58,6 +78,18 @@
         required: true,
         default () {
           return []
+        }
+      },
+      countdownData: { // 倒计时社群详情页
+        type: Object,
+        required: false,
+        default () {
+          return {
+            day: [], // 天
+            hour: [], // 时
+            minute: [], // 分
+            second: [] // 秒
+          }
         }
       }
     }
@@ -221,6 +253,72 @@
         font-size: .24rem;
         font-weight: bold;
         transform: scale(.9) translateY(-50%);
+      }
+    }
+
+    &__countdown {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      width: 6.9rem;
+      height: 1.56rem;
+      margin: .3rem auto 0 auto;
+      background-color: #fde9a5;
+
+      &::before {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        content: '';
+        height: .08rem;
+        border-radius: .04rem;
+        background: linear-gradient(to right, #fc8d18, #fa4809);
+      }
+
+      .headline {
+        color: #f74a05;
+        font-size: .3rem;
+        text-align: center;
+        padding: .2rem 0 .1rem 0;
+      }
+
+      .countdown {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: #fa4909;
+        font-size: .26rem;
+        height: .72rem;
+        padding-left: .16rem;
+        border: .04rem solid #fde9a5;
+        border-radius: .12rem;
+        background-color: #fff;
+
+        &-number {
+          display: inline-flex;
+          align-items: center;
+        }
+
+        &-text {
+          width: .48rem;
+          text-align: center;
+        }
+      }
+
+      .number {
+        display: inline-block;
+        width: .4rem;
+        height: .5rem;
+        line-height: .5rem;
+        color: #fff;
+        text-align: center;
+        font-size: .34rem;
+        font-weight: bold;
+        margin: 0 .02rem;
+        border-radius: .04rem;
+        background: linear-gradient(to top, #fec901, #ff9104);
       }
     }
   }
