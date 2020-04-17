@@ -464,7 +464,7 @@
       videoPlay (item) {
         this.videoInfo = {
           imgSrc: item.cover,
-          videoUrl: item.videoUrl
+          videoUrl: item.videoSrc
         }
         this.isShowVideo = true
       },
