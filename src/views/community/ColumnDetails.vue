@@ -384,7 +384,9 @@
         // 1表示直播，2表示考试，3表示预告视频，4表示辅助视频
         switch (itm.isState) {
         case 1: // 直播
-          console.log('跳转直播页')
+          this.$router.push({
+            name: 'curriculum'
+          })
           break
         case 2: // 考试
           if (item.isUnlock) {
