@@ -1,20 +1,14 @@
 <template lang="pug">
-  div.whole
-    CouresHorizontal
+  div
+    CourseHorizontal
 </template>
 
 <script>
-  import CouresHorizontal from './CouresHorizontal'
+  import CourseHorizontal from './CourseHorizontal'
   export default {
     name: 'Course',
     components: {
-      CouresHorizontal
+      CourseHorizontal
     }
   }
 </script>
-
-<style scoped lang="less">
-  .whole {
-    min-height: 100vh;
-  }
-</style>

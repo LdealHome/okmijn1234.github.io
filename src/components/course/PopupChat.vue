@@ -22,7 +22,6 @@
         required: true,
         default () {
           return {
-            isShow: false,
             list: [
               {
                 id: 0,
@@ -33,6 +32,11 @@
             ]
           }
         }
+      },
+      isShowPopup: {
+        type: Boolean,
+        required: true,
+        default: false
       }
     },
     data () {
@@ -46,11 +50,6 @@
     watch: {
       isShowPopup (val) {
         this.isShow = val
-      }
-    },
-    computed: {
-      isShowPopup () {
-        return this.chatInfo.isShow
       }
     }
   }
