@@ -6,16 +6,22 @@
     )
       P.top-title 讨论区(1002)
       img.close-btn(src="@icon/close/close-reward.png" @click="isShow = false")
-      div.comment-view
-        div.comment-left
-          input.comment-input(placeholder="说点什么吧~" v-ios-focus)
-          div.problem-btn 提问
-        p.send-btn 发送
+      div.comment-back
+        ListComment.comment-list
+      //- div.comment-bottom
+      //-   div.comment-left
+      //-     input.comment-input(placeholder="说点什么吧~" v-ios-focus)
+      //-     div.problem-btn 提问
+      //-   p.send-btn 发送
 </template>
 
 <script>
+  import ListComment from './ListComment'
   export default {
     name: 'CommentArea',
+    components: {
+      ListComment
+    },
     props: {
       data: {
         type: Object,
@@ -61,6 +67,8 @@
     max-height: 84%;
     width: 100%;
     border-radius: .12rem .12rem 0 0;
+    display: flex;
+    flex-direction: column;
   }
 
   .top-title {
@@ -80,7 +88,19 @@
     box-sizing: content-box;
   }
 
-  .comment-view {
+  .comment-back {
+    flex: 1;
+    overflow: auto;
+  }
+
+  .comment-list {
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .comment-bottom {
     box-shadow: 0 0 .03rem 0 rgba(206, 202, 202, 1);
     height: .98rem;
     padding: 0 .42rem;

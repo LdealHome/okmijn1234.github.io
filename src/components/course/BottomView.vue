@@ -1,12 +1,12 @@
 <template lang="pug">
   div.bottom-back
     div.comment-view
-      input.comment-input(placeholder="说点什么吧~" v-ios-focus)
-      div.problem-btn 提问
+      input.comment-input(placeholder="说点什么吧~" v-model.trim="commentContent" v-ios-focus)
+      div.problem-btn(:class="{ 'problem-active': isProblem }" @click="isProblem = !isProblem") 提问
     img.bullet-chat(:src="bulletChatSrc" @click="$emit('clickBulletChat')")
     img.comment-btn(src="@icon/course/comment-btn.png" @click="$emit('clickComment')")
     img.reward-btn(src="@icon/course/reward.png" @click="$emit('clickReward')")
-    img.more-btn(src="@icon/course/bullet-chat.png" @click="$emit('clickMore')")
+    img.more-btn(src="@icon/course/more.png" @click="$emit('clickMore')")
 </template>
 
 <script>
@@ -18,14 +18,20 @@
         required: true,
         default () {
           return {
-            isShowBulletChat: 1
+            isShow: 1
           }
         }
       }
     },
+    data () {
+      return {
+        commentContent: '',
+        isProblem: false
+      }
+    },
     computed: {
       bulletChatSrc () {
-        return this.data.isShowBulletChat ? require('@icon/course/bullet-chat.png') : require('@icon/course/bullet-chat-close.png')
+        return this.data.isShow ? require('@icon/course/bullet-chat.png') : require('@icon/course/bullet-chat-close.png')
       }
     }
   }
@@ -69,6 +75,11 @@
     background-size: .24rem;
   }
 
+  .problem-active {
+    background: url('~@icon/course/selected-state.png') no-repeat left center;
+    background-size: .24rem;
+  }
+
   .bullet-chat {
     width: .54rem;
     height: .54rem;
@@ -77,9 +88,9 @@
   }
 
   .comment-btn {
-    width: .55rem;
-    height: .55rem;
-    padding: .1rem;
+    width: .56rem;
+    height: .56rem;
+    padding: .09rem;
     box-sizing: content-box;
   }
 
@@ -91,9 +102,9 @@
   }
 
   .more-btn {
-    width: .55rem;
-    height: .55rem;
-    padding: .1rem;
+    width: .56rem;
+    height: .56rem;
+    padding: .09rem;
     box-sizing: content-box;
   }
 </style>

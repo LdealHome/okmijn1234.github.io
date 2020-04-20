@@ -1,26 +1,30 @@
 <template lang="pug">
   div.learning-area-back
     div.content
+      div.right-anchor
+        span.anchor-top
+        span.anchor-bottom
       div.fu-center
         div.fu-text
           img.fu-text-img(src="@images/course/fu-text.png")
         img.fortune-bag(src="@icon/course/fortune-bag.png")
         p.click-tips 点击福字，了解分享后好处
         div.tips-btn 分享课程，为课程点赞
-      ul
-        li
-          div
-            p 用户昵称
-            p 赞赏了一个
-          CommentItem 
+      //- ul
+      //-   li
+      //-     p.time 02-16 10:46
+      //-     //- CommentItem
+      //-     p.reward-item 用户昵称 赞赏了一个 
+      //-       span.amount 6.6元红包
+      ListComment
 </template>
 
 <script>
-  import CommentItem from './CommentItem'
+  import ListComment from './ListComment'
   export default {
     name: 'LearningArea',
     components: {
-      CommentItem
+      ListComment
     }
   }
 </script>
@@ -29,6 +33,7 @@
   .learning-area-back {
     flex: 1;
     overflow: auto;
+    position: relative;
   }
 
   .content {
@@ -36,6 +41,28 @@
     height: 100%;
     overflow: auto;
     -webkit-overflow-scrolling: touch;
+    padding-bottom: .2rem;
+  }
+
+  .right-anchor {
+    height: 1.35rem;
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    top: 0;
+    bottom: 0;
+    margin: auto 0;
+    right: .3rem;
+    z-index: 10;
+  }
+
+  .anchor-top,
+  .anchor-bottom {
+    width: .5rem;
+    height: .5rem;
+    border-radius: 50%;
+    background: #aaa;
   }
 
   .fu-center {

@@ -108,5 +108,5 @@ export function getCourseServe () {
  * @returns {AxiosPromise<any>}
  */
 export function postSendVerificationCode (data) {
-  return Vue.axios.post('/api/user/verify/code', data)
+  return Vue.axios.post('/user/verify/code', data)
 }
