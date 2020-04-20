@@ -4,7 +4,7 @@ import Vue from 'vue'
  * @returns {AxiosPromise<any>}
  */
 export function getPersonalInfo () {
-  return Vue.axios.get('/api/user/info')
+  return Vue.axios.get('/user/info')
 }
 
 /**
@@ -13,7 +13,7 @@ export function getPersonalInfo () {
  * @returns {AxiosPromise<any>}
  */
 export function getSpecialList (params) {
-  return Vue.axios.get('/api/course/column/list', { params })
+  return Vue.axios.get('/course/column/list', { params })
 }
 
 /**
@@ -22,7 +22,7 @@ export function getSpecialList (params) {
  * @returns {AxiosPromise<any>}
  */
 export function getSingleList (params) {
-  return Vue.axios.get('/api/course/single/list', { params })
+  return Vue.axios.get('/course/single/list', { params })
 }
 
 /**
@@ -30,7 +30,7 @@ export function getSingleList (params) {
  * @returns {AxiosPromise<any>}
  */
 export function getEditInfo () {
-  return Vue.axios.get('/api/user/personal/info')
+  return Vue.axios.get('/user/personal/info')
 }
 
 /**
@@ -39,7 +39,7 @@ export function getEditInfo () {
  * @returns {AxiosPromise<any>}
  */
 export function postSaveEditInfo (data) {
-  return Vue.axios.get('/api/user/personal/save', data)
+  return Vue.axios.get('/user/personal/save', data)
 }
 
 /**
@@ -47,7 +47,7 @@ export function postSaveEditInfo (data) {
  * @returns {AxiosPromise<any>}
  */
 export function getLearningReport () {
-  return Vue.axios.get('/api/user/learn/report')
+  return Vue.axios.get('/user/learn/report')
 }
 
 /**
@@ -56,7 +56,7 @@ export function getLearningReport () {
  * @returns {AxiosPromise<any>}
  */
 export function getBuyCourse (params) {
-  return Vue.axios.get('/api/user/grow/up/pay', { params })
+  return Vue.axios.get('/user/grow/up/pay', { params })
 }
 
 /**
@@ -65,7 +65,7 @@ export function getBuyCourse (params) {
  * @returns {AxiosPromise<any>}
  */
 export function getGratisCourse (params) {
-  return Vue.axios.get('/api/user/grow/up/free', { params })
+  return Vue.axios.get('/user/grow/up/free', { params })
 }
 
 /**
@@ -74,7 +74,7 @@ export function getGratisCourse (params) {
  * @returns {AxiosPromise<any>}
  */
 export function getInviteList (params) {
-  return Vue.axios.get('/api/community/invite/list', { params })
+  return Vue.axios.get('/community/invite/list', { params })
 }
 
 /**
@@ -82,5 +82,5 @@ export function getInviteList (params) {
  * @returns {AxiosPromise<any>}
  */
 export function getInviteInfo () {
-  return Vue.axios.get('/api/community/invite/info')
+  return Vue.axios.get('/community/invite/info')
 }

@@ -4,7 +4,7 @@ import Vue from 'vue'
  * @returns {AxiosPromise<any>}
  */
 export function getNewsType () {
-  return Vue.axios.get('/api/user/message/type/list')
+  return Vue.axios.get('/user/message/type/list')
 }
 
 /**
@@ -13,5 +13,5 @@ export function getNewsType () {
  * @returns {AxiosPromise<any>}
  */
 export function getNewsList (params) {
-  return Vue.axios.get('/api/user/message/list', { params })
+  return Vue.axios.get('/user/message/list', { params })
 }
