@@ -4,7 +4,7 @@
       div.hammer-view(@click.stop="$router.push({ name: 'particulars', params: { from: uid } })") 自动成交页
       div.fu-view(@click.stop="$router.push({ name: 'home' })") 集福中心
       div.study-view(@click.stop="$router.push({name: 'mine'})") 学习中心
-      div.collection-view(@click.stop="collectionClick") 收藏
+      div.collection-view(@click.stop="$emit('collectionClick')") 收藏
     img.more-btn(:src="imgSrc" @click="isShowMore = !isShowMore")
 </template>
 
@@ -27,11 +27,6 @@
       },
       imgSrc () {
         return this.isShowMore ? require('../assets/icon/more/retract.png') : require('../assets/icon/more/more.png')
-      }
-    },
-    methods: {
-      collectionClick () {
-        console.log(1)
       }
     }
   }

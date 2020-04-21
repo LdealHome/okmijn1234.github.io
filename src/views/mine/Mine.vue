@@ -19,7 +19,7 @@
         div.account-item(@click="blessingAccount")
           p.data-number {{mBean.growthAccount}}
           p.account-name 福报账户
-        div.account-item
+        div.account-item(@click="bankAccount")
           p.data-number {{mBean.growthAccount}}
           p.account-name 银行账户
     div.content
@@ -83,7 +83,7 @@
       return {
         curriculumType: 1,
         mBean: {
-          ranking: 1, // 排名
+          ranking: '', // 排名
           avatar: '', // 头像
           name: '', // 昵称
           growthAccount: 0, // 成长账户
@@ -147,6 +147,9 @@
       },
       blessingAccount () {
         this.$router.push({ name: 'account-blessing' })
+      },
+      bankAccount () {
+        this.$_.Toast('即将上线，敬请期待!')
       },
       learningReport () {
         this.$router.push({ name: 'learning-report' })

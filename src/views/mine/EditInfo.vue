@@ -23,11 +23,15 @@
           @click="obtainCodeClick"
         ) {{obtainBtnText}}
     div.save-btn(@click="saveBtnClick") 保存
-    MorePupup
+    MorePupup(
+      @collectionClick="isShowCollect = true"
+    )
+    GuideCollection(:isShow="isShowCollect" @close="isShowCollect = false")
 </template>
 
 <script>
   import MorePupup from '../../components/MorePupup'
+  import GuideCollection from '../../components/course/GuideCollection'
   import qiniuUpload from '../../mixin/qiniuUpload'
   import wexinConfig from '../../mixin/weixinConfig'
   import {
@@ -38,7 +42,8 @@
   export default {
     name: 'EditInfo',
     components: {
-      MorePupup
+      MorePupup,
+      GuideCollection
     },
     mixins: [wexinConfig, qiniuUpload],
     data () {
@@ -51,7 +56,8 @@
         originalPhone: '',
         countDown: 60,
         timer: null,
-        avatarData: null
+        avatarData: null,
+        isShowCollect: false
       }
     },
     beforeRouteLeave (to, from, next) {

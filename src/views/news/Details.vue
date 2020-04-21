@@ -10,16 +10,21 @@
       div(slot="spinner")
       div(slot="no-more")
       div(slot="no-results")
-    MorePupup
+    MorePupup(
+      @collectionClick="isShowCollect = true"
+    )
+    GuideCollection(:isShow="isShowCollect" @close="isShowCollect = false")
 </template>
 
 <script>
   import MorePupup from '../../components/MorePupup'
+  import GuideCollection from '../../components/course/GuideCollection'
   import { getNewsList } from '../../services/news'
   export default {
     name: 'Details',
     components: {
-      MorePupup
+      MorePupup,
+      GuideCollection
     },
     data () {
       return {
@@ -27,7 +32,8 @@
           limit: 20,
           page: 1
         },
-        list: []
+        list: [],
+        isShowCollect: false
       }
     },
     computed: {

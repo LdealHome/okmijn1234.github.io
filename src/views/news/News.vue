@@ -6,20 +6,26 @@
       @click="newsClick(index)"
     ) {{item.name}}
       span.news-num(v-if="item.news") {{item.news}}
-    MorePupup
+    MorePupup(
+      @collectionClick="isShowCollect = true"
+    )
+    GuideCollection(:isShow="isShowCollect" @close="isShowCollect = false")
 </template>
 
 <script>
   import MorePupup from '../../components/MorePupup'
+  import GuideCollection from '../../components/course/GuideCollection'
   import { getNewsType } from '../../services/news'
   export default {
     name: 'News',
     components: {
-      MorePupup
+      MorePupup,
+      GuideCollection
     },
     data () {
       return {
-        list: []
+        list: [],
+        isShowCollect: false
       }
     },
     created () {
