@@ -10,12 +10,20 @@
         id="video"
       )
       img.play-btn(src="@icon/course/play-btn.png" @click="playVideo" v-show="!isPlayVideo")
-      div.count-down-view
+      div.count-down-view(v-show="notBroadcast")
         div.count-down-info
-          p.count-down 倒计时
-          div.remind-btn 开播提醒我
-      div.follow-view
-        img.follow-avatar(src="http://hskimgtest.smsqmx.com/upload/head_img/2020_03_07/a87ff679a2f3e71d9181a67b7542122c.png")
+          p.count-down 倒计时: 
+            span.count-down-num {{data.countDownList[0]}}
+            span.count-down-unit 天
+            span.count-down-num {{data.countDownList[1]}}
+            span.count-down-unit 时
+            span.count-down-num {{data.countDownList[2]}}
+            span.count-down-unit 分
+            span.count-down-num {{data.countDownList[3]}}
+            span.count-down-unit 秒
+          div.remind-btn(@click="$emit('clickSetRemind')") {{remindBtnText}}
+      div.follow-view(@click="$emit('followBtnClick')")
+        img.follow-avatar(:src="data.followBtnAvatar")
         p.follow-text 关注润阳老师
     div.live-broadcast-info
       p.state.not-started(:class="liveBroadcastClass") {{liveBroadcastState}}
@@ -43,7 +51,9 @@
             },
             state: 0, // 直播状态 0: 未开始 1:直播中 2:回放
             personTime: 0, // 人次
-            time: 0 // 如果state为0，则是开始倒计时，1为直播播放的位置。单位秒，
+            time: 0, // 如果state为0，则是开始倒计时，1为直播播放的位置。单位秒，
+            isSetReminders: true, // 是否设置开播提醒
+            countDownList: [] // 开播倒计时数组 [天、时、分、秒]
           }
         }
       }
@@ -56,25 +66,33 @@
     },
     computed: {
       liveBroadcastState () {
-        let list = ['未开始', '直播中', '回放']
+        let list = ['未开始', '直播中', '直播回放']
         return list[this.data.state]
       },
       liveBroadcastClass () {
         return {
-          'not-started': this.data.state === 0,
-          'started': this.data.state > 0
+          'not-started': this.notBroadcast,
+          'started': !this.notBroadcast
         }
       },
       retractClass () {
         return { 'retract-open': this.isOpenVideo }
+      },
+      notBroadcast () {
+        return this.data.state === 0
+      },
+      remindBtnText () {
+        return this.data.isSetReminders ? '已设置开播提醒' : '开播提醒我'
       }
     },
     methods: {
       playVideo () {
+        if (this.notBroadcast) return
         let video = document.getElementById('video')
         video.currentTime = this.data.time
         video.play()
         this.isPlayVideo = true
+        // video.webkitRequestFullScreen()
       }
     }
   }
@@ -143,11 +161,21 @@
     width: 100%;
     display: flex;
     justify-content: space-between;
+    align-items: center;
   }
 
   .count-down {
     font-size: .28rem;
     color: #fff;
+  }
+
+  .count-down-num {
+    font-size: .3rem;
+    font-weight: bold;
+  }
+
+  .count-down-unit {
+    font-size: .24rem;
   }
 
   .remind-btn {
@@ -227,5 +255,9 @@
 
   .retract-open {
     transform: rotate(180deg);
+  }
+
+  video::-webkit-media-controls-enclosure {
+    display: none !important;
   }
 </style>

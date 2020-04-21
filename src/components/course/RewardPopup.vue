@@ -4,7 +4,7 @@
       v-model="isShow"
     )
       img.close(src="@icon/close/close-reward.png" @click="isShow = false")
-      p.top-text {{rewardInfo.title}}
+      p.top-text 喜欢讲师
       img.avatar(:src="rewardInfo.avatar")
       p.name {{rewardInfo.name}}
       div.reward-list(v-if="isFixed")
@@ -39,7 +39,6 @@
         default () {
           return {
             isShow: true,
-            title: '喜欢讲师',
             avatar: '',
             name: '册撒发给'
           }

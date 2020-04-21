@@ -7,13 +7,13 @@
       p.more-text 更多
       img.close(@click="isShowMore = false" src="@icon/close/close-reward.png")
       ul.list
-        li.item
+        li.item(@click="$router.push({ name: 'particulars', params: { from: uid } })")
           img.item-icon(src="@icon/more/course-hammer.png")
           p.text 自动成交页
-        li.item
+        li.item(@click="$router.push({ name: 'home' })")
           img.item-icon(src="@icon/more/course-fu.png")
           p.text 集福中心
-        li.item
+        li.item(@click="$router.push({ name: 'mine' })")
           img.item-icon(src="@icon/more/course-study.png")
           p.text 学习中心
         li.item(@click="$emit('collect')")
@@ -47,6 +47,9 @@
         if (val) {
           this.isShowMore = true
         }
+      },
+      uid () {
+        return this.$store.state.personalInfo.uid || 0
       }
     },
     created () {

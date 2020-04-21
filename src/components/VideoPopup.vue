@@ -59,7 +59,7 @@
       bottom: 0;
       width: 100%;
       height: 100%;
-      z-index: 11;
+      z-index: 30;
 
       .mask {
         position: absolute;

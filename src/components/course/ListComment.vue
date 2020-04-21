@@ -42,7 +42,7 @@
     padding: 0 .12rem 0 .44rem;
     font-size: .22rem;
     color: #bb864c;
-    background: #fff5a7 url('~@icon/course/ask-chat.png') no-repeat left .14rem center;
+    background: #fff5a7 url('~@icon/course/red-packet.png') no-repeat left .14rem center;
     background-size: .2rem;
     border-radius: .08rem;
     margin-left: .87rem;

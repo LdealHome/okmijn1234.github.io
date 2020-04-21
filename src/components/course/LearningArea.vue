@@ -1,21 +1,15 @@
 <template lang="pug">
   div.learning-area-back
-    div.content
+    div.content(ref="learningView")
       div.right-anchor
-        span.anchor-top
-        span.anchor-bottom
+        span.anchor-top(@click="rollTopClick")
+        span.anchor-bottom(@click="rollBottomClick")
       div.fu-center
-        div.fu-text
+        div.fu-text(@click="goHomePage")
           img.fu-text-img(src="@images/course/fu-text.png")
-        img.fortune-bag(src="@icon/course/fortune-bag.png")
-        p.click-tips 点击福字，了解分享后好处
-        div.tips-btn 分享课程，为课程点赞
-      //- ul
-      //-   li
-      //-     p.time 02-16 10:46
-      //-     //- CommentItem
-      //-     p.reward-item 用户昵称 赞赏了一个 
-      //-       span.amount 6.6元红包
+        img.fortune-bag(src="@icon/course/fortune-bag.png" @click="seeShareVideo")
+        p.click-tips(@click="seeShareVideo") 点击福字，了解分享后好处
+        div.tips-btn(@click="$emit('shareBtnClick')") 分享课程，为课程点赞
       ListComment
 </template>
 
@@ -25,6 +19,20 @@
     name: 'LearningArea',
     components: {
       ListComment
+    },
+    methods: {
+      rollTopClick () {
+        this.$refs.learningView.scrollTop = 0
+      },
+      rollBottomClick () {
+        this.$refs.learningView.scrollTop = this.$refs.learningView.scrollHeight
+      },
+      goHomePage () {
+        this.$router.push({ name: 'home' })
+      },
+      seeShareVideo () {
+        this.$emit('seeVideo', { type: 1, scene: '' })
+      }
     }
   }
 </script>
@@ -61,8 +69,20 @@
   .anchor-bottom {
     width: .5rem;
     height: .5rem;
-    border-radius: 50%;
-    background: #aaa;
+
+    &:active {
+      opacity: .8;
+    }
+  }
+
+  .anchor-top {
+    background: url('~@icon/course/top-arrow.png') no-repeat;
+    background-size: 100%;
+  }
+
+  .anchor-bottom {
+    background: url('~@icon/course/bottom-arrow.png') no-repeat;
+    background-size: 100%;
   }
 
   .fu-center {

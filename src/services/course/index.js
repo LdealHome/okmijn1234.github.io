@@ -7,3 +7,12 @@ import Vue from 'vue'
 export function getCourseInfo (params) {
   return Vue.axios.get('/course/live/room/info', { params })
 }
+
+/**
+ * 设置/取消开播提醒
+ * @param data {Object<remind>} 修改类型 1设置提醒 2取消提醒
+ * @returns {AxiosPromise<any>}
+ */
+export function postChangeRemindState (data) {
+  return Vue.axios.post('/course/set/remind', data)
+}
