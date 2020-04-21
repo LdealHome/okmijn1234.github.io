@@ -133,7 +133,6 @@
           text: '正在加载...',
           spinnerType: 'fading-circle'
         })
-        canvasWrapText()
         let image = new Image()
         image.setAttribute('crossOrigin', 'anonymous')
         image.src = drawCertificate.data.codeSrc

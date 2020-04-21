@@ -242,7 +242,7 @@
       countdownStarts () {
         this.contentList.forEach(item => {
           if (item.type === 7) {
-            let countDown = 180000 || item.countdown
+            let countDown = item.countdown
             if (countDown > 0) {
               this.countdownTimer = setInterval(() => {
                 if (countDown <= 1) {
