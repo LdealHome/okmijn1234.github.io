@@ -6,7 +6,6 @@
       @click="newsClick(index)"
     ) {{item.name}}
       span.news-num(v-if="item.news") {{item.news}}
-    div.save-btn 保存
     MorePupup
 </template>
 
@@ -37,8 +36,8 @@
       })
     },
     methods: {
-      newsClick (type) {
-        this.$router.push({ name: 'news-details', params: { type: this.list[type] } })
+      newsClick (index) {
+        this.$router.push({ name: 'news-details', params: { type: this.list[index].type } })
       }
     }
   }
@@ -66,27 +65,6 @@
 
     &:active {
       opacity: .8;
-    }
-  }
-
-  .save-btn {
-    width: 5.8rem;
-    height: .78rem;
-    line-height: .78rem;
-    border-radius: .39rem;
-    text-align: center;
-    background: #f9d400;
-    font-size: .3rem;
-    color: #313131;
-    position: fixed;
-    bottom: .56rem;
-    left: 0;
-    right: 0;
-    margin: 0 auto;
-    box-shadow: 0 0 .1rem 0 rgba(249, 212, 0, 1);
-
-    &:active {
-      background: darken(#f9d400, 5%);
     }
   }
 

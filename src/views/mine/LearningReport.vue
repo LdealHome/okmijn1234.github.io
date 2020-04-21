@@ -1,5 +1,5 @@
 <template lang="pug">
-  div.whole
+  div.whole(v-if="isLoad")
     p.tips-text 长按图片分享
     img.poster-img(:src="posterImg")
 </template>
@@ -171,13 +171,17 @@
         ctx.fillStyle = '#1b1b1b'
         ctx.textBaseline = 'alphabetic'
         ctx.textAlign = 'start'
-        for (let i = 0; i < baseInfo.latestList.length; i++) {
-          let isNumber = (i + 1) % 2 === 0
-          ctx.font = `${isNumber ? 'bold' : '500'} ${isNumber ? '40' : '28'}px sans-serif`
-          ctx.fillText(baseInfo.latestList[i], initX, 0)
-          initX += ctx.measureText(baseInfo.latestList[i]).width
+        if (baseInfo.latestList.length) {
+          for (let i = 0; i < baseInfo.latestList.length; i++) {
+            let isNumber = (i + 1) % 2 === 0
+            ctx.font = `${isNumber ? 'bold' : '500'} ${isNumber ? '40' : '28'}px sans-serif`
+            ctx.fillText(baseInfo.latestList[i], initX, 0)
+            initX += ctx.measureText(baseInfo.latestList[i]).width
+          }
+        } else {
+          ctx.font = '500 28px sans-serif'
+          ctx.fillText('无', 0, 0)
         }
-        // ctx.fillText('凌晨03点05分', 0, 0)
 
         ctx.restore()
         drawSign()
@@ -225,7 +229,8 @@
     name: 'LearningReport',
     data () {
       return {
-        posterImg: ''
+        posterImg: '',
+        isLoad: false
       }
     },
     mixins: [generateQR],
@@ -243,6 +248,7 @@
             latestList: data.latest_time
           }, function () {
             vm.posterImg = poster.canvas.toDataURL('image/jpeg', 1)
+            vm.isLoad = true
           })
         }
       })

@@ -2,7 +2,7 @@
   div.whole
     div.top-back
       p.ranking 福报榜
-        span.ranking-num NO.{{mBean.ranking}}
+        span.ranking-num {{mBean.ranking}}
       div.news-btn
         img.news-btn-img(src="@icon/mine/news.png" @click="newsClick")
         span.news-num(v-if="mBean.newsUnreadNum") {{mBean.newsUnreadNum}}
@@ -23,7 +23,7 @@
           p.data-number {{mBean.growthAccount}}
           p.account-name 银行账户
     div.content
-      div.go-home
+      div.go-home(@click="$router.push({ name: 'particulars', params: { from: uid } })")
         p.name 传爱集福
         p.tips 赚一生福报
       div.learning-data
@@ -110,6 +110,9 @@
       type () {
         let list = ['ListSpecial', 'ListSingle']
         return list[this.curriculumType - 1]
+      },
+      uid () {
+        return this.$store.state.personalInfo.uid
       }
     },
     methods: {
@@ -177,7 +180,7 @@
           return getSingleList(this.params).then(res => {
             if (res.data.code === 1) {
               let list = res.data.data.list || []
-              this.list.push(...this.transformSpecialList(list))
+              this.list.push(...this.transformSingleList(list))
               return list
             }
           })

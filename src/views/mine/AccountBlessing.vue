@@ -185,6 +185,7 @@
     border: 1px solid #f0f0f0;
     font-size: .28rem;
     color: #999;
+    padding-left: .06rem;
   }
 
   .search-btn {

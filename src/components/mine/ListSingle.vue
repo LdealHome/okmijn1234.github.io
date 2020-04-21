@@ -9,7 +9,7 @@
           div.item-state
             div.live-broadcast(v-if="item.isLiveBroadcast") 直播中
             div.playback(v-else) 回放
-            p.study-speed  学习{{item.speed}}%
+            p.study-speed  {{+item.speed < 100 ? `学习${item.speed}%` : '已完成'}}
       div.total-progress
         div.speed-view(:style="{ 'width': `${item.speed}%` }")
 </template>

@@ -13,7 +13,7 @@ export function getPersonalInfo () {
  * @returns {AxiosPromise<any>}
  */
 export function getSpecialList (params) {
-  return Vue.axios.get('/course/column/list', { params })
+  return Vue.axios.get('/user/column/list', { params })
 }
 
 /**
@@ -22,7 +22,7 @@ export function getSpecialList (params) {
  * @returns {AxiosPromise<any>}
  */
 export function getSingleList (params) {
-  return Vue.axios.get('/course/single/list', { params })
+  return Vue.axios.get('/user/single/list', { params })
 }
 
 /**
@@ -39,7 +39,7 @@ export function getEditInfo () {
  * @returns {AxiosPromise<any>}
  */
 export function postSaveEditInfo (data) {
-  return Vue.axios.get('/user/personal/save', data)
+  return Vue.axios.post('/user/personal/save', data)
 }
 
 /**
