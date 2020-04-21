@@ -83,7 +83,7 @@
         return this.isClickableObtainBtn ? '获取验证码' : `${this.countDown}s`
       },
       avatarScene () {
-        return this.$store.state.sceneInfo.upload_img.radio_bg
+        return this.$store.state.sceneInfo.img.head_img
       }
     },
     methods: {
