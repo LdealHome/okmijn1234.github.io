@@ -78,6 +78,9 @@
   import CamiloPaymentPopup from '../../components/community/CamiloPaymentPopup'
   import weixinConfig from '../../mixin/weixinConfig'
   import {
+    MessageBox
+  } from 'mint-ui'
+  import {
     getParticularsDetail,
     postBuyNow,
     postInformation,
@@ -118,6 +121,7 @@
         isPerfectInformation: false, // 是否完善信息
         isShowInformationPopup: false, // 支付成功后填写信息弹框
         isObtainCoursePopup: false, // 是否已经免费获得课程弹框
+        isOpening: false, // 是否开营
         isPaymentPopup: false, // 立即抢购弹框
         isCamiloPaymentPopup: false, // 卡密支付弹框
         isCourseCustomerServicePopup: false, // 课程客服弹框
@@ -232,6 +236,7 @@
             }
 
             that.isObtainCoursePopup = data.is_give === 2
+            that.isOpening = courseInfo.status === 2
 
             that.postList = data.position_enums
             this.countdownStarts()
@@ -269,6 +274,12 @@
                   }
                 }
               }, 1000)
+            }
+            this.countdownData = {
+              day: '00'.toString().split(''),
+              hour: '00'.toString().split(''),
+              minute: '00'.toString().split(''),
+              second: '00'.toString().split('')
             }
           }
         })
@@ -308,7 +319,14 @@
       },
       // 立即抢购
       immediately () {
-        this.isPaymentPopup = true
+        if (this.isOpening) {
+          this.isPaymentPopup = true
+        } else {
+          MessageBox({
+            message: '课程报名已截止，敬请期待蜕变营的下一期开营招生！',
+            confirmButtonText: '好的'
+          })
+        }
       },
       // 选择卡密支付
       jumpCamiloPayment () {
@@ -355,7 +373,9 @@
         if (!this.isPerfectInformation) { // 未完善信息
           this.isShowInformationPopup = true
         } else {
-          this.$_.Toast('跳转到365课程详情页')
+          this.$router.push({
+            name: 'column-details'
+          })
         }
       },
       /**
