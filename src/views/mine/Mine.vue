@@ -1,7 +1,7 @@
 <template lang="pug">
   div.whole
     div.top-back
-      p.ranking 福报榜
+      p.ranking(@click="rankingClick") 福报榜
         span.ranking-num {{mBean.ranking}}
       div.news-btn
         img.news-btn-img(src="@icon/mine/news.png" @click="newsClick")
@@ -17,10 +17,10 @@
           p.data-number {{mBean.growthAccount}}
           p.account-name 成长账户
         div.account-item(@click="blessingAccount")
-          p.data-number {{mBean.growthAccount}}
+          p.data-number {{mBean.blessingAccount}}
           p.account-name 福报账户
         div.account-item(@click="bankAccount")
-          p.data-number {{mBean.growthAccount}}
+          p.data-number {{mBean.bankAccount}}
           p.account-name 银行账户
     div.content
       div.go-home(@click="$router.push({ name: 'particulars', params: { from: uid } })")
@@ -153,6 +153,9 @@
       },
       learningReport () {
         this.$router.push({ name: 'learning-report' })
+      },
+      rankingClick () {
+        this.$router.push({ name: 'community-ranking' })
       },
       async loadMore (res) {
         const that = this
@@ -293,6 +296,12 @@
     line-height: .42rem;
     position: relative;
     display: inline;
+  }
+
+  .ranking-num {
+    font-size: .32rem;
+    font-weight: bold;
+    margin-left: .18rem;
 
     &::after {
       width: .1rem;
@@ -306,12 +315,6 @@
       background: url('~@icon/mine/ranking-right.png') no-repeat;
       background-size: 100%;
     }
-  }
-
-  .ranking-num {
-    font-size: .32rem;
-    font-weight: bold;
-    margin-left: .18rem;
   }
 
   .data-info {
