@@ -7,20 +7,18 @@
       P.top-title 讨论区(1002)
       img.close-btn(src="@icon/close/close-reward.png" @click="isShow = false")
       div.comment-back
-        ListComment.comment-list
-      //- div.comment-bottom
-      //-   div.comment-left
-      //-     input.comment-input(placeholder="说点什么吧~" v-ios-focus)
-      //-     div.problem-btn 提问
-      //-   p.send-btn 发送
+        ListComment.comment-list(:list="[]")
+      EditView
 </template>
 
 <script>
   import ListComment from './ListComment'
+  import EditView from './EditView'
   export default {
     name: 'CommentArea',
     components: {
-      ListComment
+      ListComment,
+      EditView
     },
     props: {
       data: {

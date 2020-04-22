@@ -64,6 +64,10 @@
     padding-right: .3rem;
   }
 
+  /deep/ .mint-popup {
+    z-index: 10 !important;
+  }
+
   .chat-item {
     display: flex;
     justify-content: flex-end;
@@ -77,7 +81,7 @@
   .chat-info {
     height: .48rem;
     border-radius: .08rem;
-    background: #cbcdcc;
+    background: rgba(203, 205, 204, .8);
     padding: 0 .12rem;
     display: flex;
     align-items: center;
@@ -85,8 +89,20 @@
 
   .ask-chat {
     padding-left: .5rem;
-    background: #cbcdcc url('~@icon/course/ask-chat.png') no-repeat left .11rem center;
-    background-size: .26rem;
+    position: relative;
+
+    &::after {
+      width: .26rem;
+      height: .27rem;
+      background: url('~@icon/course/ask-chat.png') no-repeat;
+      background-size: 100%;
+      content: '';
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      margin: auto 0;
+      left: .11rem;
+    }
   }
   
   .item-text {

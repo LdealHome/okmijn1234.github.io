@@ -37,7 +37,8 @@
   import weixinConfig from '../../mixin/weixinConfig'
   import {
     getCourseInfo,
-    postChangeRemindState
+    postChangeRemindState,
+    postAddVisits
   } from '../../services/course'
   import { MessageBox } from 'mint-ui'
 
@@ -76,7 +77,74 @@
           personTime: 50, // 人次
           time: 70000, // state对应不同时间 state：0距离直播开始时间 1直播播放的位置
           isSetReminders: true, // 是否设置开播提醒
-          countDownList: []
+          countDownList: [],
+          studyList: [
+            {
+              time: 1587545821, // 发送消息的时间戳
+              type: 5, // 类型 1: 普通评论 2: 回复普通评论 3: 回复提问评论 4: 打赏信息 5: 视频资料 6: 图片资料
+              userInfo: {
+                avatar: '', // 头像
+                name: '测试', // 用户昵称
+                uid: 14 // 发送内容的用户uid
+              },
+              label: '班主任', // 管理员标签
+              replyInfo: {
+                name: '', // 被回复的用户昵称
+                content: '' // 被回复的内容
+              },
+              content: '', // 普通的评论、回复的内容
+              videoInfo: {
+                cover: 'https://dss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=1922786828,481523169&fm=26&gp=0.jpg', // 视频资料封面
+                src: '' // 视频资料地址
+              },
+              image: '', // 图片
+              amount: 0 // 打赏的金额
+            },
+            {
+              time: 1587545921, // 发送消息的时间戳
+              type: 1, // 类型 1: 普通评论 2: 回复普通评论 3: 回复提问评论 4: 打赏信息 5: 视频资料 6: 图片资料
+              userInfo: {
+                avatar: '', // 头像
+                name: '链脉名片', // 用户昵称
+                uid: 2 // 发送内容的用户uid
+              },
+              label: '班长', // 管理员标签
+              replyInfo: {
+                name: '', // 被回复的用户昵称
+                content: '' // 被回复的内容
+              },
+              content: '评论的 内容哦' // 普通的评论、回复的内容
+            },
+            {
+              time: 1587546921, // 发送消息的时间戳
+              type: 4, // 类型 1: 普通评论 2: 回复普通评论 3: 回复提问评论 4: 打赏信息 5: 视频资料 6: 图片资料
+              userInfo: {
+                avatar: '', // 头像
+                name: '打赏你昵称', // 用户名
+                uid: 1
+              },
+              amount: '6.66' // 打赏的金额
+            },
+            {
+              time: 1515132, // 发送消息的时间戳
+              type: 7, // 类型 1: 普通评论 2: 回复普通评论 3: 回复提问评论 4: 打赏信息 5: 视频资料 6: 图片资料
+              userInfo: {
+                avatar: '', // 头像
+                name: '哈哈', // 用户名
+                uid: 1
+              }
+            },
+            {
+              time: 1515131, // 发送消息的时间戳
+              type: 6, // 类型 1: 普通评论 2: 回复普通评论 3: 回复提问评论 4: 打赏信息 5: 视频资料 6: 图片资料
+              userInfo: {
+                avatar: '', // 头像
+                name: '哈哈', // 用户名
+                uid: 1
+              },
+              image: 'https://dss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=1922786828,481523169&fm=26&gp=0.jpg' // 图片
+            }
+          ]
         },
         rewardInfo: {
           isShow: false,
@@ -123,6 +191,9 @@
           }
           if (this.state === 0) {
             this.updateCountDownList()
+          } else {
+            // 新增课程浏览量
+            postAddVisits({ course_single_id: this.courseId })
           }
 
           let shareInfo = {

@@ -6,6 +6,7 @@
       @followBtnClick="$emit('followBtnClick')"
     )
     LearningArea(
+      :list="data.studyList"
       @shareBtnClick="$emit('shareBtnClick')"
       @seeVideo="seeVideo"
     )

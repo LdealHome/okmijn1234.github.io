@@ -1,25 +1,119 @@
 <template lang="pug">
   ul
-    li.comment-list-item(:class="{ 'own-comment': false }")
-      p.time 02-16 10:46
-      div.comment-item
+    li.comment-list-item(
+      v-for="(item, index) in list"
+      :key="item.time"
+      :class="{ 'own-comment': isOwnComment(index) }"
+    )
+      p.time(v-if="isShowTime(index)") {{item.time | formatTime}}
+      div.comment-item(v-if="!isRecord(index)")
         div.user-info
-          img.avatar(src="https://dss2.bdstatic.com/6Ot1bjeh1BF3odCf/it/u=3519054227,2972329840&fm=173&app=49&f=JPEG?w=218&h=146&s=B288944F1640014F4405B0B80300E019")
-          p.user-label 班长
-          p.name 链脉名片
-        div.media-view.video-back
-          img.media-img(src="https://dss0.baidu.com/73F1bjeh1BF3odCf/it/u=211696413,4128556846&fm=85&s=71225C7ED6B61D82079DD0B003009017")
-        p.comment-content 测试
-        div.reply-view.problem-reply-view
-          p.reply-problem 测试用户：这个是个问题请回复这个是个问题请回复这个是个问题请回复这个是个问题请回复这个是个问题请回复这个是个问题请回复
+          img.avatar(:src="item.userInfo.avatar")
+          p.user-label(v-if="item.label") {{item.label}}
+          p.name {{item.userInfo.name}}
+        p.comment-content(v-if="item.type === 1") {{item.content}}
+        div.reply-view(v-if="item.type === 2 || item.type === 3")
+          p.reply-problem.problem-reply-view 测试用户：这个是个问题请回复这个是个问题请回复这个是个问题请回复这个是个问题请回复这个是个问题请回复这个是个问题请回复
           p.reply-content 这个是回复
-      p.reward-item 用户昵称 赞赏了一个 
-        span.amount 6.6元红包
+        div.media-view.video-back(v-if="item.type === 5")
+          img.media-img(:src="item.videoInfo.cover")
+        div.media-view(v-if="item.type === 6")
+          img.media-img(:src="item.image")
+      p.reward-item(v-if="item.type === 4" :class="recordTopSpacing(index)")
+        span.reward-name {{item.userInfo.name}}
+        span 赞赏了一个 
+        span.amount {{item.amount}}元红包
+        span.reward-btn 我也要赞赏
+      p.share-item(v-if="item.type === 7" :class="recordTopSpacing(index)")
+        span.share-name {{item.userInfo.name}}
+        span 刚刚分享了课程
+        span.share-btn 我也要分享
 </template>
 
 <script>
   export default {
-    name: 'ListComment'
+    name: 'ListComment',
+    props: {
+      list: {
+        type: Array,
+        required: true,
+        default () {
+          return [
+            {
+              time: '', // 发送消息的时间戳
+              type: 1, // 类型 1: 普通评论 2: 回复普通评论 3: 回复提问评论 4: 打赏信息 5: 视频资料 6: 图片资料 7: 分享记录
+              userInfo: {
+                avatar: '', // 头像
+                name: '', // 用户昵称
+                uid: 0 // 发送内容的用户uid
+              },
+              label: '', // 管理员标签
+              replyInfo: {
+                name: '', // 被回复的用户昵称
+                content: '' // 被回复的内容
+              },
+              content: '', // 普通的评论、回复的内容
+              videoInfo: {
+                cover: '', // 视频资料封面
+                src: '' // 视频资料地址
+              },
+              image: '', // 图片
+              amount: 0 // 打赏的金额
+            }
+          ]
+        }
+      }
+    },
+    filters: {
+      formatTime (val) {
+        let date = new Date(val * 1000)
+        let month = date.getMonth() + 1
+        let day = date.getDate()
+        let hour = date.getHours()
+        var minute = date.getMinutes()
+        if (month < 10) {
+          month = '0' + month
+        }
+        if (day < 10) {
+          day = '0' + day
+        }
+        if (hour < 10) {
+          hour = '0' + hour
+        }
+        if (minute < 10) {
+          minute = '0' + minute
+        }
+        return `${month}-${day} ${hour}:${minute}`
+      }
+    },
+    computed: {
+      uid () {
+        // return this.$store.state.personalInfo.uid || 0
+        return 0
+      },
+      isOwnComment (index) {
+        return index => {
+          return this.list[index].userInfo.uid === this.uid
+        }
+      },
+      isRecord (index) {
+        return index => {
+          let list = [4, 7]
+          return list.includes(this.list[index].type)
+        }
+      },
+      isShowTime (index) {
+        return index => {
+          return index === 0 || (this.list[index].time - this.list[index - 1].time >= 300)
+        }
+      },
+      // 打赏记录、分享记录于时间文字的间距判断
+      recordTopSpacing (index) {
+        return index => {
+          return { 'c': this.isShowTime(index) }
+        }
+      }
+    }
   }
 </script>
 
@@ -36,25 +130,70 @@
     margin: 0 .99rem;
   }
 
-  .reward-item {
+  .reward-item,
+  .share-item {
     height: .4rem;
     line-height: .4rem;
     padding: 0 .12rem 0 .44rem;
     font-size: .22rem;
     color: #bb864c;
-    background: #fff5a7 url('~@icon/course/red-packet.png') no-repeat left .14rem center;
-    background-size: .2rem;
     border-radius: .08rem;
     margin-left: .87rem;
     float: left;
+    display: flex;
+    align-items: center;
+  }
+
+  .reward-item {
+    background: #fff5a7 url('~@icon/course/red-packet.png') no-repeat left .14rem center;
+    background-size: .2rem;
+  }
+
+  .share-item {
+    background: #fff5a7 url('~@icon/course/share-icon.png') no-repeat left .14rem center;
+    background-size: .24rem;
+  }
+
+  .reward-name,
+  .share-name {
+    max-width: 2.4rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    word-wrap: normal;
+    margin-right: .1rem;
   }
 
   .amount { color: #ff3d4c; }
-  
-  .comment-item {
-    width: 5.8rem;
-    margin-bottom: .14rem;
+
+  .reward-btn,
+  .share-btn {
+    height: .3rem;
+    line-height: .3rem;
+    border-radius: .15rem;
+    font-size: .22rem;
+    color: #fff;
+    padding: 0 .1rem;
+    margin-left: .18rem;
   }
+
+  .reward-btn {
+    background: #ff4c49;
+
+    &:active {
+      background: darken(#ff4c49, 5%);
+    }
+  }
+
+  .share-btn {
+    background: #00c6ff;
+
+    &:active {
+      background: darken(#00c6ff, 5%);
+    }
+  }
+  
+  .comment-item { width: 5.8rem; }
 
   .user-info {
     display: flex;
@@ -188,7 +327,7 @@
 
   .reply-problem {
     padding: 0 .24rem .18rem .2rem;
-    text-indent: .5rem;
+    // text-indent: .5rem;
   }
 
   .reply-content {
@@ -239,5 +378,12 @@
         border-radius: .08rem;
       }
     }
+  }
+
+  .comment-content,
+  .reward-item,
+  .share-item,
+  .media-view {
+    margin-bottom: .14rem;
   }
 </style>

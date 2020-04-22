@@ -16,3 +16,12 @@ export function getCourseInfo (params) {
 export function postChangeRemindState (data) {
   return Vue.axios.post('/course/set/remind', data)
 }
+
+/**
+ * 新增浏览量
+ * @param data {Object<course_single_id>} 直播单课id
+ * @returns {AxiosPromise<any>}
+ */
+export function postAddVisits (data) {
+  return Vue.axios.post('/course/single/increment', data)
+}

@@ -49,7 +49,7 @@
         }
       },
       uid () {
-        return this.$store.state.personalInfo.uid || 0
+        return this.$route.params.from
       }
     },
     created () {

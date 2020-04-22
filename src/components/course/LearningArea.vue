@@ -10,13 +10,22 @@
         img.fortune-bag(src="@icon/course/fortune-bag.png" @click="seeShareVideo")
         p.click-tips(@click="seeShareVideo") 点击福字，了解分享后好处
         div.tips-btn(@click="$emit('shareBtnClick')") 分享课程，为课程点赞
-      ListComment
+      ListComment(:list="list")
 </template>
 
 <script>
   import ListComment from './ListComment'
   export default {
     name: 'LearningArea',
+    props: {
+      list: {
+        type: Array,
+        required: true,
+        default () {
+          return []
+        }
+      }
+    },
     components: {
       ListComment
     },
