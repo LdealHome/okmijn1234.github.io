@@ -9,6 +9,9 @@
       img.reward-btn(src="@icon/course/reward.png" @click="$emit('clickReward')")
       img.more-btn(src="@icon/course/more.png" @click="$emit('clickMore')")
     EditView(v-show="false")
+    div.unregistered(v-if="false")
+      div.enroll-btn 立即报名
+      img.bullet-chat(:src="bulletChatSrc" @click="$emit('clickBulletChat')")
 </template>
 
 <script>
@@ -128,5 +131,28 @@
     height: .56rem;
     padding: .09rem;
     box-sizing: content-box;
+  }
+
+  .unregistered {
+    height: .98rem;
+    display: flex;
+    align-items: center;
+    padding: 0 .2rem 0 .3rem;
+  }
+
+  .enroll-btn {
+    flex: 1;
+    height: .7rem;
+    line-height: .7rem;
+    background: #fdb418;
+    font-size: .32rem;
+    color: #090909;
+    text-align: center;
+    border-radius: .35rem;
+    margin-right: .1rem;
+
+    &:active {
+      background: darken(#fdb418, 5%);
+    }
   }
 </style>

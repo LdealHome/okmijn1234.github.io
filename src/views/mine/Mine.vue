@@ -3,6 +3,7 @@
     div.top-back
       p.ranking(@click="rankingClick") 福报榜
         span.ranking-num {{mBean.ranking}}
+        span.ranking-right
       div.news-btn
         img.news-btn-img(src="@icon/mine/news.png" @click="newsClick")
         span.news-num(v-if="mBean.newsUnreadNum") {{mBean.newsUnreadNum}}
@@ -293,28 +294,22 @@
     margin-left: .26rem;
     font-size: .28rem;
     color: #fb496f;
-    line-height: .42rem;
-    position: relative;
-    display: inline;
+    display: flex;
+    align-items: center;
   }
 
   .ranking-num {
     font-size: .32rem;
     font-weight: bold;
     margin-left: .18rem;
+  }
 
-    &::after {
-      width: .1rem;
-      height: .2rem;
-      content: '';
-      position: absolute;
-      right: -.2rem;
-      top: 0;
-      bottom: 0;
-      margin: auto 0;
-      background: url('~@icon/mine/ranking-right.png') no-repeat;
-      background-size: 100%;
-    }
+  .ranking-right {
+    width: .1rem;
+    height: .2rem;
+    background: url('~@icon/mine/ranking-right.png') no-repeat;
+    background-size: 100%;
+    margin-left: .16rem;
   }
 
   .data-info {
