@@ -25,9 +25,9 @@
       li.course-item(v-for="(item, index) in mBean.courseList" :key="index" @click="jumpDetails(item)")
         img.item-img(:src="item.img")
         div.locking-cover(v-if="!item.isUnlock")
-          p.locking-text 集福
+          p.locking-text 集
             span.locking-number {{item.number}}
-            span 人
+            span 福
           p.locking-text 即可解锁
           div.details-btn 了解详情
         p.item-name {{item.name}}
