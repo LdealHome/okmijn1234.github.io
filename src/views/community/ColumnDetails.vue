@@ -32,7 +32,7 @@
         span.item-text {{item}}
     div.more(v-show="currentIndex === 1")
       template(v-if="!isMore")
-        ul.more-list
+        ul.more-list(ref="moreScrollLeft")
           li.more-item(
             v-for="(item, index) in moreList"
             :key="index"
@@ -362,6 +362,12 @@
         this.liveBroadcastList = []
         this.params.scope = scope
         this.getLiveBroadcastList()
+        if (this.isMore) {
+          this.isMore = false
+          setTimeout(() => {
+            this.$refs.moreScrollLeft.scrollLeft = index * 80
+          }, 100)
+        }
       },
       /**
        * 直播列表的收起和展开
