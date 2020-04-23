@@ -1,5 +1,5 @@
 <template lang="pug">
-  div
+  div.top-view
     div.video-back(v-show="isOpenVideo")
       video.video(
         :src="data.video.src"
@@ -99,6 +99,10 @@
 </script>
 
 <style scoped lang="less">
+  .top-view {
+    z-index: 1; // 这里加层级是解决，直播状态栏底部边框样式，会被滚动的内容挡住
+  }
+
   .video-back {
     margin: .3rem .3rem 0;
     border-radius: .12rem;

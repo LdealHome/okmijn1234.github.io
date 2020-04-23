@@ -102,7 +102,7 @@
     align-items: center;
     background: #fff;
     border-radius: .12rem;
-    margin: .1rem auto;
+    margin: .1rem auto 0;
   }
 
   .fu-text {

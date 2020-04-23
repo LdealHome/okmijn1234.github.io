@@ -6,8 +6,11 @@
     )
       P.top-title 讨论区(1002)
       img.close-btn(src="@icon/close/close-reward.png" @click="isShow = false")
-      div.comment-back
-        ListComment.comment-list(:list="[]")
+      div.comment-back(ref="commentList")
+        ListComment(:list="list" type="comment")
+        div.right-anchor
+          span.anchor-top(@click="rollTopClick")
+          span.anchor-bottom(@click="rollBottomClick")
       EditView
 </template>
 
@@ -21,6 +24,13 @@
       EditView
     },
     props: {
+      list: {
+        type: Array,
+        required: true,
+        default () {
+          return []
+        }
+      },
       data: {
         type: Object,
         required: true,
@@ -56,6 +66,14 @@
       isShowPopup () {
         return this.data.isShow
       }
+    },
+    methods: {
+      rollTopClick () {
+        this.$refs.commentList.scrollTop = 0
+      },
+      rollBottomClick () {
+        this.$refs.commentList.scrollTop = this.$refs.commentList.scrollHeight
+      } 
     }
   }
 </script>
@@ -89,13 +107,8 @@
   .comment-back {
     flex: 1;
     overflow: auto;
-  }
-
-  .comment-list {
-    width: 100%;
-    height: 100%;
-    overflow: auto;
     -webkit-overflow-scrolling: touch;
+    padding-bottom: .2rem;
   }
 
   .comment-bottom {
@@ -133,5 +146,38 @@
   .problem-btn {
     margin-left: .1rem;
     padding: 0 .2rem 0 .34rem;
+  }
+
+  .right-anchor {
+    height: 1.35rem;
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    top: 0;
+    bottom: 0;
+    margin: auto 0;
+    right: .3rem;
+    z-index: 10;
+  }
+
+  .anchor-top,
+  .anchor-bottom {
+    width: .5rem;
+    height: .5rem;
+
+    &:active {
+      opacity: .8;
+    }
+  }
+
+  .anchor-top {
+    background: url('~@icon/course/top-arrow.png') no-repeat;
+    background-size: 100%;
+  }
+
+  .anchor-bottom {
+    background: url('~@icon/course/bottom-arrow.png') no-repeat;
+    background-size: 100%;
   }
 </style>

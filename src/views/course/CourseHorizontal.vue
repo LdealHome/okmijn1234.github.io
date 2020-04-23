@@ -23,7 +23,7 @@
       @close="isShowMore = false"
       @collect="$emit('collectBtnClick')"
     )
-    CommentArea(:data="commentInfo" @close="commentInfo.isShow = false")
+    CommentArea(:data="commentInfo" :list="data.commentList" @close="commentInfo.isShow = false")
 </template>
 
 <script>
