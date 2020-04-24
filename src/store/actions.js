@@ -49,8 +49,8 @@ export default {
     } else {
       return getTypeTable().then(res => {
         if (res.data.code === 1) {
-          sessionStorage.setItem('tableInfo', JSON.stringify(res.data.data.contrast))
-          commit(SET_TABLE_INFO, res.data.data.contrast)
+          sessionStorage.setItem('tableInfo', JSON.stringify(res.data.data))
+          commit(SET_TABLE_INFO, res.data.data)
         }
       })
     }

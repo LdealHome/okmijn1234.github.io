@@ -24,7 +24,7 @@
           p.data-number {{mBean.bankAccount}}
           p.account-name 银行账户
     div.content
-      div.go-home(@click="$router.push({ name: 'particulars', params: { from: uid } })")
+      div.go-home(@click="toShequnDetails")
         p.name 传爱集福
         p.tips 赚一生福报
       div.learning-data
@@ -55,8 +55,13 @@
           :class="{ 'curriculum-active': curriculumType === 2 }"
           @click="curriculumTypeClick(2)"
         ) 单课
-      component(:is="type" :list="list")
-      p.bottom-tips 链脉云提供技术支持
+      component(
+        :is="type"
+        :list="list"
+        @specialDetails="toShequnDetails"
+        @courseDetails="courseDetails"
+      )
+    TechnicalSupport
     infinite-loading(@infinite="loadMore" :identifier="infinite")
       div(slot="spinner")
       div(slot="no-more")
@@ -67,6 +72,7 @@
 <script>
   import ListSpecial from '../../components/mine/ListSpecial'
   import ListSingle from '../../components/mine/ListSingle'
+  import TechnicalSupport from '../../components/TechnicalSupport'
   import FooterCommon from '../../components/FooterCommon'
   import { MessageBox } from 'mint-ui'
   import {
@@ -79,7 +85,8 @@
     components: {
       ListSpecial,
       ListSingle,
-      FooterCommon
+      FooterCommon,
+      TechnicalSupport
     },
     data () {
       return {
@@ -182,8 +189,21 @@
       learningReport () {
         this.$router.push({ name: 'learning-report' })
       },
+      /**
+       * 去社群详情页
+       */
+      toShequnDetails () {
+        this.$router.push({ name: 'particulars', params: { from: this.uid } })
+      },
       rankingClick () {
         this.$router.push({ name: 'community-ranking' })
+      },
+      /**
+       * 去课程详情页面
+       * @param id {Number} 课程id
+       */
+      courseDetails (id) {
+        this.$router.push({ name: 'curriculum', params: { id, from: this.uid } })
       },
       async loadMore (res) {
         const that = this
@@ -242,7 +262,8 @@
             name: item.newest_course,
             cover: item.poster,
             tips: item.stage,
-            title: item.title
+            title: item.title,
+            courseId: item.single_id
           })
         })
         return list
@@ -539,12 +560,5 @@
       right: 0;
       margin: 0 auto;
     }
-  }
-
-  .bottom-tips {
-    font-size: .28rem;
-    color: #b8b7b7;
-    text-align: center;
-    margin-top: .56rem;
   }
 </style>

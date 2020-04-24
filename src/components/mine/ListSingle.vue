@@ -1,6 +1,6 @@
 <template lang="pug">
   ul
-    li.curriculum-item(v-for="item in list" :key="item.id")
+    li.curriculum-item(v-for="item in list" :key="item.id" @click="$emit('courseDetails', item.id)")
       div.curriculum-info
         div.item-cover
           img.item-img(:src="item.cover")

@@ -156,7 +156,7 @@
           this.$_.Toast('真实姓名不能为空')
           return
         }
-        if (!(this.positionInfo.positionType >= -1)) {
+        if (!(this.positionInfo.selectedType >= -1)) {
           this.$_.Toast('请选择职位')
           return
         }
@@ -216,7 +216,7 @@
        */
       obtainCodeClick () {
         if (this.isClickableObtainBtn) {
-          postSendVerificationCode().then(res => {
+          postSendVerificationCode({ mobile: this.phone }).then(res => {
             if (res.data.code === 1) {
               this.countDown--
               this.timer = setInterval(() => {

@@ -1,12 +1,12 @@
 <template lang="pug">
   ul
     li.special-item(v-for="(item, index) in list" :key="index")
-      div.item-info 
+      div.item-info(@click="$emit('specialDetails')")
         img.item-cover(:src="item.cover")
         div.item-right
           p.name {{item.title}}
           p.item-stage {{item.tips}}
-      div.item-describe
+      div.item-describe(@click="$emit('courseDetails', item.courseId)")
         p.describe {{item.name}}
         div.study-btn 去学习
 </template>
