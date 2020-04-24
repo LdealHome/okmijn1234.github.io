@@ -19,7 +19,7 @@
     infinite-loading(@infinite="loadMore" :identifier="infinite")
       div(slot="spinner")
       div(slot="no-more")
-      div(slot="no-results")
+      div.no-more(slot="no-results") {{noMoreTips}}
     div.bottom-btn
       div.total-number 共{{inviteNumber}}人
     TechnicalSupport
@@ -75,6 +75,9 @@
       },
       searchBtnColor () {
         return { 'color': this.isShowCancel ? '#FBA627' : '#333' }
+      },
+      noMoreTips () {
+        return this.list.length ? '没有更多了哦' : ''
       }
     },
     methods: {
@@ -248,5 +251,11 @@
     font-size: .32rem;
     color: #333;
     font-weight: bold;
+  }
+
+  .no-more {
+    font-size: .28rem;
+    color: #ccc;
+    margin-top: .54rem;
   }
 </style>

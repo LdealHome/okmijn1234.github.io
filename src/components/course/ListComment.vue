@@ -4,8 +4,6 @@
       v-for="(item, index) in list"
       :key="item.time"
       :class="{ 'own-comment': isOwnComment(index) }"
-      @touchstart="showManageView"
-      @touchend="touchend"
     )
       p.time(v-if="isShowTime(index)") {{item.time | formatTime}}
       div.comment-item(v-if="!isRecord(index)")
@@ -13,10 +11,10 @@
           img.avatar(:src="item.userInfo.avatar")
           p.user-label(v-if="item.label") {{item.label}}
           p.name {{item.userInfo.name}}
-        p.comment-content(v-if="item.type === 1 || item.type === 2" @click="commentClick(index)")
+        p.comment-content(v-if="item.type === 1 || item.type === 2")
           span.withdraw-btn(v-show="isShowWithdraw(index)") 撤回
           span(:class="{ 'problem-comment': item.type === 2 }") {{item.content}}
-        div.reply-view(v-if="item.type === 3 || item.type === 4" @click="commentClick(index)")
+        div.reply-view(v-if="item.type === 3 || item.type === 4")
           p.reply-problem
             span.withdraw-btn(v-show="isShowWithdraw(index)") 撤回
             span(:class="{ 'problem-reply-view': item.type === 4 }") {{item.replyInfo.name}}：{{item.replyInfo.content}}

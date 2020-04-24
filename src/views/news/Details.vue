@@ -6,6 +6,8 @@
         p.content {{item.content}}
           span.link(@click="entryOtherPage(item.link)") {{item.linkText}}
         p.time {{item.time}}
+    div(v-show="!list.length")
+      div.empty-tips 你还没有获得任何消息
     infinite-loading(@infinite="loadMore")
       div(slot="spinner")
       div(slot="no-more")
@@ -120,5 +122,15 @@
     margin-top: .22rem;
     font-size: .24rem;
     color: #999;
+  }
+
+  .empty-tips {
+    font-size: .28rem;
+    color: #999;
+    text-align: center;
+    background: url('~@images/mine/empty-news-img.png') no-repeat top center;
+    background-size: 2.54rem;
+    margin-top: 3.9rem;
+    padding-top: 1.8rem;
   }
 </style>

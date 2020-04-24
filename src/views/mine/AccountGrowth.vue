@@ -10,12 +10,14 @@
     infinite-loading(@infinite="loadMore" :identifier="infinite")
       div(slot="spinner")
       div(slot="no-more")
-      div(slot="no-results")
+      div.no-more(slot="no-results") {{noMoreTips}}
+    TechnicalSupport.bottom-tips(v-show="list.length")
 </template>
 
 <script>
   import ListCourseGratis from '../../components/mine/ListCourseGratis'
   import ListCoursePurchase from '../../components/mine/ListCoursePurchase'
+  import TechnicalSupport from '../../components/TechnicalSupport'
   import {
     getBuyCourse,
     getGratisCourse
@@ -24,7 +26,8 @@
     name: 'AccountGrowth',
     components: {
       ListCourseGratis,
-      ListCoursePurchase
+      ListCoursePurchase,
+      TechnicalSupport
     },
     data () {
       return {
@@ -46,6 +49,9 @@
       listType () {
         let list = ['ListCoursePurchase', 'ListCourseGratis']
         return list[this.selectedType - 1]
+      },
+      noMoreTips () {
+        return this.list.length ? '没有更多了哦' : ''
       }
     },
     methods: {
@@ -138,6 +144,8 @@
     min-height: 100vh;
     overflow: hidden;
     background: #fff;
+    position: relative;
+    padding-bottom: 1rem;
   }
 
   .type-back {
@@ -198,5 +206,19 @@
     left: 0;
     right: 0;
     margin: 0 auto;
+  }
+
+  .no-more {
+    font-size: .28rem;
+    color: #ccc;
+    margin-top: .54rem;
+    margin-bottom: .4rem;
+  }
+
+  .bottom-tips {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
   }
 </style>
