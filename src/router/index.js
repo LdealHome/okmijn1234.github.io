@@ -22,7 +22,7 @@ router.beforeEach((to, from, next) => {
   if (to.name !== '404') {
     // 全局通用的字段对照表
     if (!$_.store.state.typeTableLoaded) {
-      // $_.store.dispatch('getTypeTable')
+      $_.store.dispatch('getTypeTable')
     }
     // 获取场景值信息
     if (!$_.store.state.isLoadScene) {

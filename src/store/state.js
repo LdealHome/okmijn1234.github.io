@@ -13,7 +13,8 @@ export default {// 是否已经加载过全局的用户信息
   personalInfo: {
     nickname: '', // 用户昵称
     avatar: '', // 用户头像
-    uid: '' // 用户uid
+    uid: '', // 用户uid
+    isBindPhone: false // 是否绑定手机
   },
   // 七牛云直传token
   qiniuToken: {
@@ -25,7 +26,7 @@ export default {// 是否已经加载过全局的用户信息
   guest: '',
   // 类型字段对照表
   typeTable: {
-
+    positionType: null // 职位类型
   },
   // 场景值信息
   sceneInfo: {

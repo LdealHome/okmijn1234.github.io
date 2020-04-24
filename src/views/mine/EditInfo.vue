@@ -9,6 +9,9 @@
     div.item
       span.text 真实姓名
       input.item-input(placeholder="请输入真实姓名" v-model.trim="realName" v-ios-focus)
+    div.item.position-item
+      span.text 职位
+      span.position(@click="positionInfo.isShow = true") {{positionText}}
     div.item
       span.text 手机号
       input.item-input(placeholder="请输入手机号" v-model.trim="phone" maxlength="11" v-ios-focus)
@@ -26,12 +29,18 @@
     MorePupup(
       @collectionClick="isShowCollect = true"
     )
+    SelectPosition(
+      :data="positionInfo"
+      @close="positionInfo.isShow = false"
+      @confrim="confrimSelectPosition"
+    )
     GuideCollection(:isShow="isShowCollect" @close="isShowCollect = false")
 </template>
 
 <script>
   import MorePupup from '../../components/MorePupup'
   import GuideCollection from '../../components/course/GuideCollection'
+  import SelectPosition from '../../components/mine/SelectPosition'
   import qiniuUpload from '../../mixin/qiniuUpload'
   import wexinConfig from '../../mixin/weixinConfig'
   import {
@@ -43,7 +52,8 @@
     name: 'EditInfo',
     components: {
       MorePupup,
-      GuideCollection
+      GuideCollection,
+      SelectPosition
     },
     mixins: [wexinConfig, qiniuUpload],
     data () {
@@ -57,7 +67,12 @@
         countDown: 60,
         timer: null,
         avatarData: null,
-        isShowCollect: false
+        isShowCollect: false,
+        positionInfo: {
+          isShow: false,
+          selectedType: -2, // 选中的职位类型
+          positionName: '' // 职位名称
+        }
       }
     },
     beforeRouteLeave (to, from, next) {
@@ -84,6 +99,32 @@
       },
       avatarScene () {
         return this.$store.state.sceneInfo.img.head_img
+      },
+      positionText () {
+        let text = ''
+        let type = this.positionInfo.selectedType
+        if (type < -1) {
+          text = '无'
+        } else if (type === -1) {
+          text = this.positionInfo.positionName || this.getPositionName(type)
+        } else if (type >= 0) {
+          text = this.getPositionName(type)
+        }
+        return text
+      },
+      getPositionName (type) {
+        return type => {
+          let text = ''
+          this.positionType.forEach(item => {
+            if (item.key === type) {
+              text = item.name
+            }
+          })
+          return text
+        }
+      },
+      positionType () {
+        return this.$store.state.typeTable.positionType || []
       }
     },
     methods: {
@@ -98,6 +139,11 @@
             this.phone = data.mobile
             this.originalPhone = data.mobile
             this.name = data.nick_name
+            this.positionInfo = {
+              isShow: false,
+              selectedType: data.position, // 选中的职位类型
+              positionName: data.position_desc // 职位名称
+            }
           }
         })
       },
@@ -108,6 +154,10 @@
         }
         if (!this.realName) {
           this.$_.Toast('真实姓名不能为空')
+          return
+        }
+        if (!(this.positionInfo.positionType >= -1)) {
+          this.$_.Toast('请选择职位')
           return
         }
         if (!this.phone) {
@@ -124,12 +174,16 @@
             head_img: img,
             mobile: this.phone,
             nick_name: this.name,
-            real_name: this.realName
+            real_name: this.realName,
+            type: this.positionInfo.selectedType,
+            position: this.positionInfo.selectedType === -1 ? this.positionInfo.positionName : ''
           })
             .then(res => {
               if (res.data.code === 1) {
-                this.$_.Toast('保存成功')
-                this.$router.go(-1)
+                this.$_.store.dispatch('getUserInfo').then(() => {
+                  this.$_.Toast('保存成功')
+                  this.$router.go(-1)
+                })
               }
             })
         })
@@ -176,6 +230,14 @@
             }
           })
         }
+      },
+      /**
+       * 确认选择职位
+       * @param info {Object} 选择的职位信息 { type: 选择的类型, name: 其他的职位昵称 }
+       */
+      confrimSelectPosition (info) {
+        this.positionInfo.selectedType = info.type
+        this.positionInfo.positionName = info.name
       }
     }
   }
@@ -197,9 +259,11 @@
     padding: 0 .54rem;
   }
 
-  .item-avatar {
+  .item-avatar,
+  .position-item {
     background: #fff url('~@icon/mine/right-icon.png') no-repeat right .54rem center;
     background-size: .1rem;
+    padding-right: .84rem;
   }
 
   .text {
@@ -211,7 +275,6 @@
     width: .7rem;
     height: .7rem;
     border-radius: .04rem;
-    margin-right: .3rem;
   }
 
   .item-input {
@@ -219,6 +282,11 @@
     font-size: .32rem;
     color: #999;
     text-align: right;
+  }
+
+  .position {
+    font-size: .32rem;
+    color: #999;
   }
 
   .verified-right {

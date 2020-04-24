@@ -21,7 +21,8 @@ export default {
     state.personalInfo = {
       uid: payload.uid,
       nickname: payload.nick_name,
-      avatar: payload.img_url
+      avatar: payload.img_url,
+      isBindPhone: payload.is_bind_mobile === 1
     }
   },
   [SET_QINIU_TOKEN] (state, payload) {
@@ -37,7 +38,7 @@ export default {
   },
   [SET_TABLE_INFO] (state, payload) {
     state.typeTableLoaded = true
-    // todo
+    state.typeTable.positionType = payload.position_type
   },
   [SET_ACCESS_STATUS] (state, payload) {
     state.accessStatus = payload

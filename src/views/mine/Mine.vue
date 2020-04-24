@@ -68,6 +68,7 @@
   import ListSpecial from '../../components/mine/ListSpecial'
   import ListSingle from '../../components/mine/ListSingle'
   import FooterCommon from '../../components/FooterCommon'
+  import { MessageBox } from 'mint-ui'
   import {
     getPersonalInfo,
     getSpecialList,
@@ -106,6 +107,7 @@
     },
     created () {
       this.main()
+      this.showPerfectInfoTips()
     },
     computed: {
       type () {
@@ -114,6 +116,17 @@
       },
       uid () {
         return this.$store.state.personalInfo.uid
+      },
+      userInfoLoaded () {
+        return this.$store.state.userInfoLoaded
+      },
+      isBindPhone () {
+        return this.$store.state.personalInfo.isBindPhone
+      }
+    },
+    watch: {
+      userInfoLoaded () {
+        this.showPerfectInfoTips()
       }
     },
     methods: {
@@ -136,6 +149,20 @@
             }
           }
         })
+      },
+      showPerfectInfoTips () {
+        if (this.userInfoLoaded && !this.isBindPhone) {
+          const that = this
+          MessageBox({
+            title: '温馨提示',
+            message: '为了方便班主任与你联系请尽快完善手机号等相关信息',
+            showCancelButton: true
+          }).then(function (code) {
+            if (code === 'confirm') {
+              that.editInfoClick()
+            }
+          })
+        }
       },
       editInfoClick () {
         this.$router.push({ name: 'edit-info' })
