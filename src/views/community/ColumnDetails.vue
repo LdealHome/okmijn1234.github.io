@@ -85,8 +85,8 @@
             @click="operationBroadcast(item, itm)"
             )
             span.following-state {{itm.isState === 1 ? '直播' : itm.isState === 2 ? '考试' : itm.isState === 3 ? '预告' : '视频'}}
-            span.following-text(:class="{unlock: item.isUnlock || itm.isState ===3 || itm.isState ===4}") {{itm.text}}
-            span.following-lock(v-if="!item.isUnlock && (itm.isState ===1 || itm.isState === 2)")
+            span.following-text(:class="{unlock: item.isUnlock || itm.isState ===3}") {{itm.text}}
+            span.following-lock(v-if="!item.isUnlock && (itm.isState !==3)")
     NothingCommon(:config="config" v-if="currentIndex === 1 && this.liveBroadcastList.length === 0")
     infinite-loading(@infinite="loadMore" :identifier="chooseCurrent" v-if="isLoadMoreShow")
       div(slot="spinner")
@@ -216,7 +216,6 @@
       next()
     },
     created () {
-      // this.getLiveListMore()
       this.mine()
     },
     methods: {
@@ -391,7 +390,11 @@
         switch (itm.isState) {
         case 1: // 直播
           this.$router.push({
-            name: 'curriculum'
+            name: 'curriculum',
+            params: {
+              id: item.id,
+              from: this.$store.state.personalInfo.uid
+            }
           })
           break
         case 2: // 考试
@@ -406,12 +409,24 @@
             this.$_.Toast('还没到该课程的学习时间不能参加哦~')
           }
           break
-        default: // 视频、预告
+        case 3: // 预告视频
           that.videoInfo = {
             videoUrl: itm.videoUrl,
             imgSrc: itm.cover
           }
           that.isShowVideo = true
+          break
+        default: // 辅助视频
+          if (item.isUnlock) {
+            that.videoInfo = {
+              videoUrl: itm.videoUrl,
+              imgSrc: itm.cover
+            }
+            that.isShowVideo = true
+          } else {
+            this.$_.Toast('未到学习时间')
+          }
+
           break
         }
       },
