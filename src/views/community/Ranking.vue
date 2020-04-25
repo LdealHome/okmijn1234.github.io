@@ -127,6 +127,9 @@
       },
       bannerScene () {
         this.getBannerList()
+      },
+      uid () {
+        this.getBannerList()
       }
     },
     computed: {
@@ -162,6 +165,7 @@
           return
         }
         this.isLoad = true
+        this.getBannerList()
       },
       getBannerList () {
         if (!this.isLoadBanner && this.bannerScene && this.uid) {
