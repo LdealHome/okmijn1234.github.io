@@ -73,7 +73,7 @@
             // 未开始
             p.date(v-else)
               span.date-text {{item.date}}
-              span.date-time {{item.time}}
+              span.date-time(v-if="item.time") {{item.time}}
           i.icon-arrow(
             :class="{up: upIndex === index}"
             @click="toggleArrow(index)"
@@ -85,8 +85,8 @@
             @click="operationBroadcast(item, itm)"
             )
             span.following-state {{itm.isState === 1 ? '直播' : itm.isState === 2 ? '考试' : itm.isState === 3 ? '预告' : '视频'}}
-            span.following-text(:class="{unlock: item.isUnlock || itm.isState ===3}") {{itm.text}}
-            span.following-lock(v-if="!item.isUnlock && (itm.isState !==3)")
+            span.following-text(:class="{unlock: itm.isLock}") {{itm.text}}
+            span.following-lock(v-if="!itm.isLock")
     NothingCommon(:config="config" v-if="currentIndex === 1 && this.liveBroadcastList.length === 0")
     infinite-loading(@infinite="loadMore" :identifier="chooseCurrent" v-if="isLoadMoreShow")
       div(slot="spinner")
@@ -398,7 +398,7 @@
           })
           break
         case 2: // 考试
-          if (item.isUnlock) {
+          if (itm.isLock) {
             this.$router.push({
               name: 'exam',
               params: {
@@ -409,15 +409,8 @@
             this.$_.Toast('还没到该课程的学习时间不能参加哦~')
           }
           break
-        case 3: // 预告视频
-          that.videoInfo = {
-            videoUrl: itm.videoUrl,
-            imgSrc: itm.cover
-          }
-          that.isShowVideo = true
-          break
-        default: // 辅助视频
-          if (item.isUnlock) {
+        default: // 视频
+          if (itm.isLock) {
             that.videoInfo = {
               videoUrl: itm.videoUrl,
               imgSrc: itm.cover
@@ -512,6 +505,7 @@
           list.push({
             isState: item.type, // 1表示直播，2表示考试，3表示预告视频，4表示辅助视频
             text: item.title, // 标题
+            isLock: item.is_lock === 1, // 视频是否解锁
             videoUrl: item.video_src, // 视频路径
             cover: item.video_cover // 封面图
           })
