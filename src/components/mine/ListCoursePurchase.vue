@@ -61,6 +61,7 @@
   }
 
   .item-time {
+    width: 10rem;
     position: absolute;
     bottom: .1rem;
     left: 0;

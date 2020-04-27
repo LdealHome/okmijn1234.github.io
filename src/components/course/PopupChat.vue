@@ -1,7 +1,7 @@
 <template lang="pug">
   div
     mt-popup.popup-content(
-      position="bottom"
+      position="right"
       v-model="isShow"
       :modal="false"
       :closeOnClickModal="false"
@@ -22,21 +22,9 @@
         required: true,
         default () {
           return {
-            list: [
-              {
-                id: 0,
-                avatar: '',
-                text: '回复问题',
-                isAsk: false
-              }
-            ]
+            list: []
           }
         }
-      },
-      isShowPopup: {
-        type: Boolean,
-        required: true,
-        default: false
       }
     },
     data () {
@@ -51,21 +39,34 @@
       isShowPopup (val) {
         this.isShow = val
       }
+    },
+    computed: {
+      isShowPopup () {
+        return this.chatInfo.isShow
+      }
     }
   }
 </script>
 
 <style scoped lang="less">
   .popup-content {
-    margin-bottom: 1.58rem;
     background: none;
-    width: 100%;
-    text-align: right;
     padding-right: .3rem;
+    height: 1.64rem;
+    bottom: -.22rem;
+    position: absolute;
+    top: auto;
   }
 
   /deep/ .mint-popup {
-    z-index: 10 !important;
+    z-index: 9 !important;
+  }
+
+  .chat-list {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
   }
 
   .chat-item {

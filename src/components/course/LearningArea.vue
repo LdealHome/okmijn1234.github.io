@@ -1,6 +1,6 @@
 <template lang="pug">
   div.learning-area-back
-    div.content(ref="learningView")
+    div.content(ref="learningView" @click="$emit('contentBackClick')")
       div.right-anchor
         span.anchor-top(@click="rollTopClick")
         span.anchor-bottom(@click="rollBottomClick")
@@ -11,12 +11,18 @@
         p.click-tips(@click="seeShareVideo") 点击福字，了解分享后好处
         div.tips-btn(@click="$emit('shareBtnClick')") 分享课程，为课程点赞
       ListComment(:list="list")
+      PopupChat(:chatInfo="chatInfo")
 </template>
 
 <script>
   import ListComment from './ListComment'
+  import PopupChat from '../../components/course/PopupChat'
   export default {
     name: 'LearningArea',
+    components: {
+      ListComment,
+      PopupChat
+    },
     props: {
       list: {
         type: Array,
@@ -24,10 +30,19 @@
         default () {
           return []
         }
+      },
+      chatInfo: {
+        type: Object,
+        required: false,
+        default () {
+          return {}
+        }
       }
     },
-    components: {
-      ListComment
+    computed: {
+      isShowChat () {
+        return this.bottomInfo.isShow && !this.isNotBroadcast
+      }
     },
     methods: {
       rollTopClick () {

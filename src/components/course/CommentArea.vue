@@ -11,7 +11,10 @@
         div.right-anchor
           span.anchor-top(@click="rollTopClick")
           span.anchor-bottom(@click="rollBottomClick")
-      EditView
+      EditView(
+        :isProblem="isProblem"
+        @problemClick="$emit('problemClick', 5)"
+      )
 </template>
 
 <script>
@@ -39,6 +42,11 @@
             isShow: false
           }
         }
+      },
+      isProblem: {
+        type: Boolean,
+        required: true,
+        default: false
       }
     },
     data () {

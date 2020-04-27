@@ -8,6 +8,8 @@
       @collectBtnClick="isShowCollect = true"
       @shareBtnClick="isPostersSharePopup = true"
       @seeVideo="seeVideo"
+      @clickChat="mBean.chatInfo.isShow = !mBean.chatInfo.isShow"
+      @sendComment="sendComment"
     )
     CustomerServicePopup(
       v-if="isCustomerServicePopup"
@@ -161,7 +163,24 @@
               },
               content: '每天哦每天哦每天哦每天哦每天哦每天哦每天哦' // 普通的评论、回复的内容
             }
-          ]
+          ],
+          chatInfo: {
+            isShow: false,
+            list: [
+              {
+                id: 1,
+                avatar: '',
+                text: '回复问题',
+                isAsk: true
+              },
+              {
+                id: 0,
+                avatar: '',
+                text: '回复问题',
+                isAsk: false
+              }
+            ]
+          }
         },
         rewardInfo: {
           isShow: false,
@@ -187,53 +206,8 @@
     mixins: [weixinConfig],
     created () {
       vm = this
-      getCourseInfo({ course_single_id: this.courseId }).then(res => {
-        if (res.data.code === 1) {
-          let data = res.data.data
-          let state = data.is_start === 1 ? (data.is_live === 1 ? 1 : 2) : 0
-
-          this.type = data.lay_out // 1横屏、2竖屏全屏、3竖屏小屏
-          this.mBean = {
-            id: data.id, // 课程id
-            video: { // 视频信息
-              src: data.video_src,
-              poster: data.video_cover
-            },
-            followBtnAvatar: data.focus_anchor_img,
-            state: state, // 直播状态 0: 未开始 1:直播中 2:回放
-            personTime: state > 0 ? data.watch_number : data.set_start_number, // 人次
-            time: 60, // state对应不同时间 state：0距离直播开始时间 1直播播放的位置
-            isSetReminders: true, // 是否设置开播提醒
-            countDownList: []
-          }
-          if (this.state === 0) {
-            this.updateCountDownList()
-          } else {
-            // 新增课程浏览量
-            postAddVisits({ course_single_id: this.courseId })
-          }
-
-          let shareInfo = {
-            desc: data.share_info.content,
-            img: data.share_info.img_url,
-            title: data.share_info.title,
-            link: data.share_info.link
-          }
-          this.getWeiXinConfig(shareInfo)
-            .then(this.setWeiXinConfig)
-
-          this.isLoad = true
-
-          let rewardInfo = data.anchor_info
-          this.rewardInfo = {
-            isShow: false,
-            avatar: rewardInfo.anchor_img,
-            name: rewardInfo.nick_name
-          }
-          this.customerServiceData.codeSrc = data.focus_code
-        }
-      })
-      window.removeEventListener('pagehide', pagehide, false)
+      this.main()
+      window.addEventListener('pagehide', pagehide, false)
     },
     beforeRouteLeave (to, from, next) {
       pagehide()
@@ -252,6 +226,54 @@
       }
     },
     methods: {
+      main () {
+        getCourseInfo({ course_single_id: this.courseId, uid: this.fromUid }).then(res => {
+          if (res.data.code === 1) {
+            let data = res.data.data
+            let state = data.is_start === 1 ? (data.is_live === 1 ? 1 : 2) : 0
+
+            this.type = data.lay_out // 1横屏、2竖屏全屏、3竖屏小屏
+            this.mBean = {
+              id: data.id, // 课程id
+              video: { // 视频信息
+                src: data.video_src,
+                poster: data.video_cover
+              },
+              followBtnAvatar: data.focus_anchor_img,
+              state: state, // 直播状态 0: 未开始 1:直播中 2:回放
+              personTime: state > 0 ? data.watch_number : data.set_start_number, // 人次
+              time: 60, // state对应不同时间 state：0距离直播开始时间 1直播播放的位置
+              isSetReminders: true, // 是否设置开播提醒
+              countDownList: []
+            }
+            if (this.state === 0) {
+              this.updateCountDownList()
+            } else {
+              // 新增课程浏览量
+              postAddVisits({ course_single_id: this.courseId })
+            }
+
+            let shareInfo = {
+              desc: data.share_info.content,
+              img: data.share_info.img_url,
+              title: data.share_info.title,
+              link: data.share_info.link
+            }
+            this.getWeiXinConfig(shareInfo)
+              .then(this.setWeiXinConfig)
+
+            this.isLoad = true
+
+            let rewardInfo = data.anchor_info
+            this.rewardInfo = {
+              isShow: false,
+              avatar: rewardInfo.anchor_img,
+              name: rewardInfo.nick_name
+            }
+            this.customerServiceData.codeSrc = data.focus_code
+          }
+        })
+      },
       /**
        * 设置/取消开播提醒
        */
@@ -332,6 +354,14 @@
        */
       seeVideo (info) {
         this.isShowVideo = true
+      },
+      sendComment (text) {
+        this.mBean.chatInfo.list.push({
+          id: String(Math.random()).slice(-9),
+          avatar: '',
+          text,
+          isAsk: false
+        })
       }
     }
   }

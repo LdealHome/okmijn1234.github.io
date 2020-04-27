@@ -1,17 +1,23 @@
 <template lang="pug">
   div.bottom-back
-    div.default-view(v-show="true")
-      div.comment-view
+    div.default-view(v-show="!isShowEditView" :class="{ 'not-broadcast': isNotStarted }")
+      div.comment-view(@click="commentClick")
         p.comment-edit {{editTips}}
-        div.problem-btn(v-show="isShowProblemBtn" :class="{ 'problem-active': isProblem }" @click="isProblem = !isProblem") 提问
-      img.bullet-chat(:src="bulletChatSrc" @click="$emit('clickBulletChat')")
-      img.comment-btn(src="@icon/course/comment-btn.png" @click="$emit('clickComment')")
-      img.reward-btn(src="@icon/course/reward.png" @click="$emit('clickReward')")
-      img.more-btn(src="@icon/course/more.png" @click="$emit('clickMore')")
-    EditView(v-show="false")
+        div.problem-btn(v-show="isShowProblemBtn" :class="{ 'problem-active': data.isProblem }" @click.stop="problemClick") 提问
+      img.bullet-chat(:src="bulletChatSrc" @click="$emit('clickItem', 1)")
+      span.comment-btn(@click="$emit('clickItem', 2)")
+      span.reward-btn(@click="$emit('clickItem', 3)")
+      img.more-btn(src="@icon/course/more.png" @click="$emit('clickItem', 4)")
+    EditView(
+      v-show="isShowEditView"
+      :isProblem="data.isProblem"
+      :changeEdit="changeEditNum"
+      @problemClick="problemClick"
+      @sendComment="sendComment"
+    )
     div.unregistered(v-if="false")
       div.enroll-btn 立即报名
-      img.bullet-chat(:src="bulletChatSrc" @click="$emit('clickBulletChat')")
+      img.bullet-chat(:src="bulletChatSrc" @click="$emit('clickItem', 1)")
 </template>
 
 <script>
@@ -27,28 +33,66 @@
         required: true,
         default () {
           return {
-            isShow: 1, // 是否显示弹幕弹窗
             isAdministrators: false, // 是否是管理员
             isForbidcomment: false // 是否禁止评论
           }
         }
+      },
+      state: { // 直播状态 0: 未开始 1:直播中 2:回放
+        type: Number,
+        required: true,
+        default: 0
+      },
+      isShowChat: {
+        type: Boolean,
+        require: true,
+        default: false
       }
     },
     data () {
       return {
         commentContent: '',
-        isProblem: false // 是否中提问
+        isProblem: false, // 是否中提问
+        isShowEditView: false,
+        changeEditNum: 0
       }
     },
     computed: {
       bulletChatSrc () {
-        return this.data.isShow ? require('@icon/course/bullet-chat.png') : require('@icon/course/bullet-chat-close.png')
+        return this.isNotStarted ? require('@icon/course/bullet-chat-grey.png') : (this.isShowChat ? require('@icon/course/bullet-chat.png') : require('@icon/course/bullet-chat-close.png'))
       },
       isShowProblemBtn () {
         return !this.data.isAdministrators && !this.data.isForbidcomment
       },
+      isNotStarted () {
+        return this.state === 0
+      },
       editTips () {
         return this.data.isForbidcomment ? '已被管理员禁言' : '说点什么吧~'
+      }
+    },
+    methods: {
+      problemClick () {
+        if (this.isNotStarted) return
+        this.$emit('clickItem', 5)
+      },
+      clickBulletChat () {
+        if (this.isNotStarted) return
+        this.$emit('clickBulletChat')
+      },
+      commentClick () {
+        this.isShowEditView = true
+        this.changeEditNum++
+      },
+      /**
+       * 发送评论
+       */
+      sendComment (text) {
+        if (!text) {
+          this.isShowEditView = false
+          return
+        }
+        this.$emit('sendComment', text)
       }
     }
   }
@@ -57,6 +101,7 @@
 <style scoped lang="less">
   .bottom-back {
     background: #fff;
+    z-index: 10;
   }
 
   .default-view {
@@ -117,6 +162,9 @@
     height: .56rem;
     padding: .09rem;
     box-sizing: content-box;
+    display: block;
+    background: url('~@icon/course/comment-btn.png') no-repeat center center;
+    background-size: .56rem;
   }
 
   .reward-btn {
@@ -124,6 +172,8 @@
     height: .54rem;
     padding: .1rem;
     box-sizing: content-box;
+    background: url('~@icon/course/reward.png') no-repeat center center;
+    background-size: .54rem;
   }
 
   .more-btn {
@@ -153,6 +203,37 @@
 
     &:active {
       background: darken(#fdb418, 5%);
+    }
+  }
+
+  .not-broadcast {
+    .comment-view {
+      border: 1px solid #ccc;
+      background: #f8f8f8;
+      color: #ccc;
+    }
+
+    .problem-btn {
+      color: #ccc;
+    }
+
+    .comment-btn {
+      width: .56rem;
+      height: .56rem;
+      padding: .09rem;
+      box-sizing: content-box;
+      display: block;
+      background: url('~@icon/course/comment-grey.png') no-repeat center center;
+      background-size: .56rem;
+    }
+
+    .reward-btn {
+      width: .54rem;
+      height: .54rem;
+      padding: .1rem;
+      box-sizing: content-box;
+      background: url('~@icon/course/reward-grey.png') no-repeat center center;
+      background-size: .54rem;
     }
   }
 </style>

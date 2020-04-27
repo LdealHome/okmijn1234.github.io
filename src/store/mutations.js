@@ -15,8 +15,6 @@ import {
 
 export default {
   [SET_USER_INFO] (state, payload) {
-    // todo
-    // let userInfo = payload.member_info
     state.userInfoLoaded = true
     state.personalInfo = {
       uid: payload.uid,
