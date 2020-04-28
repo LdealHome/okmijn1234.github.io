@@ -10,7 +10,8 @@ export default [
     name: 'curriculum',
     component: () => import(/* webpackChunkName: "curriculum" */ '../../views/course/Course.vue'),
     meta: {
-      title: '课程'
+      title: '课程',
+      share: true
     }
   }
 ]

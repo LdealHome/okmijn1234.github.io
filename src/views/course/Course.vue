@@ -75,8 +75,8 @@
             poster: 'https://dss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=1922786828,481523169&fm=26&gp=0.jpg'
           },
           followBtnAvatar: '', // 关注按钮头像
-          state: 1, // 直播状态 0: 未开始 1:直播中 2:回放
-          personTime: 50, // 人次
+          state: 0, // 直播状态 0: 未开始 1:直播中 2:回放
+          personTime: 0, // 人次
           time: 70000, // state对应不同时间 state：0距离直播开始时间 1直播播放的位置
           isSetReminders: true, // 是否设置开播提醒
           countDownList: [],
@@ -180,7 +180,8 @@
                 isAsk: false
               }
             ]
-          }
+          },
+          isFollow: false
         },
         rewardInfo: {
           isShow: false,
@@ -239,14 +240,21 @@
                 src: data.video_src,
                 poster: data.video_cover
               },
-              followBtnAvatar: data.focus_anchor_img,
+              followBtnAvatar: data.user_focus_info.focus_anchor_img,
               state: state, // 直播状态 0: 未开始 1:直播中 2:回放
               personTime: state > 0 ? data.watch_number : data.set_start_number, // 人次
-              time: 60, // state对应不同时间 state：0距离直播开始时间 1直播播放的位置
-              isSetReminders: true, // 是否设置开播提醒
-              countDownList: []
+              time: state > 0 ? data.current_live_time : data.differ_time, // state对应不同时间 state：0距离直播开始时间 1直播播放的位置
+              isSetReminders: data.is_set_remind === 1, // 是否设置开播提醒
+              countDownList: [],
+              studyList: [],
+              commentList: [],
+              chatInfo: {
+                isShow: true,
+                list: []
+              },
+              isFollow: data.user_focus_info.is_focus === 1
             }
-            if (this.state === 0) {
+            if (!state) {
               this.updateCountDownList()
             } else {
               // 新增课程浏览量
@@ -260,7 +268,9 @@
               link: data.share_info.link
             }
             this.getWeiXinConfig(shareInfo)
-              .then(this.setWeiXinConfig)
+              .then(res => {
+                this.setWeiXinConfig(res, this.shareSuccess)
+              })
 
             this.isLoad = true
 
@@ -270,9 +280,15 @@
               avatar: rewardInfo.anchor_img,
               name: rewardInfo.nick_name
             }
-            this.customerServiceData.codeSrc = data.focus_code
+            this.customerServiceData.codeSrc = data.user_focus_info.focus_code
           }
         })
+      },
+      /**
+       * 分享回调
+       */
+      shareSuccess () {
+        // 分享统计
       },
       /**
        * 设置/取消开播提醒

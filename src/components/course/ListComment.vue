@@ -27,11 +27,11 @@
         span.reward-name {{item.userInfo.name}}
         span 赞赏了一个
         span.amount {{item.amount}}元红包
-        span.reward-btn 我也要赞赏
+        span.reward-btn(@click="$emit('clickItem', { type: item.type })") 我也要赞赏
       p.share-item(v-if="item.type === 8" :class="recordTopSpacing(index)")
         span.share-name {{item.userInfo.name}}
         span 刚刚分享了课程
-        span.share-btn 我也要分享
+        span.share-btn(@click="$emit('clickItem', { type: item.type })") 我也要分享
 </template>
 
 <script>

@@ -11,6 +11,7 @@
       @shareBtnClick="$emit('shareBtnClick')"
       @seeVideo="seeVideo"
       @contentBackClick=""
+      @clickItem="clickLearningItem"
     )
     BottomView(
       :data="bottomInfo"
@@ -106,6 +107,28 @@
         case 5:
           // 选择、取消提问
           this.bottomInfo.isProblem = !this.bottomInfo.isProblem
+          break
+      
+        default:
+          break
+        }
+      },
+      /**
+       * 点击学习区各种消息类型
+       * @param info {Object} 消息信息
+       * @param info.type {Number} 消息类型 1: 普通评论 2提问的评论 3: 回复普通评论 4: 回复提问评论 5: 打赏信息 6: 视频资料 7: 图片资料 8分享记录
+       */
+      clickLearningItem (info) {
+        switch (info.type) {
+        case 1:
+          break
+        case 5:
+          // 打赏
+          this.$emit('clickReward')
+          break
+        case 8:
+          // 显示分享海报弹窗
+          this.$emit('shareBtnClick')
           break
       
         default:

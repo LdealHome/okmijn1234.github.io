@@ -81,6 +81,7 @@
         this.$emit('clickBulletChat')
       },
       commentClick () {
+        if (this.isNotStarted) return
         this.isShowEditView = true
         this.changeEditNum++
       },

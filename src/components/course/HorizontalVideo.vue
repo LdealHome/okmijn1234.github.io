@@ -1,6 +1,10 @@
 <template lang="pug">
   div.top-view
-    div.video-back(v-show="isOpenVideo")
+    div.video-back(
+      v-show="isOpenVideo"
+      :class="{ 'ended-video': isEnded && !isPlayVideo }"
+      :style="{ 'height': videoHeight }"
+    )
       video.video(
         :src="data.video.src"
         :poster="data.video.poster"
@@ -22,9 +26,12 @@
             span.count-down-num {{data.countDownList[3]}}
             span.count-down-unit 秒
           div.remind-btn(@click="$emit('clickSetRemind')") {{remindBtnText}}
-      div.follow-view(@click="$emit('followBtnClick')")
+      div.follow-view(v-if="!data.isFollow" @click="$emit('followBtnClick')")
         img.follow-avatar(:src="data.followBtnAvatar")
         p.follow-text 关注润阳老师
+      div.video-control(v-show="isPlayVideo")
+        img.video-state(src="@icon/course/stop-icon.png" @click="stopVideo")
+        img.full-screen(src="@icon/course/full-screen.png")
     div.live-broadcast-info
       p.state.not-started(:class="liveBroadcastClass") {{liveBroadcastState}}
         span.interval |
@@ -37,6 +44,9 @@
 </template>
 
 <script>
+  import {
+    postSubmitViewingRecords
+  } from '../../services/course'
   export default {
     name: 'HorizontalVideo',
     props: {
@@ -53,21 +63,31 @@
             personTime: 0, // 人次
             time: 0, // 如果state为0，则是开始倒计时，1为直播播放的位置。单位秒，
             isSetReminders: true, // 是否设置开播提醒
-            countDownList: [] // 开播倒计时数组 [天、时、分、秒]
+            countDownList: [], // 开播倒计时数组 [天、时、分、秒]
+            isFollow: false
           }
+        }
+      }
+    },
+    watch: {
+      courseState (val) {
+        if (val === 1) {
+          // this.playVideo()
         }
       }
     },
     data () {
       return {
         isPlayVideo: false, // 是否在播放视频
-        isOpenVideo: true // 是否显示视频
+        isOpenVideo: true, // 是否显示视频
+        isEnded: false,
+        videoHeight: 'auto'
       }
     },
     computed: {
       liveBroadcastState () {
         let list = ['未开始', '直播中', '直播回放']
-        return list[this.data.state]
+        return list[this.courseState]
       },
       liveBroadcastClass () {
         return {
@@ -79,20 +99,49 @@
         return { 'retract-open': this.isOpenVideo }
       },
       notBroadcast () {
-        return this.data.state === 0
+        return this.courseState === 0
       },
       remindBtnText () {
         return this.data.isSetReminders ? '已设置开播提醒' : '开播提醒我'
+      },
+      courseState () {
+        return this.data.state
       }
     },
+    mounted () {
+      let video = document.getElementById('video')
+      video.addEventListener('ended', this.videoEnded, false)
+      video.addEventListener('loadedmetadata', this.videoLoadedmetadata, false)
+    },
     methods: {
+      videoEnded () {
+        this.isPlayVideo = false
+        this.isEnded = true
+        postSubmitViewingRecords({
+          course_single_id: this.data.id,
+          play_length: 1,
+          play_over: 1
+        })
+      },
+      videoLoadedmetadata () {
+        // 视频加载完后，修改video容器的高度
+        // 解决视频加载后底部会多一截问题
+        let video = document.getElementById('video')
+        this.videoHeight = video.clientHeight + 'px'
+      },
       playVideo () {
         if (this.notBroadcast) return
         let video = document.getElementById('video')
-        video.currentTime = this.data.time
+        // video.currentTime = this.data.time
+        video.currentTime = 100
         video.play()
         this.isPlayVideo = true
         // video.webkitRequestFullScreen()
+      },
+      stopVideo () {
+        let video = document.getElementById('video')
+        video.pause()
+        this.isPlayVideo = false
       }
     }
   }
@@ -110,6 +159,29 @@
     position: relative;
   }
 
+  .ended-video {
+    position: relative;
+
+    &::after {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      z-index: 1;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      content: '直播已结束，点击播放按钮可看回放';
+      font-size: .26rem;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding-top: .73rem;
+      background: rgba(0, 0, 0, .5);
+    }
+  }
+
   .video {
     width: 100%;
   }
@@ -123,6 +195,9 @@
     margin: auto;
     width: .94rem;
     height: .94rem;
+    padding: .3rem;
+    box-sizing: content-box;
+    z-index: 2;
   }
 
   .follow-view {
@@ -204,6 +279,41 @@
     align-items: center;
     justify-content: space-between;
     box-shadow: 0 1px 1px 0 rgba(205, 188, 188, .5);
+  }
+
+  .video-control {
+    width: 100%;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: .46rem;
+    background: rgba(0, 0, 0, .2);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .video-state {
+    width: .12rem;
+    height: .18rem;
+    padding: .17rem .3rem .17rem .22rem;
+    box-sizing: content-box;
+
+    &:active {
+      opacity: .8;
+    }
+  }
+
+  .full-screen {
+    width: .26rem;
+    height: .26rem;
+    padding: .1rem .22rem .1rem .3rem;
+    box-sizing: content-box;
+
+    &:active {
+      opacity: .8;
+    }
   }
 
   .state {

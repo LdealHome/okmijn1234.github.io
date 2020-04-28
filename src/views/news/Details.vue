@@ -3,8 +3,7 @@
     ul
       li.item(v-for="item in list" :key="item.id")
         p.title {{item.title}}
-        p.content {{item.content}}
-          span.link(@click="entryOtherPage(item.link)") {{item.linkText}}
+        p.content(v-html="item.content")
         p.time {{item.time}}
     div(v-show="!list.length")
       div.empty-tips 你还没有获得任何消息
@@ -100,22 +99,6 @@
     line-height: .4rem;
     color: #999;
     margin-top: .12rem;
-  }
-
-  .link {
-    color: #4eb9fd;
-    position: relative;
-    white-space: nowrap;
-
-    &::after {
-      position: absolute;
-      content: '';
-      height: 1px;
-      bottom: -1px;
-      background: #4eb9fd;
-      left: 0;
-      right: 0;
-    }
   }
 
   .time {

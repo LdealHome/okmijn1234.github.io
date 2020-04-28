@@ -47,13 +47,15 @@
         if (val) {
           this.isShowMore = true
         }
-      },
-      uid () {
-        return this.$route.params.from
       }
     },
     created () {
       this.isShowMore = this.isShow
+    },
+    computed: {
+      uid () {
+        return this.$route.params.from
+      }
     }
   }
 </script>
