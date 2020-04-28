@@ -152,7 +152,7 @@
               learningToday: data.today_learn_time, // 今日学习时长
               continuityDay: data.continuous_learn_day, // 连续天数
               completeCourse: data.complete_course_num, // 完成课程
-              newsUnreadNum: data.complete_course_num // 新消息数
+              newsUnreadNum: data.message_num // 新消息数
             }
           }
         })

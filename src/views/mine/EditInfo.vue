@@ -103,14 +103,12 @@
       positionText () {
         let text = ''
         let type = this.positionInfo.selectedType
-        if (type < -1) {
-          text = '无'
-        } else if (type === -1) {
+        if (type === -1) {
           text = this.positionInfo.positionName || this.getPositionName(type)
         } else if (type >= 0) {
           text = this.getPositionName(type)
         }
-        return text
+        return text || '无'
       },
       getPositionName (type) {
         return type => {
