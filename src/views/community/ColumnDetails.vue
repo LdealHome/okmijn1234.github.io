@@ -139,6 +139,7 @@
   import TechnicalSupport from '../../components/TechnicalSupport'
   import FooterCommon from '../../components/FooterCommon'
   import NothingCommon from '../../components/NothingCommon'
+  import weixinConfig from '../../mixin/weixinConfig'
   import {
     getColumnDetails,
     getLiveListMore,
@@ -146,6 +147,7 @@
   } from '../../services/community'
   export default {
     name: 'ColumnDetails',
+    mixins: [weixinConfig],
     components: {
       DetailsContent,
       PostersSharePopup,
@@ -240,6 +242,13 @@
             that.isFollow = data.is_focus === 1 // 是否关注公众号1是
             that.followInfo.codeSrc = data.focus_code
             that.isShowCustomerService = data.is_focus === 1
+            let shareInfo = data.share_info
+            this.getWeiXinConfig({
+              desc: shareInfo.content,
+              img: shareInfo.img_url,
+              title: shareInfo.title,
+              link: shareInfo.link
+            }).then(this.setWeiXinConfig)
             that.countdownStarts()
             that.getLiveListMore()
           }
