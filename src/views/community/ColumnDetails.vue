@@ -123,7 +123,7 @@
     CustomerServicePopup(
       v-if="isShowCustomerService"
       :customer="followInfo"
-      @close="isShowCustomerService = false"
+      @close="closeFollow"
       )
     TechnicalSupport
     FooterCommon(:selectedTab="-1")
@@ -241,7 +241,16 @@
             that.isGraduation = data.is_graduate === 1 // 是否毕业1是
             that.isFollow = data.is_focus === 1 // 是否关注公众号1是
             that.followInfo.codeSrc = data.focus_code
-            that.isShowCustomerService = data.is_focus === 1
+
+            let isCloseFollow = localStorage.getItem('isCloseFollow')
+            // 未关注公众号
+            if (isCloseFollow) { // 用户进入过此页面
+              that.isShowCustomerService = false
+            } else { // 用户第一次进入
+              that.isShowCustomerService = data.is_focus === 2 // 关注公众号弹框
+            }
+
+            // 分享
             let shareInfo = data.share_info
             this.getWeiXinConfig({
               desc: shareInfo.content,
@@ -343,6 +352,14 @@
           }
           this.chooseCurrent++
         }
+      },
+      /**
+       * 关闭公众号弹框
+       */
+      closeFollow () {
+        this.isShowCustomerService = false
+        // 缓存用户已进入过此页面
+        localStorage.setItem('isCloseFollow', this.isShowCustomerService)
       },
       /**
        * 视频播放
