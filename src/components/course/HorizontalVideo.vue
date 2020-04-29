@@ -2,7 +2,7 @@
   div.top-view
     div.video-back(
       v-show="isOpenVideo"
-      :class="{ 'ended-video': isEnded && !isPlayVideo }"
+      :class="videoBackClass"
       :style="{ 'height': videoHeight }"
     )
       video.video(
@@ -12,8 +12,9 @@
         playsinline
         webkit-playsinline
         id="video"
+        :class="videoClass"
       )
-      img.play-btn(src="@icon/course/play-btn.png" @click="playVideo" v-show="!isPlayVideo")
+      img.play-btn(src="@icon/course/play-btn.png" @click="playVideo" v-show="isShowPlayBtn")
       div.count-down-view(v-show="notBroadcast")
         div.count-down-info
           p.count-down 倒计时: 
@@ -29,7 +30,7 @@
       div.follow-view(v-if="!data.isFollow" @click="$emit('followBtnClick')")
         img.follow-avatar(:src="data.followBtnAvatar")
         p.follow-text 关注润阳老师
-      div.video-control(v-show="isPlayVideo")
+      div.video-control(v-show="isShowVideoControl")
         img.video-state(src="@icon/course/stop-icon.png" @click="stopVideo")
         img.full-screen(src="@icon/course/full-screen.png")
     div.live-broadcast-info
@@ -44,9 +45,6 @@
 </template>
 
 <script>
-  import {
-    postSubmitViewingRecords
-  } from '../../services/course'
   export default {
     name: 'HorizontalVideo',
     props: {
@@ -69,25 +67,40 @@
         }
       }
     },
-    watch: {
-      courseState (val) {
-        if (val === 1) {
-          // this.playVideo()
-        }
-      }
-    },
     data () {
       return {
         isPlayVideo: false, // 是否在播放视频
         isOpenVideo: true, // 是否显示视频
         isEnded: false,
-        videoHeight: 'auto'
+        videoHeight: 'auto',
+        videoPlayTime: 0, // 视频直播时播放的进度
+        studyTime: 0, // 学习时长
+        state: 0
+      }
+    },
+    watch: {
+      courseState (val) {
+        this.state = val
+        switch (val) {
+        case 1:
+          // 储存进入页面时，直播开始后等待的开始时间
+          // 用于计算点击开始播放后，调整视频的播放位置
+          sessionStorage.setItem('waitTime', new Date().getTime())
+          this.videoPlayTime = this.data.time
+          break
+        case 2:
+          let video = document.getElementById('video')
+          video.controls = true
+          break
+        default:
+          break
+        }
       }
     },
     computed: {
       liveBroadcastState () {
         let list = ['未开始', '直播中', '直播回放']
-        return list[this.courseState]
+        return this.isShowEnded ? '直播结束' : list[this.state]
       },
       liveBroadcastClass () {
         return {
@@ -106,20 +119,45 @@
       },
       courseState () {
         return this.data.state
+      },
+      isShowVideoControl () {
+        return this.isPlayVideo && this.state === 1
+      },
+      isShowPlayBtn () {
+        return !this.isPlayVideo && this.state !== 2
+      },
+      videoBackClass () {
+        return { 'ended-video': this.isShowEnded }
+      },
+      isShowEnded () {
+        return this.isEnded && this.isShowPlayBtn
+      },
+      videoClass () {
+        return { 'hide-video-controls': this.courseState !== 2 }
       }
     },
     mounted () {
       let video = document.getElementById('video')
       video.addEventListener('ended', this.videoEnded, false)
       video.addEventListener('loadedmetadata', this.videoLoadedmetadata, false)
+      video.addEventListener('play', this.videoPlayEvent, false)
+      video.addEventListener('pause', this.videoPauseEvent, false)
     },
     methods: {
       videoEnded () {
         this.isPlayVideo = false
-        this.isEnded = true
-        postSubmitViewingRecords({
+        if (this.courseState === 1) {
+          this.isEnded = true
+        }
+        let time = new Date()
+        let videoPlayTime = sessionStorage.getItem('videoPlayTime')
+        if (videoPlayTime) {
+          sessionStorage.removeItem('videoPlayTime')
+          this.studyTime += Math.floor((time - videoPlayTime) / 1000)
+        }
+        this.$_.store.dispatch('postStudyStatistics', {
           course_single_id: this.data.id,
-          play_length: 1,
+          play_length: this.studyTime,
           play_over: 1
         })
       },
@@ -128,20 +166,54 @@
         // 解决视频加载后底部会多一截问题
         let video = document.getElementById('video')
         this.videoHeight = video.clientHeight + 'px'
+        video.removeEventListener('loadedmetadata', this.videoLoadedmetadata)
       },
       playVideo () {
         if (this.notBroadcast) return
         let video = document.getElementById('video')
-        // video.currentTime = this.data.time
-        video.currentTime = 100
+        let time = new Date()
+        if (this.isEnded) {
+          this.state = 2
+          video.controls = true
+        } else if (this.state === 1) {
+          // 如果是直播时，当前直播对应的位置
+          let startTime = sessionStorage.getItem('waitTime') || time
+          video.currentTime = Math.floor((time - startTime) / 1000) + this.videoPlayTime
+        }
         video.play()
+      },
+      videoPlayEvent () {
+        sessionStorage.setItem('videoPlayTime', new Date().getTime())
         this.isPlayVideo = true
-        // video.webkitRequestFullScreen()
       },
       stopVideo () {
         let video = document.getElementById('video')
         video.pause()
         this.isPlayVideo = false
+
+        let time = new Date().getTime()
+        if (this.state === 1) {
+          // 储存暂停时的时间
+          // 用于计算点击开始播放后，调整视频的播放位置
+          sessionStorage.setItem('waitTime', time)
+        }
+      },
+      videoPauseEvent () {
+        this.isPlayVideo = false
+        let video = document.getElementById('video')
+        let time = new Date().getTime()
+        // 获取暂停时视频播放的进度
+        this.videoPlayTime = video.currentTime
+        let videoPlayTime = sessionStorage.getItem('videoPlayTime')
+        if (videoPlayTime) {
+          sessionStorage.removeItem('videoPlayTime')
+          this.studyTime += Math.floor((time - videoPlayTime) / 1000)
+          localStorage.setItem('studyStatistics', JSON.stringify({
+            course_single_id: this.data.id,
+            play_length: this.studyTime,
+            play_over: 2
+          }))
+        }
       }
     }
   }
@@ -371,7 +443,7 @@
     transform: rotate(180deg);
   }
 
-  video::-webkit-media-controls-enclosure {
+  .hide-video-controls::-webkit-media-controls-enclosure {
     display: none !important;
   }
 </style>

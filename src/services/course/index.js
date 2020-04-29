@@ -32,5 +32,14 @@ export function postAddVisits (data) {
  * @returns {AxiosPromise<any>}
  */
 export function postSubmitViewingRecords (data) {
-  return Vue.axios.post('/course/play/record', data, { $_hideLoading: true })
+  return Vue.axios.post('/course/play/record', data, { $_hideLoading: true, $_cancelNotice: true })
+}
+
+/**
+ * 打赏课程
+ * @param data {Object} 请求携带的参数{ amount: 金额, course_single_id: 直播课程id }
+ * @returns {AxiosPromise<any>}
+ */
+export function postRewardCourse (data) {
+  return Vue.axios.post('/course/live/reward/save', data)
 }

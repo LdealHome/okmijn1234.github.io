@@ -32,6 +32,11 @@
       @close="commentInfo.isShow = false"
       @problemClick="clickBottomItem"
     )
+    PhotoSwipe(
+      :photoSwipeInit="photoSwipeInit"
+      :photoSwipeData="photoSwipeData"
+      @close="photoSwipeInit = false"
+    )
 </template>
 
 <script>
@@ -40,6 +45,7 @@
   import LearningArea from '../../components/course/LearningArea'
   import BottomView from '../../components/course/BottomView'
   import CommentArea from '../../components/course/CommentArea'
+  import PhotoSwipe from '../../components/PhotoSwipe'
   
   export default {
     name: 'CourseHorizontal',
@@ -48,7 +54,8 @@
       HorizontalVideo,
       LearningArea,
       BottomView,
-      CommentArea
+      CommentArea,
+      PhotoSwipe
     },
     props: {
       data: {
@@ -68,7 +75,12 @@
         },
         commentInfo: {
           isShow: false
-        }
+        },
+        photoSwipeData: { // 图片预览的数据结构
+          list: [],
+          target: null
+        },
+        photoSwipeInit: false // 是否显示图片预览
       }
     },
     computed: {
@@ -125,6 +137,19 @@
         case 5:
           // 打赏
           this.$emit('clickReward')
+          break
+        case 6:
+          // 查看视频
+          this.$emit('seeVideo', {
+            type: 2,
+            videoInfo: info.videoInfo
+          })
+          break
+        case 7:
+          // 查看资料图片
+          this.photoSwipeData.target = info.e.target
+          this.photoSwipeData.list = document.querySelectorAll('.picture-item[lazy=loaded]')
+          this.photoSwipeInit = true
           break
         case 8:
           // 显示分享海报弹窗

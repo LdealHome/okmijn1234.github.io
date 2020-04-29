@@ -38,6 +38,11 @@ router.beforeEach((to, from, next) => {
     if (errorInfo) {
       // $_.store.dispatch('postErrorInfo', JSON.parse(errorInfo))
     }
+    // 上报课程学习统计
+    let studyStatistics = localStorage.getItem('studyStatistics')
+    if (studyStatistics) {
+      $_.store.dispatch('postStudyStatistics', JSON.parse(studyStatistics))
+    }
   }
   next()
 })

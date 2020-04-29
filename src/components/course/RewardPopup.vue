@@ -40,7 +40,7 @@
           return {
             isShow: true,
             avatar: '',
-            name: '册撒发给'
+            name: ''
           }
         }
       }
@@ -66,9 +66,7 @@
         }
       },
       isShowPopup (val) {
-        if (val) {
-          this.isShow = true
-        }
+        this.isShow = val
       }
     },
     computed: {

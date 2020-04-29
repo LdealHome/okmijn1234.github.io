@@ -12,6 +12,9 @@ import {
   getPayCommunity
 } from '../services'
 import {
+  postSubmitViewingRecords
+} from '../services/course'
+import {
   SET_USER_INFO,
   SET_QINIU_TOKEN,
   SET_TABLE_INFO,
@@ -92,6 +95,14 @@ export default {
     return postErrorInfo(payload).then(res => {
       if (res.data.code === 1) {
         localStorage.removeItem('errorInfo')
+      }
+    })
+  },
+  // 课程学习统计
+  postStudyStatistics ({ commit }, payload) {
+    return postSubmitViewingRecords(payload).then(res => {
+      if (res.data.code === 1) {
+        localStorage.removeItem('studyStatistics')
       }
     })
   },

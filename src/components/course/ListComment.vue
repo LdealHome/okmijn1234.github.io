@@ -19,19 +19,19 @@
             span.withdraw-btn(v-show="isShowWithdraw(index)") 撤回
             span(:class="{ 'problem-reply-view': item.type === 4 }") {{item.replyInfo.name}}：{{item.replyInfo.content}}
           p.reply-content {{item.content}}
-        div.media-view.video-back(v-if="item.type === 6")
+        div.media-view.video-back(v-if="item.type === 6" @click="clickItem(item)")
           img.media-img(:src="item.videoInfo.cover")
         div.media-view(v-if="item.type === 7")
-          img.media-img(:src="item.image")
+          img.media-img.picture-item(v-lazy="item.image" @click="clickItem({ ...item, e: $event })")
       p.reward-item(v-if="item.type === 5" :class="recordTopSpacing(index)")
         span.reward-name {{item.userInfo.name}}
         span 赞赏了一个
         span.amount {{item.amount}}元红包
-        span.reward-btn(@click="$emit('clickItem', { type: item.type })") 我也要赞赏
+        span.reward-btn(@click="clickItem(item)") 我也要赞赏
       p.share-item(v-if="item.type === 8" :class="recordTopSpacing(index)")
         span.share-name {{item.userInfo.name}}
         span 刚刚分享了课程
-        span.share-btn(@click="$emit('clickItem', { type: item.type })") 我也要分享
+        span.share-btn(@click="clickItem(item)") 我也要分享
 </template>
 
 <script>
@@ -141,7 +141,6 @@
         // 点击回复评论
       },
       showManageView (index) {
-        console.log(index)
         this.timer = setTimeout(() => {
           // 长按事件
         }, 1500)
@@ -150,6 +149,28 @@
         if (this.timer) {
           clearTimeout(this.timer)
         }
+      },
+      clickItem (item) {
+        let info = {}
+        switch (item.type) {
+        case 6:
+          // 视频
+          info.videoInfo = {
+            videoUrl: item.videoInfo.src,
+            imgSrc: item.videoInfo.cover
+          }
+          break
+        case 7:
+          // 图片
+          info.e = item.e
+          break
+        default:
+          break
+        }
+        this.$emit('clickItem', {
+          type: item.type,
+          ...info
+        })
       }
     }
   }

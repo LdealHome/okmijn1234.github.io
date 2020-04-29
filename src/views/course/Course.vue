@@ -19,6 +19,7 @@
     RewardPopup(
       :rewardInfo="rewardInfo"
       @close="rewardInfo.isShow = false"
+      @rewardClick="rewardClick"
     )
     PostersSharePopup(
       v-if="isPostersSharePopup"
@@ -40,7 +41,8 @@
   import {
     getCourseInfo,
     postChangeRemindState,
-    postAddVisits
+    postAddVisits,
+    postRewardCourse
   } from '../../services/course'
   import { MessageBox } from 'mint-ui'
 
@@ -50,6 +52,15 @@
     if (vm.updateCountDownTimer) {
       clearInterval(vm.updateCountDownTimer)
       vm.updateCountDownTimer = null
+    }
+    let videoPlayTime = sessionStorage.getItem('videoPlayTime')
+    if (videoPlayTime) {
+      let playTime = JSON.parse(localStorage.getItem('studyStatistics') || '{}').play_length || 0
+      localStorage.setItem('studyStatistics', JSON.stringify({
+        course_single_id: vm.courseId,
+        play_length: Math.floor((new Date() - videoPlayTime) / 1000) + playTime,
+        play_over: 2
+      }))
     }
     window.removeEventListener('pagehide', pagehide, false)
   }
@@ -71,8 +82,8 @@
         mBean: {
           id: 0, // 课程id
           video: { // 视频信息
-            src: 'http://ugcws.video.gtimg.com/uwMROfz2r5zEIaQXGdGnC2dfJ7xlHUZLN7WLSNBHzUj-9W46/s0554ze0ism.p712.1.mp4?sdtfrom=v1010&guid=dd7babf8f22ca1561f28883a07c23eb6&vkey=FAC9906DBD7A47656926F01EF0DB16A7843BCFF351AD4ACD6F8CF264CC614B4C34CED8125D9FF31B6360276CEC615F7C78DBB79683CA1C957B4A5B8033CBD9628B3F2273833C65CC2EB3A2EAC1664B55F1D0D96A0D09E29762D292315A8A0A737AE1606165202519808B28E2A5295AF9F46882FE67DA1CC43BA627B069145624',
-            poster: 'https://dss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=1922786828,481523169&fm=26&gp=0.jpg'
+            src: '',
+            poster: ''
           },
           followBtnAvatar: '', // 关注按钮头像
           state: 0, // 直播状态 0: 未开始 1:直播中 2:回放
@@ -246,7 +257,61 @@
               time: state > 0 ? data.current_live_time : data.differ_time, // state对应不同时间 state：0距离直播开始时间 1直播播放的位置
               isSetReminders: data.is_set_remind === 1, // 是否设置开播提醒
               countDownList: [],
-              studyList: [],
+              studyList: [
+                // {
+                //   time: 1587546921, // 发送消息的时间戳
+                //   type: 5, // 类型 1: 普通评论 2提问的评论 3: 回复普通评论 4: 回复提问评论 5: 打赏信息 6: 视频资料 7: 图片资料 8分享记录
+                //   userInfo: {
+                //     avatar: '', // 头像
+                //     name: '打赏你昵称', // 用户名
+                //     uid: 1
+                //   },
+                //   amount: '6.66' // 打赏的金额
+                // },
+                // {
+                //   time: 1587546901, // 发送消息的时间戳
+                //   type: 7, // 类型 1: 普通评论 2提问的评论 3: 回复普通评论 4: 回复提问评论 5: 打赏信息 6: 视频资料 7: 图片资料 8分享记录
+                //   userInfo: {
+                //     avatar: '', // 头像
+                //     name: '打赏你昵称', // 用户名
+                //     uid: 1
+                //   },
+                //   image: 'http://hskimgtest.smsqmx.com/upload/single/img/2020/04/27/202004275ea64ebd48d431587957436000.png'
+                // },
+                // {
+                //   time: 1515132, // 发送消息的时间戳
+                //   type: 8, // 类型 1: 普通评论 2提问的评论 3: 回复普通评论 4: 回复提问评论 5: 打赏信息 6: 视频资料 7: 图片资料 8分享记录
+                //   userInfo: {
+                //     avatar: '', // 头像
+                //     name: '哈哈', // 用户名
+                //     uid: 1
+                //   }
+                // },
+                // {
+                //   time: 1515131, // 发送消息的时间戳
+                //   type: 7, // 类型 1: 普通评论 2提问的评论 3: 回复普通评论 4: 回复提问评论 5: 打赏信息 6: 视频资料 7: 图片资料 8分享记录
+                //   userInfo: {
+                //     avatar: '', // 头像
+                //     name: '哈哈', // 用户名
+                //     uid: 1
+                //   },
+                //   image: 'https://dss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=1922786828,481523169&fm=26&gp=0.jpg' // 图片
+                // },
+                // {
+                //   time: 1587545921, // 发送消息的时间戳
+                //   type: 6, // 类型 1: 普通评论 2提问的评论 3: 回复普通评论 4: 回复提问评论 5: 打赏信息 6: 视频资料 7: 图片资料 8分享记录
+                //   userInfo: {
+                //     avatar: '', // 头像
+                //     name: '链脉名片', // 用户昵称
+                //     uid: 6 // 发送内容的用户uid
+                //   },
+                //   label: '班长', // 管理员标签
+                //   videoInfo: {
+                //     cover: 'https://dss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=1922786828,481523169&fm=26&gp=0.jpg', // 视频资料封面
+                //     src: 'http://hskimgtest.smsqmx.com/upload/single/video/2020/04/24/202004245ea2a012696071587716113000.mp4?sign=ed9b7e64300d5afc8b9d43e0ca9afe98&t=5ea95ace' // 视频资料地址
+                //   }
+                // }
+              ],
               commentList: [],
               chatInfo: {
                 isShow: true,
@@ -328,12 +393,12 @@
       updateCountDownList () {
         this.mBean.countDownList = this.transformCountDownList()
         this.updateCountDownTimer = setInterval(() => {
-          if (this.mBean.time <= 1) {
+          this.mBean.time--
+          if (this.mBean.time < 1) {
             // 到开播时间修改课程状态，关闭计算倒计时定时器
             this.clearCountDownTimer()
             this.mBean.state = 1
           } else {
-            this.mBean.time--
             this.mBean.countDownList = this.transformCountDownList()
           }
         }, 1000)
@@ -369,6 +434,10 @@
        * @param info {Object} { type: 类型(1根据场景值获取视频，2直接显示视频信息), scene: 场景值信息, videoInfo: 视频信息 }
        */
       seeVideo (info) {
+        if (info.type === 1) {
+        } else {
+          this.videoInfo = info.videoInfo
+        }
         this.isShowVideo = true
       },
       sendComment (text) {
@@ -377,6 +446,29 @@
           avatar: '',
           text,
           isAsk: false
+        })
+      },
+      /**
+       * 打赏-唤醒支付
+       * @param amount {Number}
+       */
+      rewardClick (amount) {
+        const that = this
+        postRewardCourse({
+          amount,
+          course_single_id: this.courseId
+        }).then(res => {
+          if (res.data.code === 1) {
+            that.rewardInfo.isShow = false
+            that.$_.Toast('打赏成功')
+            window.wx.chooseWXPay({
+              ...res.data.data.js_sdk_config,
+              success (res) {
+                that.rewardInfo.isShow = false
+                that.$_.Toast('打赏成功')
+              }
+            })
+          }
         })
       }
     }
