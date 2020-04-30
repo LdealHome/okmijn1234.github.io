@@ -75,7 +75,8 @@
         videoHeight: 'auto',
         videoPlayTime: 0, // 视频直播时播放的进度
         studyTime: 0, // 学习时长
-        state: 0
+        state: 0,
+        networkStatus: true // 网络状态
       }
     },
     watch: {
@@ -96,6 +97,19 @@
           break
         }
       }
+    },
+    mounted () {
+      let video = document.getElementById('video')
+      window.addEventListener('offline', this.eventHandle)
+      window.addEventListener('online', this.eventHandle)
+      video.addEventListener('ended', this.videoEnded, false)
+      video.addEventListener('loadedmetadata', this.videoLoadedmetadata, false)
+      video.addEventListener('play', this.videoPlayEvent, false)
+      video.addEventListener('pause', this.videoPauseEvent, false)
+    },
+    beforeDestroy () {
+      window.removeEventListener('offline', this.eventHandle)
+      window.removeEventListener('online', this.eventHandle)
     },
     computed: {
       liveBroadcastState () {
@@ -136,14 +150,14 @@
         return { 'hide-video-controls': this.courseState !== 2 }
       }
     },
-    mounted () {
-      let video = document.getElementById('video')
-      video.addEventListener('ended', this.videoEnded, false)
-      video.addEventListener('loadedmetadata', this.videoLoadedmetadata, false)
-      video.addEventListener('play', this.videoPlayEvent, false)
-      video.addEventListener('pause', this.videoPauseEvent, false)
-    },
     methods: {
+      eventHandle (event) {
+        // 如果在直播状态时，断网后暂停播放视频
+        if (event.type === 'offline' && this.isPlayVideo && this.courseState === 1) {
+          this.stopVideo()
+        }
+        this.networkStatus = !this.networkStatus
+      },
       videoEnded () {
         this.isPlayVideo = false
         if (this.courseState === 1) {
@@ -169,7 +183,7 @@
         video.removeEventListener('loadedmetadata', this.videoLoadedmetadata)
       },
       playVideo () {
-        if (this.notBroadcast) return
+        if (this.notBroadcast || !this.networkStatus) return
         let video = document.getElementById('video')
         let time = new Date()
         if (this.isEnded) {
