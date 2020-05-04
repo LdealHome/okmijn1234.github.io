@@ -1,19 +1,20 @@
 <!--官方联系客服、关注公众号-->
 <template lang="pug">
-  div.customer__bounced
+  div.customer__bounced(:class='[$route.name]')
     div.mask
     div.content
       div.above
         p.back(:class="{follow: customer.differentiate === 2}")
         p.title {{differentiate}}
-        div.text(v-if="customer.differentiate === 0")
+        div.text(v-if="isCustomerService")
           p 请识别下方二维码
           p 立即联系客服购买课程
-        div.text(v-else)
+        div.text(v-if="!isCustomerService && !isCourse")
           p 长按关注公众号获取社群动态
           p 365天见证自己的成长
         img.img(:src="customer.codeSrc")
-        button.btn(type="button") 长按识别二维码
+        button.btn(type="button" v-if="!isCourse") 长按识别二维码
+        p.tips 长按识别二维码 获取社群动态
       p.close(@click="$emit('close')") 稍后再说
 </template>
 
@@ -34,7 +35,13 @@
     },
     computed: {
       differentiate () {
-        return this.customer.differentiate === 0 ? '一对一金牌服务' : '关注公众号'
+        return this.isCustomerService ? '一对一金牌服务' : '关注公众号'
+      },
+      isCourse () {
+        return this.$route.name === 'curriculum'
+      },
+      isCustomerService () {
+        return this.customer.differentiate === 0
       }
     }
   }
@@ -158,6 +165,30 @@
       font-size: .28rem;
       text-align: center;
       margin-top: .44rem;
+    }
+  }
+
+  .tips {
+    font-size: .28rem;
+    color: #333;
+    margin-top: .4rem;
+  }
+
+  .curriculum {
+    .above {
+      padding-bottom: .72rem;
+
+      &::after {
+        background: none;
+      }
+    }
+
+    .title { font-size: .4rem; }
+
+    .img {
+      width: 2.68rem;
+      height: 2.68rem;
+      margin-top: .4rem;
     }
   }
 </style>
