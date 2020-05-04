@@ -1,16 +1,21 @@
 <template lang="pug">
   div.learning-area-back
-    div.content(ref="learningView" @click="$emit('contentBackClick')")
-      div.right-anchor
-        span.anchor-top(@click="rollTopClick")
-        span.anchor-bottom(@click="rollBottomClick")
-      div.fu-center
-        div.fu-text(@click="goHomePage")
-          img.fu-text-img(src="@images/course/fu-text.png")
-        img.fortune-bag(src="@icon/course/fortune-bag.png" @click="seeShareVideo")
-        p.click-tips(@click="seeShareVideo") 点击福字，了解分享后好处
-        div.tips-btn(@click="$emit('shareBtnClick')") 分享课程，为课程点赞
-      ListComment(:list="list" @clickItem="clickItem")
+    div.content(ref="learningView")
+      div(v-show="isShowTopView")
+        div.right-anchor
+          span.anchor-top(@click="rollTopClick")
+          span.anchor-bottom(@click="rollBottomClick")
+        div.fu-center
+          div.fu-text(@click="goHomePage")
+            img.fu-text-img(src="@images/course/fu-text.png")
+          img.fortune-bag(src="@icon/course/fortune-bag.png" @click="seeShareVideo")
+          p.click-tips(@click="seeShareVideo") 点击福字，了解分享后好处
+          div.tips-btn(@click="$emit('shareBtnClick')") 分享课程，为课程点赞
+      ListComment(:list="studyListInfo.list" @clickItem="clickItem")
+      infinite-loading(@infinite="loadMore" direction="top")
+        div(slot="spinner")
+        div(slot="no-more")
+        div(slot="no-results")
       PopupChat(:chatInfo="chatInfo")
 </template>
 
@@ -24,11 +29,16 @@
       PopupChat
     },
     props: {
-      list: {
-        type: Array,
+      studyListInfo: {
+        type: Object,
         required: true,
         default () {
-          return []
+          return {
+            list: [],
+            params: {
+              page: 1
+            }
+          }
         }
       },
       chatInfo: {
@@ -39,9 +49,23 @@
         }
       }
     },
+    watch: {
+      page (val) {
+        if (val === 2) {
+          this.rollBottomClick()
+        }
+      }
+    },
     computed: {
       isShowChat () {
         return this.bottomInfo.isShow && !this.isNotBroadcast
+      },
+      page () {
+        return this.studyListInfo.params.page
+      },
+      // 是否显示顶部集福中心view
+      isShowTopView () {
+        return this.studyListInfo.isShowTopView
       }
     },
     methods: {
@@ -59,6 +83,9 @@
       },
       clickItem (info) {
         this.$emit('clickItem', info)
+      },
+      loadMore (res) {
+        this.$emit('loadMore', 'studyListInfo', res)
       }
     }
   }

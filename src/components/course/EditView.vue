@@ -11,7 +11,7 @@
         :class="editContentClass"
         v-ios-focus
       )
-      div.ask-btn(@click="$emit('problemClick')" :class="{ 'active-ask-btn': isProblem }") 提问
+      div.ask-btn(v-show="isShowProblem" @click="$emit('problemClick')" :class="{ 'active-ask-btn': isProblem }") 提问
     p.send-btn(:class="{ 'clickable-send': content }" @click="sendClick") 发送
 </template>
 
@@ -21,6 +21,16 @@
   export default {
     name: 'EditView',
     props: {
+      data: {
+        type: Object,
+        required: true,
+        default () {
+          return {
+            role: 0,
+            isForbidComment: false
+          }
+        }
+      },
       isProblem: {
         type: Boolean,
         required: true,
@@ -58,6 +68,9 @@
       },
       isShowPlaceholder () {
         return !this.content && !this.isFocus
+      },
+      isShowProblem () {
+        return !this.data.isForbidComment && !this.data.role
       },
       editContentClass () {
         return {

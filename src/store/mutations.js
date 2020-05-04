@@ -37,6 +37,7 @@ export default {
   [SET_TABLE_INFO] (state, payload) {
     state.typeTableLoaded = true
     state.typeTable.positionType = payload.position_type
+    state.typeTable.liveRoleType = payload.live_roles
   },
   [SET_ACCESS_STATUS] (state, payload) {
     state.accessStatus = payload

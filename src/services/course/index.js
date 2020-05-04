@@ -43,3 +43,12 @@ export function postSubmitViewingRecords (data) {
 export function postRewardCourse (data) {
   return Vue.axios.post('/course/live/reward/save', data)
 }
+
+/**
+ * 获取评论列表
+ * @param params {Object} 请求携带的参数{ first_id: 上一次分页请求的第一条数据id, key: 直播间对应Key, type: 1资料区域 2学习区域, limit, page }
+ * @returns {AxiosPromise<any>}
+ */
+export function getCommentList (params) {
+  return Vue.axios.get('/course/live/comments', { params })
+}

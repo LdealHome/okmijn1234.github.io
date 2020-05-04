@@ -4,17 +4,27 @@
       position="bottom"
       v-model="isShow"
     )
-      P.top-title 讨论区(1002)
+      P.top-title 讨论区({{data.totalComments}})
       img.close-btn(src="@icon/close/close-reward.png" @click="isShow = false")
       div.comment-back(ref="commentList")
-        ListComment(:list="list" type="comment")
+        ListComment(
+          :list="data.commentListInfo.list"
+          type="comment"
+          @clickItem="clickItem"
+        )
         div.right-anchor
           span.anchor-top(@click="rollTopClick")
           span.anchor-bottom(@click="rollBottomClick")
       EditView(
         :isProblem="isProblem"
+        :data="data"
         @problemClick="$emit('problemClick', 5)"
+        @sendComment="sendComment"
       )
+      infinite-loading(@infinite="loadMore" direction="top")
+        div(slot="spinner")
+        div(slot="no-more")
+        div(slot="no-results")
 </template>
 
 <script>
@@ -27,14 +37,21 @@
       EditView
     },
     props: {
-      list: {
-        type: Array,
+      data: {
+        type: Object,
         required: true,
         default () {
-          return []
+          return {
+            commentListInfo: {
+              list: [],
+              params: {
+                page: 1
+              }
+            }
+          }
         }
       },
-      data: {
+      commentInfo: {
         type: Object,
         required: true,
         default () {
@@ -65,6 +82,11 @@
         if (val) {
           this.isShow = true
         }
+      },
+      page (val) {
+        if (val === 2) {
+          this.rollBottomClick()
+        }
       }
     },
     created () {
@@ -72,7 +94,10 @@
     },
     computed: {
       isShowPopup () {
-        return this.data.isShow
+        return this.commentInfo.isShow
+      },
+      page () {
+        return this.data.commentListInfo.params.page
       }
     },
     methods: {
@@ -81,7 +106,20 @@
       },
       rollBottomClick () {
         this.$refs.commentList.scrollTop = this.$refs.commentList.scrollHeight
-      } 
+      },
+      loadMore (res) {
+        this.$('loadMore', 'commentListInfo', res)
+      },
+      sendComment (text) {
+        if (!text) {
+          this.$_.Toast('请输入评论的内容')
+          return
+        }
+        this.$emit('sendComment', text)
+      },
+      clickItem (info) {
+        this.$emit('clickItem', info)
+      }
     }
   }
 </script>

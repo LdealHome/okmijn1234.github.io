@@ -9,14 +9,14 @@
       div.comment-item(v-if="!isRecord(index)")
         div.user-info
           img.avatar(:src="item.userInfo.avatar")
-          p.user-label(v-if="item.label") {{item.label}}
+          p.user-label(v-if="item.label") {{roleType[item.label]}}
           p.name {{item.userInfo.name}}
         p.comment-content(v-if="item.type === 1 || item.type === 2")
-          span.withdraw-btn(v-show="isShowWithdraw(index)") 撤回
+          span.withdraw-btn(v-show="isShowWithdraw(index)" @click="clickItem({ ...item, type: 100 })") 撤回
           span(:class="{ 'problem-comment': item.type === 2 }") {{item.content}}
         div.reply-view(v-if="item.type === 3 || item.type === 4")
           p.reply-problem
-            span.withdraw-btn(v-show="isShowWithdraw(index)") 撤回
+            span.withdraw-btn(v-show="isShowWithdraw(index)" @click="clickItem({ ...item, type: 100 })") 撤回
             span(:class="{ 'problem-reply-view': item.type === 4 }") {{item.replyInfo.name}}：{{item.replyInfo.content}}
           p.reply-content {{item.content}}
         div.media-view.video-back(v-if="item.type === 6" @click="clickItem(item)")
@@ -101,9 +101,11 @@
       }
     },
     computed: {
+      roleType () {
+        return this.$store.state.typeTable.liveRoleType || []
+      },
       uid () {
-        // return this.$store.state.personalInfo.uid || 0
-        return 6
+        return this.$store.state.personalInfo.uid || 0
       },
       isOwnComment (index) {
         return index => {
@@ -163,6 +165,10 @@
         case 7:
           // 图片
           info.e = item.e
+          break
+        case 100:
+          info.id = item.id
+          info.role = item.role
           break
         default:
           break
@@ -297,6 +303,7 @@
     margin-top: .04rem;
     display: inline-block;
     text-align: left;
+    word-break: break-all;
   }
 
   .comment-content,

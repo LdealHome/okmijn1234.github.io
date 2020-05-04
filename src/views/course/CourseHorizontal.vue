@@ -6,17 +6,16 @@
       @followBtnClick="$emit('followBtnClick')"
     )
     LearningArea(
-      :list="data.studyList"
+      :studyListInfo="data.studyListInfo"
       :chatInfo="data.chatInfo"
       @shareBtnClick="$emit('shareBtnClick')"
       @seeVideo="seeVideo"
-      @contentBackClick=""
       @clickItem="clickLearningItem"
+      @loadMore="loadMore"
     )
     BottomView(
       :data="bottomInfo"
-      :state="data.state"
-      :isShowChat="data.chatInfo.isShow"
+      :liveInfo="data"
       @clickItem="clickBottomItem"
       @sendComment="sendComment"
     )
@@ -26,11 +25,14 @@
       @collect="$emit('collectBtnClick')"
     )
     CommentArea(
-      :data="commentInfo"
-      :list="data.commentList"
+      :data="data"
+      :commentInfo="commentInfo"
       :isProblem="bottomInfo.isProblem"
       @close="commentInfo.isShow = false"
       @problemClick="clickBottomItem"
+      @loadMore="loadMore"
+      @sendComment="sendComment"
+      @clickItem="clickLearningItem"
     )
     PhotoSwipe(
       :photoSwipeInit="photoSwipeInit"
@@ -70,7 +72,6 @@
       return {
         isShowMore: false, // 是否显示更多弹窗
         bottomInfo: {
-          isShow: true,
           isProblem: false
         },
         commentInfo: {
@@ -128,7 +129,7 @@
       /**
        * 点击学习区各种消息类型
        * @param info {Object} 消息信息
-       * @param info.type {Number} 消息类型 1: 普通评论 2提问的评论 3: 回复普通评论 4: 回复提问评论 5: 打赏信息 6: 视频资料 7: 图片资料 8分享记录
+       * @param info.type {Number} 消息类型 1: 普通评论 2提问的评论 3: 回复普通评论 4: 回复提问评论 5: 打赏信息 6: 视频资料 7: 图片资料 8分享记录 100撤回/删除
        */
       clickLearningItem (info) {
         switch (info.type) {
@@ -155,7 +156,9 @@
           // 显示分享海报弹窗
           this.$emit('shareBtnClick')
           break
-      
+        case 100:
+          this.$emit('deleteMessage', info)
+          break
         default:
           break
         }
@@ -164,7 +167,13 @@
        * 发送评论
        */
       sendComment (text) {
-        this.$emit('sendComment', text)
+        this.$emit('sendComment', {
+          text,
+          isProblem: this.data.role ? false : this.bottomInfo.isProblem
+        })
+      },
+      loadMore (type, res) {
+        this.$emit('loadMore', type, res)
       }
     }
   }

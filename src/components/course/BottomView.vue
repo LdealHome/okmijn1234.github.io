@@ -10,6 +10,7 @@
       img.more-btn(src="@icon/course/more.png" @click="$emit('clickItem', 4)")
     EditView(
       v-show="isShowEditView"
+      :data="liveInfo"
       :isProblem="data.isProblem"
       :changeEdit="changeEditNum"
       @problemClick="problemClick"
@@ -33,20 +34,23 @@
         required: true,
         default () {
           return {
-            isAdministrators: false, // 是否是管理员
-            isForbidcomment: false // 是否禁止评论
+            isProblem: false
           }
         }
       },
-      state: { // 直播状态 0: 未开始 1:直播中 2:回放
-        type: Number,
+      liveInfo: {
+        type: Object,
         required: true,
-        default: 0
-      },
-      isShowChat: {
-        type: Boolean,
-        require: true,
-        default: false
+        default () {
+          return {
+            state: 0, // 直播状态 0: 未开始 1:直播中 2:回放
+            isForbidComment: false, // 是否禁止评论
+            role: 0, // 直播间角色
+            chatInfo: {
+              isShow: true
+            }
+          }
+        }
       }
     },
     data () {
@@ -62,26 +66,31 @@
         return this.isNotStarted ? require('@icon/course/bullet-chat-grey.png') : (this.isShowChat ? require('@icon/course/bullet-chat.png') : require('@icon/course/bullet-chat-close.png'))
       },
       isShowProblemBtn () {
-        return !this.data.isAdministrators && !this.data.isForbidcomment
+        return !this.data.isAdministrators && !this.isForbidComment
       },
       isNotStarted () {
         return this.state === 0
       },
       editTips () {
-        return this.data.isForbidcomment ? '已被管理员禁言' : '说点什么吧~'
+        return this.isForbidComment ? '已被管理员禁言' : '说点什么吧~'
+      },
+      state () {
+        return this.liveInfo.state
+      },
+      isForbidComment () {
+        return this.liveInfo.isForbidComment
+      },
+      isShowChat () {
+        return this.liveInfo.chatInfo.isShow
       }
     },
     methods: {
       problemClick () {
-        if (this.isNotStarted) return
+        if (this.isNotStarted || this.isForbidComment) return
         this.$emit('clickItem', 5)
       },
-      clickBulletChat () {
-        if (this.isNotStarted) return
-        this.$emit('clickBulletChat')
-      },
       commentClick () {
-        if (this.isNotStarted) return
+        if (this.isNotStarted || this.isForbidComment) return
         this.isShowEditView = true
         this.changeEditNum++
       },
