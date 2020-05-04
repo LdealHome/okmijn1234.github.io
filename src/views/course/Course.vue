@@ -56,13 +56,9 @@
   let vm
   
   function pagehide () {
-    if (vm.updateCountDownTimer) {
-      clearInterval(vm.updateCountDownTimer)
-      vm.updateCountDownTimer = null
-    }
-    if (vm.sendPingTimer) {
-      clearInterval(vm.sendPingTimer)
-    }
+    if (vm.updateCountDownTimer) clearInterval(vm.updateCountDownTimer) 
+    if (vm.sendPingTimer) clearInterval(vm.sendPingTimer) 
+    if (vm.updateTimer) clearInterval(vm.updateTimer) 
     let videoPlayTime = sessionStorage.getItem('videoPlayTime')
     if (videoPlayTime) {
       let playTime = JSON.parse(localStorage.getItem('studyStatistics') || '{}').play_length || 0
@@ -119,7 +115,7 @@
               first_id: 0,
               limit: 20,
               page: 1,
-              type: 1
+              type: 2
             }
           },
           chatInfo: {
@@ -161,7 +157,8 @@
         isShowVideo: false,
         studyDataLoad: null,
         webSocket: null,
-        sendPingTimer: null
+        sendPingTimer: null,
+        updateTimer: null
       }
     },
     mixins: [weixinConfig],
@@ -224,56 +221,88 @@
               countDownList: [],
               studyListInfo: {
                 params: {
-                  key: this.mBean.key,
+                  key: data.web_socket.key,
                   first_id: 0,
                   limit: 20,
                   page: 1,
                   type: 1
                 },
-                list: [
-                  {
-                    time: Math.floor(new Date().getTime() / 1000), // 发送消息的时间戳
-                    type: 1, // 类型 1: 普通评论 2提问的评论 3: 回复普通评论 4: 回复提问评论 5: 打赏信息 6: 视频资料 7: 图片资料 8分享记录
-                    userInfo: {
-                      avatar: this.avatar, // 头像
-                      name: this.$store.state.personalInfo.nickname, // 用户昵称
-                      uid: this.$store.state.personalInfo.uid // 发送内容的用户uid
-                    },
-                    label: 1, // 管理员标签
-                    replyInfo: {
-                      name: '', // 被回复的用户昵称
-                      content: '' // 被回复的内容
-                    },
-                    content: '测试评论' // 普通的评论、回复的内容
-                  }
-                ],
+                list: [],
                 isShowTopView: false
               },
               commentListInfo: {
                 list: [
-                  {
-                    time: Math.floor(new Date().getTime() / 1000), // 发送消息的时间戳
-                    type: 1, // 类型 1: 普通评论 2提问的评论 3: 回复普通评论 4: 回复提问评论 5: 打赏信息 6: 视频资料 7: 图片资料 8分享记录
-                    userInfo: {
-                      avatar: this.avatar, // 头像
-                      name: this.$store.state.personalInfo.nickname, // 用户昵称
-                      uid: this.$store.state.personalInfo.uid // 发送内容的用户uid
-                    },
-                    label: 1, // 管理员标签
-                    replyInfo: {
-                      name: '', // 被回复的用户昵称
-                      content: '' // 被回复的内容
-                    },
-                    content: '测试评论', // 普通的评论、回复的内容
-                    id: 1
-                  }
+                  // {
+                  //   time: Math.floor(new Date().getTime() / 1000), // 发送消息的时间戳
+                  //   type: 1, // 类型 1: 普通评论 2提问的评论 3: 回复普通评论 4: 回复提问评论 5: 打赏信息 6: 视频资料 7: 图片资料 8分享记录
+                  //   userInfo: {
+                  //     avatar: this.avatar, // 头像
+                  //     name: this.$store.state.personalInfo.nickname, // 用户昵称
+                  //     uid: 9 // 发送内容的用户uid
+                  //   },
+                  //   label: 1, // 管理员标签
+                  //   replyInfo: {
+                  //     name: '', // 被回复的用户昵称
+                  //     content: '' // 被回复的内容
+                  //   },
+                  //   content: '测试评论测试评论测试评论测试评论测试评论', // 普通的评论、回复的内容
+                  //   id: 1
+                  // },
+                  // {
+                  //   time: Math.floor(new Date().getTime() / 1000) + 10, // 发送消息的时间戳
+                  //   type: 1, // 类型 1: 普通评论 2提问的评论 3: 回复普通评论 4: 回复提问评论 5: 打赏信息 6: 视频资料 7: 图片资料 8分享记录
+                  //   userInfo: {
+                  //     avatar: this.avatar, // 头像
+                  //     name: this.$store.state.personalInfo.nickname, // 用户昵称
+                  //     uid: 9 // 发送内容的用户uid
+                  //   },
+                  //   label: 1, // 管理员标签
+                  //   replyInfo: {
+                  //     name: '', // 被回复的用户昵称
+                  //     content: '' // 被回复的内容
+                  //   },
+                  //   content: '测试评论2', // 普通的评论、回复的内容
+                  //   id: 3
+                  // },
+                  // {
+                  //   time: Math.floor(new Date().getTime() / 1000) + 20, // 发送消息的时间戳
+                  //   type: 1, // 类型 1: 普通评论 2提问的评论 3: 回复普通评论 4: 回复提问评论 5: 打赏信息 6: 视频资料 7: 图片资料 8分享记录
+                  //   userInfo: {
+                  //     avatar: this.avatar, // 头像
+                  //     name: this.$store.state.personalInfo.nickname, // 用户昵称
+                  //     uid: 9 // 发送内容的用户uid
+                  //   },
+                  //   label: 1, // 管理员标签
+                  //   replyInfo: {
+                  //     name: '', // 被回复的用户昵称
+                  //     content: '' // 被回复的内容
+                  //   },
+                  //   content: '测试评论3', // 普通的评论、回复的内容
+                  //   id: 5
+                  // },
+                  // {
+                  //   time: Math.floor(new Date().getTime() / 1000) + 3, // 发送消息的时间戳
+                  //   type: 1, // 类型 1: 普通评论 2提问的评论 3: 回复普通评论 4: 回复提问评论 5: 打赏信息 6: 视频资料 7: 图片资料 8分享记录
+                  //   userInfo: {
+                  //     avatar: this.avatar, // 头像
+                  //     name: this.$store.state.personalInfo.nickname, // 用户昵称
+                  //     uid: 2 // 发送内容的用户uid
+                  //   },
+                  //   label: 2, // 管理员标签
+                  //   replyInfo: {
+                  //     name: '', // 被回复的用户昵称
+                  //     content: '' // 被回复的内容
+                  //   },
+                  //   content: '测试评论4', // 普通的评论、回复的内容
+                  //   id: 9
+                  // }
                 ],
                 params: {
-                  key: '',
+                  key: data.web_socket.key,
                   first_id: 0,
                   limit: 20,
                   page: 1,
-                  type: 1
+                  type: 2
                 }
               },
               chatInfo: {
@@ -284,14 +313,17 @@
               key: data.web_socket.key,
               webSocketUrl: data.web_socket.url,
               isForbidComment: data.is_comment === 2,
-              role: data.role,
-              totalComments: data.comment_number
+              // role: data.role,
+              role: 1,
+              totalComments: data.comment_number,
+              serverTime: res.data.timestamp
             }
             this.connectWebSocket()
             if (!state) {
               // 未开播时更新距离开播倒计时
               this.updateCountDownList()
             } else {
+              this.updateServerTime()
               // 新增课程浏览量
               postAddVisits({ course_single_id: this.courseId })
             }
@@ -319,14 +351,16 @@
         })
       },
       getStudyDataList (type) {
-        return getCommentList(this.mBean[type].params).then(res => {
-          let list = []
-          if (res.data.code === 1 && res.data.data && res.data.data.list) {
-            list = res.data.data.list
-            this.mBean[type].list = [ ...this.transformStudyList(list), ...this.mBean[type].list ]
-          }
-          this.$nextTick(() => {
-            return list
+        return new Promise((resolve, reject) => {
+          getCommentList(this.mBean[type].params).then(res => {
+            let list = []
+            if (res.data.code === 1 && res.data.data) {
+              list = res.data.data
+              this.mBean[type].list = [ ...this.transformStudyList(list), ...this.mBean[type].list ]
+            }
+            this.$nextTick(() => {
+              resolve(list)
+            })
           })
         })
       },
@@ -337,6 +371,7 @@
         }
         const that = this
         let isLastPage = false
+        console.log(type)
         await that.getStudyDataList(type).then(list => {
           isLastPage = that.$_.isLastPage(that.mBean[type].params.limit, list)
         })
@@ -364,7 +399,7 @@
         })
       },
       connectWebSocket () {
-        this.webSocket = new WebSocket('ws://community-test-ws.xy22.cn/ws/?key=eyJncm91cF2cadZ99pZCI6IjFfMSIsInVpZCI6Miwicm9sZSI6IjEiLCJja190aW1lIjoxNTg4MjM4MjQ0fQ==')
+        this.webSocket = new WebSocket(this.mBean.webSocketUrl)
         this.webSocket.onopen = () => {
           this.sendPingTimer = setInterval(() => {
             this.webSocket.send({
@@ -374,12 +409,24 @@
         }
         
         this.webSocket.onmessage = this.receiveMessage
+
+        this.webSocket.onclose = () => {
+        }
+      },
+
+      /**
+       * 更新本地的服务器时间，用于判断显示自己评论的撤回按钮
+       */
+      updateServerTime () {
+        this.updateTimer = setInterval(() => {
+          this.mBean.serverTime++
+        }, 1000)
       },
       /**
        * 接收WebSocket的消息
        */
       receiveMessage (res) {
-        let data = res.data
+        let data = JSON.parse(res.data)
         if (!data) return
         switch (data.type_mark) {
         case 1:
@@ -394,7 +441,6 @@
           // 视频
           break
         case 'message':
-          console.log(222)
           break
         default:
           break
@@ -490,28 +536,11 @@
        * @param info {Object} { text: 内容, isProblem: 是否提问 }
        */
       sendComment (info) {
-        this.webSocket.send({
+        this.webSocket.send(JSON.stringify({
           'type_mark': 1,
           'content': info.text, // 文本内容
           'msg_tag': info.isProblem ? 1 : 0 // 消息标签 0无 1问 2赞
-        })
-        let data = {
-          time: new Date().getTime(), // 发送消息的时间戳
-          type: 1, // 类型 1: 普通评论 2提问的评论 3: 回复普通评论 4: 回复提问评论 5: 打赏信息 6: 视频资料 7: 图片资料 8分享记录
-          userInfo: {
-            avatar: this.avatar, // 头像
-            name: this.$store.state.personalInfo.nickname, // 用户昵称
-            uid: this.$store.state.personalInfo.uid // 发送内容的用户uid
-          },
-          label: this.mBean.role, // 管理员标签
-          replyInfo: {
-            name: '', // 被回复的用户昵称
-            content: '' // 被回复的内容
-          },
-          content: info.text, // 普通的评论、回复的内容
-          id: String(Math.random()).slice(-9)
-        }
-        this.addMessageItem(data)
+        }))
       },
       /**
        * 打赏-唤醒支付

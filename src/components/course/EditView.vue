@@ -1,18 +1,20 @@
 <template lang="pug">
   div.edit-back
     div.edit-left
+      p.forbid-comment(v-if="data.isForbidComment") 已被管理员禁言，如有疑问请联系客服
       p.edit-content(
+        v-else
         ref="content"
         contenteditable="true"
         @focus="contentFocus"
         @blur="contentBlur"
         @input="changeText"
-        :data-text="placeholder"
+        :data-text="editPlaceholder"
         :class="editContentClass"
         v-ios-focus
       )
       div.ask-btn(v-show="isShowProblem" @click="$emit('problemClick')" :class="{ 'active-ask-btn': isProblem }") 提问
-    p.send-btn(:class="{ 'clickable-send': content }" @click="sendClick") 发送
+    p.send-btn(:class="{ 'clickable-send': content }" @click="sendClick" v-show="!data.isForbidComment") 发送
 </template>
 
 <script>
@@ -40,6 +42,16 @@
         type: Number,
         required: false,
         default: 0
+      },
+      replyInfo: {
+        type: Object,
+        required: false,
+        default () {
+          return {
+            content: '',
+            isReply: false
+          }
+        }
       }
     },
     data () {
@@ -50,7 +62,6 @@
         scrollTimer: null
       }
     },
-    
     beforeDestroy () {
       if (vm.scrollTimer) {
         // clearInterval(vm.scrollTimer)
@@ -59,6 +70,7 @@
     watch: {
       changeEdit () {
         this.$refs.content.focus()
+        this.content = ''
       }
     },
     created () { vm = this },
@@ -70,12 +82,15 @@
         return !this.content && !this.isFocus
       },
       isShowProblem () {
-        return !this.data.isForbidComment && !this.data.role
+        return !this.data.isForbidComment && !this.data.role && !this.replyInfo.isReply
       },
       editContentClass () {
         return {
           'content-placeholder': this.isShowPlaceholder || (this.isFocus && !this.content)
         }
+      },
+      editPlaceholder () {
+        return this.replyInfo.isReply ? this.replyInfo.content : this.placeholder
       }
     },
     methods: {
@@ -96,9 +111,9 @@
         this.commentFocus()
       },
       contentBlur () {
+        this.$emit('contentBlur', this.content)
         this.isFocus = false
         if (this.scrollTimer) {
-          this.$emit('testa')
           clearInterval(this.scrollTimer)
           this.scrollTimer = null
         }
@@ -166,12 +181,23 @@
     }
   }
 
+  .forbid-comment {
+    flex: 1;
+    font-size: .28rem;
+    color: #a3a3a3;
+    line-height: .4rem;
+    text-align: center;
+    margin: .1rem 0;
+    padding-right: .2rem;
+  }
+
   .content-placeholder::after {
     content: attr(data-text);
     position: absolute;
     top: 0;
     bottom: 0;
     margin: auto 0;
+    .ellipsisLn(1);
   }
 
   .send-btn {

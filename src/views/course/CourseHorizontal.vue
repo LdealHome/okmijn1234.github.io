@@ -12,10 +12,12 @@
       @seeVideo="seeVideo"
       @clickItem="clickLearningItem"
       @loadMore="loadMore"
+      @cancelComment="cancelComment"
     )
     BottomView(
       :data="bottomInfo"
       :liveInfo="data"
+      :changeEditState="changeEditState"
       @clickItem="clickBottomItem"
       @sendComment="sendComment"
     )
@@ -81,7 +83,8 @@
           list: [],
           target: null
         },
-        photoSwipeInit: false // 是否显示图片预览
+        photoSwipeInit: false, // 是否显示图片预览
+        changeEditState: 0
       }
     },
     computed: {
@@ -174,6 +177,9 @@
       },
       loadMore (type, res) {
         this.$emit('loadMore', type, res)
+      },
+      cancelComment () {
+        this.changeEditState++
       }
     }
   }

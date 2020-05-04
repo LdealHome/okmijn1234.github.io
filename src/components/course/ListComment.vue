@@ -6,17 +6,21 @@
       :class="{ 'own-comment': isOwnComment(index) }"
     )
       p.time(v-if="isShowTime(index)") {{item.time | formatTime}}
-      div.comment-item(v-if="!isRecord(index)")
+      div.comment-item(
+        v-if="!isRecord(index)"
+        @touchstart="showManageView"
+        @touchend="touchend(index)"
+      )
         div.user-info
           img.avatar(:src="item.userInfo.avatar")
           p.user-label(v-if="item.label") {{roleType[item.label]}}
           p.name {{item.userInfo.name}}
         p.comment-content(v-if="item.type === 1 || item.type === 2")
-          span.withdraw-btn(v-show="isShowWithdraw(index)" @click="clickItem({ ...item, type: 100 })") 撤回
+          span.withdraw-btn(v-show="isShowWithdraw(index)" @click.stop="clickItem({ ...item, type: 100 })") 撤回
           span(:class="{ 'problem-comment': item.type === 2 }") {{item.content}}
         div.reply-view(v-if="item.type === 3 || item.type === 4")
           p.reply-problem
-            span.withdraw-btn(v-show="isShowWithdraw(index)" @click="clickItem({ ...item, type: 100 })") 撤回
+            span.withdraw-btn(v-show="isShowWithdraw(index)" @click.stop="clickItem({ ...item, type: 100 })") 撤回
             span(:class="{ 'problem-reply-view': item.type === 4 }") {{item.replyInfo.name}}：{{item.replyInfo.content}}
           p.reply-content {{item.content}}
         div.media-view.video-back(v-if="item.type === 6" @click="clickItem(item)")
@@ -71,6 +75,16 @@
             }
           ]
         }
+      },
+      role: {
+        type: Number,
+        required: false,
+        default: 0
+      },
+      serverTime: {
+        type: Number,
+        required: false,
+        default: 0
       }
     },
     data () {
@@ -134,22 +148,32 @@
       },
       isShowWithdraw () {
         return index => {
-          return this.isOwnComment(index)
+          return this.isOwnComment(index) && (this.serverTime - this.list[index].time) < 120
         }
       }
     },
     methods: {
-      commentClick (index) {
-        // 点击回复评论
-      },
-      showManageView (index) {
+      showManageView (e) {
+        if (!this.role) return
+        let touches = e.touches[0]
+        let { x, y } = { x: touches.pageX, y: touches.pageY }
         this.timer = setTimeout(() => {
+          clearTimeout(this.timer)
+          this.timer = null
+          this.$emit('showManageView', {
+            x,
+            y
+          })
           // 长按事件
-        }, 1500)
+        }, 800)
       },
-      touchend () {
+      touchend (index) {
         if (this.timer) {
           clearTimeout(this.timer)
+          // 点击回复评论
+          setTimeout(() => {
+            this.$emit('commentClick', index)
+          }, 300)
         }
       },
       clickItem (item) {
@@ -167,6 +191,7 @@
           info.e = item.e
           break
         case 100:
+          // 撤回
           info.id = item.id
           info.role = item.role
           break
@@ -185,6 +210,7 @@
 <style scoped lang="less">
   .comment-list-item {
     overflow: hidden;
+    position: relative;
   }
 
   .time {
@@ -258,7 +284,10 @@
     }
   }
   
-  .comment-item { width: 5.8rem; }
+  .comment-item {
+    max-width: 5.8rem;
+    width: fit-content;
+  }
 
   .user-info {
     display: flex;
@@ -289,7 +318,11 @@
     color: #2b2b2b;
     font-weight: bold;
     margin-left: .12rem;
-    .ellipsis(3rem);
+    max-width: 3rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    word-wrap: normal;
   }
 
   .comment-content {
@@ -304,6 +337,9 @@
     display: inline-block;
     text-align: left;
     word-break: break-all;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
   }
 
   .comment-content,
@@ -426,6 +462,9 @@
 
   .reply-problem {
     padding: 0 .24rem .18rem .2rem;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
   }
 
   .reply-content {
@@ -461,7 +500,7 @@
 
     .comment-content {
       background: #f0f0f0;
-      margin: .04rem .87rem 0 0;
+      margin: .04rem .87rem .14rem 0;
 
       &::after {
         width: .2rem;

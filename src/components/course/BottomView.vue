@@ -15,6 +15,7 @@
       :changeEdit="changeEditNum"
       @problemClick="problemClick"
       @sendComment="sendComment"
+      @contentBlur="contentBlur"
     )
     div.unregistered(v-if="false")
       div.enroll-btn 立即报名
@@ -51,14 +52,26 @@
             }
           }
         }
+      },
+      changeEditState: {
+        type: Number,
+        required: false,
+        default: 0
       }
     },
     data () {
       return {
-        commentContent: '',
         isProblem: false, // 是否中提问
         isShowEditView: false,
-        changeEditNum: 0
+        changeEditNum: 0,
+        editContent: ''
+      }
+    },
+    watch: {
+      changeEditState () {
+        if (!this.editContent) {
+          this.isShowEditView = false
+        }
       }
     },
     computed: {
@@ -103,6 +116,9 @@
           return
         }
         this.$emit('sendComment', text)
+      },
+      contentBlur (text) {
+        this.editContent = text
       }
     }
   }

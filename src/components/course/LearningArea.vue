@@ -1,6 +1,6 @@
 <template lang="pug">
   div.learning-area-back
-    div.content(ref="learningView")
+    div.content(ref="learningView" @click="$emit('cancelComment')")
       div(v-show="isShowTopView")
         div.right-anchor
           span.anchor-top(@click="rollTopClick")

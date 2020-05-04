@@ -61,7 +61,7 @@
   /deep/ .mint-popup {
     z-index: 9 !important;
   }
-
+  
   .chat-list {
     height: 100%;
     display: flex;

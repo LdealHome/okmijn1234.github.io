@@ -4,13 +4,17 @@
       position="bottom"
       v-model="isShow"
     )
-      P.top-title 讨论区({{data.totalComments}})
+      P.top-title(@click="cancelReply") 讨论区({{data.totalComments}})
       img.close-btn(src="@icon/close/close-reward.png" @click="isShow = false")
-      div.comment-back(ref="commentList")
+      div.comment-back(ref="commentList" @click="cancelReply")
         ListComment(
           :list="data.commentListInfo.list"
           type="comment"
+          :role="data.role"
+          :serverTime="data.serverTime"
           @clickItem="clickItem"
+          @commentClick="commentClick"
+          @showManageView="showManageView"
         )
         div.right-anchor
           span.anchor-top(@click="rollTopClick")
@@ -18,13 +22,19 @@
       EditView(
         :isProblem="isProblem"
         :data="data"
+        :changeEdit="changeEdit"
+        :replyInfo="replyInfo"
         @problemClick="$emit('problemClick', 5)"
         @sendComment="sendComment"
+        @contentBlur="contentBlur"
       )
-      infinite-loading(@infinite="loadMore" direction="top")
+      infinite-loading(@infinite="loadMore" direction="top" :identifier="identifier")
         div(slot="spinner")
         div(slot="no-more")
         div(slot="no-results")
+    div.manage-view(v-show="isShowManageView" :style="manageStyle")
+      p.delete-item 删除评论
+      p.forbidden-words 禁言
 </template>
 
 <script>
@@ -68,7 +78,21 @@
     },
     data () {
       return {
-        isShow: false
+        isShow: false,
+        changeEdit: 0,
+        editContent: '',
+        replyInfo: {
+          content: '',
+          isReply: false,
+          id: 0
+        },
+        replyCacheList: {},
+        isShowManageView: false,
+        fingerPosition: {
+          x: 0,
+          y: 0
+        },
+        identifier: 0
       }
     },
     watch: {
@@ -80,6 +104,9 @@
       },
       isShowPopup (val) {
         if (val) {
+          if (!this.data.commentListInfo.list.length) {
+            this.identifier++
+          }
           this.isShow = true
         }
       },
@@ -98,6 +125,12 @@
       },
       page () {
         return this.data.commentListInfo.params.page
+      },
+      manageStyle () {
+        return {
+          'left': this.fingerPosition.x + 'px',
+          'top': this.fingerPosition.y + 'px'
+        }
       }
     },
     methods: {
@@ -108,7 +141,7 @@
         this.$refs.commentList.scrollTop = this.$refs.commentList.scrollHeight
       },
       loadMore (res) {
-        this.$('loadMore', 'commentListInfo', res)
+        this.$emit('loadMore', 'commentListInfo', res)
       },
       sendComment (text) {
         if (!text) {
@@ -119,14 +152,54 @@
       },
       clickItem (info) {
         this.$emit('clickItem', info)
+      },
+      commentClick (index) {
+        this.isShowManageView = false
+        if (this.data.commentListInfo.list[index].id === this.replyInfo.id) return
+        this.replyInfo = {
+          content: `回复：${this.data.commentListInfo.list[index].content}`,
+          isReply: true,
+          id: this.data.commentListInfo.list[index].id
+        }
+        this.changeEdit++
+      },
+      cancelReply () {
+        this.isShowManageView = false
+        if (!this.editContent) {
+          this.replyInfo = {
+            content: '',
+            isReply: false
+          }
+        }
+      },
+      contentBlur (text) {
+        if (this.replyInfo.id) {
+          this.replyCacheList[this.replyInfo.id] = this.replyInfo
+        }
+      },
+      /**
+       * 管理员长按评论，显示删除评论弹窗
+       * @param info {Object} { x: 手指按下的x坐标，y: y坐标 }
+       */
+      showManageView (info) {
+        this.fingerPosition = info
+        this.isShowManageView = true
       }
     }
   }
 </script>
 
 <style scoped lang="less">
+  /deep/ .mint-popup {
+    z-index: 20 !important;
+  }
+
+  /deep/ .v-modal {
+    z-index: 19 !important;
+  }
+
   .popup-content {
-    max-height: 84%;
+    height: 84%;
     width: 100%;
     border-radius: .12rem .12rem 0 0;
     display: flex;
@@ -204,7 +277,7 @@
     bottom: 0;
     margin: auto 0;
     right: .3rem;
-    z-index: 10;
+    z-index: 21;
   }
 
   .anchor-top,
@@ -225,5 +298,47 @@
   .anchor-bottom {
     background: url('~@icon/course/bottom-arrow.png') no-repeat;
     background-size: 100%;
+  }
+
+  .manage-view {
+    position: fixed;
+    display: flex;
+    background: rgba(5, 0, 1, .7);
+    border-radius: .08rem;
+    font-size: .24rem;
+    color: #fff;
+    left: 1rem;
+    top: 1.4rem;
+    z-index: 30;
+  }
+
+  .delete-item,
+  .forbidden-words {
+    height: .5rem;
+    line-height: .5rem;
+    padding: 0 .17rem;
+
+    &:active {
+      color: #f9d400;
+    }
+  }
+
+  .forbidden-words {
+    position: relative;
+    margin-left: .04rem;
+    padding-left: .21rem;
+
+    &::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: .03rem;
+      height: .2rem;
+      background: #fff;
+      border-radius: .02rem;
+      margin: auto 0;
+    }
   }
 </style>
