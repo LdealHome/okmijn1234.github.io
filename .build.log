@@ -10,3 +10,6 @@ wangsiyi 2020-3-23 20:16:17: dev => 22672e4 - wangsiyi, Mon Mar 23 14:15:45 2020
 wangsiyi 2020-3-24 19:09:06: dev => dc15d29 - wangsiyi, Tue Mar 24 14:22:32 2020 +0800--refactor: 分享弹框所有改成邀请海报弹框
 wangsiyi 2020-3-25 10:39:59: dev => 41c78cc - wangsiyi, Wed Mar 25 10:39:04 2020 +0800--style: 邀请海报修改图片名称
 wangsiyi 2020-4-1 19:14:09: dev => 8183519 - wangsiyi, Wed Apr 1 19:11:41 2020 +0800--style: 邀请海报替换图片
+wangsiyi 2020-4-14 15:02:03: dev => 20fd7a9 - wangsiyi, Tue Apr 14 14:55:13 2020 +0800--style: 邀请海报更换图片
+tanmingyang 2020-5-3 11:12:22: dev => ed8b1cd - tanmingyang, Sun May 3 11:10:27 2020 +0800--refactor: 修改社群详情页面视频播放改成弹窗播放
+wangsiyi 2020-5-4 9:26:20 AM: dev => 6c24cc9 - wangsiyi, Mon May 4 09:25:14 2020 +0800--style: 更换邀请海报图片

@@ -31,16 +31,16 @@
         ul.list
           li.item(v-for="(video, videoIndex) in item.videoList" :key="videoIndex")
             div.item-cover
-              template(v-if="!video.isVideoPlay")
+              template
                 img.item-img(:src="video.cover")
                 p.pause(@click="$emit('videoPlay', itemIndex, videoIndex)")
-              video.item-video(
-                v-else
-                autoplay
-                :src="video.src"
-                controls="controls"
-                :poster="video.cover"
-                )
+              //- video.item-video(
+              //-   v-else
+              //-   autoplay
+              //-   :src="video.src"
+              //-   controls="controls"
+              //-   :poster="video.cover"
+              //-   )
             p.item-text(v-show="video.text") {{video.text}}
       // 链接跳转
       ul.module__link(v-if="item.type === 6")

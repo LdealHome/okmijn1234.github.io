@@ -36,6 +36,11 @@
       v-if="isCourseCustomerServicePopup"
       @close="isCourseCustomerServicePopup = false"
     )
+    VideoPopup(
+      :video="videoInfo"
+      :isShow="isShowVideo"
+      @videoClose="isShowVideo = false"
+    )
 
 </template>
 
@@ -45,6 +50,7 @@
   import CustomerServicePopup from '../../components/community/CustomerServicePopup'
   import CourseCustomerServicePopup from '../../components/community/CourseCustomerServicePopup'
   import WarmPromptPopup from '../../components/community/WarmPromptPopup'
+  import VideoPopup from '../../components/VideoPopup'
   import weixinConfig from '../../mixin/weixinConfig'
   import {
     getCourseDetail
@@ -59,7 +65,8 @@
       CustomerServicePopup,
       CourseCustomerServicePopup,
       WarmPromptPopup,
-      PostersSharePopup
+      PostersSharePopup,
+      VideoPopup
     },
     mixins: [weixinConfig],
     watch: {
@@ -126,7 +133,12 @@
         isWarmPromptPopup: false, // 是否已经达到免费获取资格
         WarmPromptNumber: 0, // 提示还需多少个人
         isPostersSharePopup: false, // 邀请海报
-        shareInfo: null
+        shareInfo: null,
+        videoInfo: {
+          videoUrl: '',
+          imgSrc: ''
+        },
+        isShowVideo: false
       }
     },
     created () {
@@ -207,7 +219,13 @@
        * @param videoIndex { Number } 选择播放视频当前的角标
        */
       videoPlay (itemIndex, videoIndex) {
-        this.contentList[itemIndex].videoList[videoIndex].isVideoPlay = true
+        // this.contentList[itemIndex].videoList[videoIndex].isVideoPlay = true
+        let data = this.contentList[itemIndex].videoList[videoIndex]
+        this.videoInfo = {
+          videoUrl: data.src,
+          imgSrc: data.cover
+        }
+        this.isShowVideo = true
       },
       /**
        * 跳转链接

@@ -367,7 +367,13 @@
        * @param videoIndex { Number } 选择播放视频当前的角标
        */
       videoPlay (itemIndex, videoIndex) {
-        this.contentList[itemIndex].videoList[videoIndex].isVideoPlay = true
+        // this.contentList[itemIndex].videoList[videoIndex].isVideoPlay = true
+        let data = this.contentList[itemIndex].videoList[videoIndex]
+        this.videoInfo = {
+          videoUrl: data.src,
+          imgSrc: data.cover
+        }
+        this.isShowVideo = true
       },
       /**
        * 跳转链接

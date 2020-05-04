@@ -65,6 +65,11 @@
       @close="isCamiloPaymentPopup = false"
       @determine="determineCamiloPayment"
     )
+    VideoPopup(
+      :video="videoInfo"
+      :isShow="isShowVideo"
+      @videoClose="isShowVideo = false"
+    )
 </template>
 
 <script>
@@ -76,6 +81,7 @@
   import ObtainCoursePopup from '../../components/community/ObtainCoursePopup'
   import PaymentPopup from '../../components/community/PaymentPopup'
   import CamiloPaymentPopup from '../../components/community/CamiloPaymentPopup'
+  import VideoPopup from '../../components/VideoPopup'
   import weixinConfig from '../../mixin/weixinConfig'
   import {
     MessageBox
@@ -98,7 +104,8 @@
       CourseCustomerServicePopup,
       ObtainCoursePopup,
       PaymentPopup,
-      CamiloPaymentPopup
+      CamiloPaymentPopup,
+      VideoPopup
     },
     mixins: [weixinConfig],
     data () {
@@ -140,7 +147,12 @@
           minute: [], // 分
           second: [] // 秒
         },
-        countdownTimer: null // 倒计时
+        countdownTimer: null, // 倒计时
+        videoInfo: {
+          videoUrl: '',
+          imgSrc: ''
+        },
+        isShowVideo: false
       }
     },
     watch: {
@@ -304,7 +316,13 @@
        * @param videoIndex { Number } 选择播放视频当前的角标
        */
       videoPlay (itemIndex, videoIndex) {
-        this.contentList[itemIndex].videoList[videoIndex].isVideoPlay = true
+        // this.contentList[itemIndex].videoList[videoIndex].isVideoPlay = true
+        let data = this.contentList[itemIndex].videoList[videoIndex]
+        this.videoInfo = {
+          videoUrl: data.src,
+          imgSrc: data.cover
+        }
+        this.isShowVideo = true
       },
       /**
        * 跳转链接
