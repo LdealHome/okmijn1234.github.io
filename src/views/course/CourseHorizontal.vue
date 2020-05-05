@@ -169,11 +169,8 @@
       /**
        * 发送评论
        */
-      sendComment (text) {
-        this.$emit('sendComment', {
-          text,
-          isProblem: this.data.role ? false : this.bottomInfo.isProblem
-        })
+      sendComment (info) {
+        this.$emit('sendComment', info)
       },
       loadMore (type, res) {
         this.$emit('loadMore', type, res)

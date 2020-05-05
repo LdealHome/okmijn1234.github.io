@@ -46,16 +46,20 @@
     postChangeRemindState,
     postAddVisits,
     postRewardCourse,
-    getCommentList
+    getCommentList,
+    getNewestCommentList
   } from '../../services/course'
   import {
-    postShareStatistics
+    getVideoInfo
   } from '../../services'
   import { MessageBox } from 'mint-ui'
 
   let vm
   
   function pagehide () {
+    if (vm.webSocket) {
+      vm.webSocket.close()
+    }
     if (vm.updateCountDownTimer) clearInterval(vm.updateCountDownTimer) 
     if (vm.sendPingTimer) clearInterval(vm.sendPingTimer) 
     if (vm.updateTimer) clearInterval(vm.updateTimer) 
@@ -100,10 +104,11 @@
           studyListInfo: {
             params: {
               key: '',
-              first_id: 0,
+              mark_id: 0,
               limit: 20,
               page: 1,
-              type: 1
+              type: 1,
+              direction: 1
             },
             list: [],
             isShowTopView: false
@@ -112,22 +117,17 @@
             list: [],
             params: {
               key: '',
-              first_id: 0,
+              mark_id: 0,
               limit: 20,
               page: 1,
-              type: 2
-            }
+              type: 2,
+              direction: 1
+            },
+            rollBottom: 0
           },
           chatInfo: {
             isShow: false,
-            list: [
-              {
-                id: 1,
-                avatar: '',
-                text: '回复问题',
-                isAsk: true
-              }
-            ]
+            list: []
           },
           isFollow: false,
           key: '',
@@ -189,9 +189,6 @@
       fromUid () {
         return this.$route.params.from
       },
-      ShareScene () {
-        return this.$store.state.sceneInfo.share_callback.live
-      },
       courseKey () {
         return this.mBean.key
       },
@@ -222,88 +219,26 @@
               studyListInfo: {
                 params: {
                   key: data.web_socket.key,
-                  first_id: 0,
+                  mark_id: 0,
                   limit: 20,
                   page: 1,
-                  type: 1
+                  type: 1,
+                  lay_out: this.type
                 },
                 list: [],
                 isShowTopView: false
               },
               commentListInfo: {
-                list: [
-                  // {
-                  //   time: Math.floor(new Date().getTime() / 1000), // 发送消息的时间戳
-                  //   type: 1, // 类型 1: 普通评论 2提问的评论 3: 回复普通评论 4: 回复提问评论 5: 打赏信息 6: 视频资料 7: 图片资料 8分享记录
-                  //   userInfo: {
-                  //     avatar: this.avatar, // 头像
-                  //     name: this.$store.state.personalInfo.nickname, // 用户昵称
-                  //     uid: 9 // 发送内容的用户uid
-                  //   },
-                  //   label: 1, // 管理员标签
-                  //   replyInfo: {
-                  //     name: '', // 被回复的用户昵称
-                  //     content: '' // 被回复的内容
-                  //   },
-                  //   content: '测试评论测试评论测试评论测试评论测试评论', // 普通的评论、回复的内容
-                  //   id: 1
-                  // },
-                  // {
-                  //   time: Math.floor(new Date().getTime() / 1000) + 10, // 发送消息的时间戳
-                  //   type: 1, // 类型 1: 普通评论 2提问的评论 3: 回复普通评论 4: 回复提问评论 5: 打赏信息 6: 视频资料 7: 图片资料 8分享记录
-                  //   userInfo: {
-                  //     avatar: this.avatar, // 头像
-                  //     name: this.$store.state.personalInfo.nickname, // 用户昵称
-                  //     uid: 9 // 发送内容的用户uid
-                  //   },
-                  //   label: 1, // 管理员标签
-                  //   replyInfo: {
-                  //     name: '', // 被回复的用户昵称
-                  //     content: '' // 被回复的内容
-                  //   },
-                  //   content: '测试评论2', // 普通的评论、回复的内容
-                  //   id: 3
-                  // },
-                  // {
-                  //   time: Math.floor(new Date().getTime() / 1000) + 20, // 发送消息的时间戳
-                  //   type: 1, // 类型 1: 普通评论 2提问的评论 3: 回复普通评论 4: 回复提问评论 5: 打赏信息 6: 视频资料 7: 图片资料 8分享记录
-                  //   userInfo: {
-                  //     avatar: this.avatar, // 头像
-                  //     name: this.$store.state.personalInfo.nickname, // 用户昵称
-                  //     uid: 9 // 发送内容的用户uid
-                  //   },
-                  //   label: 1, // 管理员标签
-                  //   replyInfo: {
-                  //     name: '', // 被回复的用户昵称
-                  //     content: '' // 被回复的内容
-                  //   },
-                  //   content: '测试评论3', // 普通的评论、回复的内容
-                  //   id: 5
-                  // },
-                  // {
-                  //   time: Math.floor(new Date().getTime() / 1000) + 3, // 发送消息的时间戳
-                  //   type: 1, // 类型 1: 普通评论 2提问的评论 3: 回复普通评论 4: 回复提问评论 5: 打赏信息 6: 视频资料 7: 图片资料 8分享记录
-                  //   userInfo: {
-                  //     avatar: this.avatar, // 头像
-                  //     name: this.$store.state.personalInfo.nickname, // 用户昵称
-                  //     uid: 2 // 发送内容的用户uid
-                  //   },
-                  //   label: 2, // 管理员标签
-                  //   replyInfo: {
-                  //     name: '', // 被回复的用户昵称
-                  //     content: '' // 被回复的内容
-                  //   },
-                  //   content: '测试评论4', // 普通的评论、回复的内容
-                  //   id: 9
-                  // }
-                ],
+                list: [],
                 params: {
                   key: data.web_socket.key,
-                  first_id: 0,
+                  mark_id: 0,
                   limit: 20,
                   page: 1,
-                  type: 2
-                }
+                  type: 2,
+                  lay_out: this.type
+                },
+                rollBottom: 0
               },
               chatInfo: {
                 isShow: true,
@@ -313,8 +248,7 @@
               key: data.web_socket.key,
               webSocketUrl: data.web_socket.url,
               isForbidComment: data.is_comment === 2,
-              // role: data.role,
-              role: 1,
+              role: data.role,
               totalComments: data.comment_number,
               serverTime: res.data.timestamp
             }
@@ -324,6 +258,7 @@
               this.updateCountDownList()
             } else {
               this.updateServerTime()
+              this.getNewestComment()
               // 新增课程浏览量
               postAddVisits({ course_single_id: this.courseId })
             }
@@ -350,12 +285,31 @@
           }
         })
       },
+      getNewestComment () {
+        getNewestCommentList({ key: this.mBean.key }).then(res => {
+          if (res.data.code === 1 && res.data.data && res.data.data.list) {
+            let list = res.data.data.list
+            list.forEach(item => {
+              this.mBean.chatInfo.list.push({
+                id: item.id,
+                avatar: item.from_header_img,
+                text: item.content,
+                isAsk: item.msg_tag === 1
+              })
+            })
+          }
+        })
+      },
       getStudyDataList (type) {
         return new Promise((resolve, reject) => {
+          let originalList = this.mBean[type].list
+          if (originalList.length) {
+            this.mBean[type].params.mark_id = originalList[0].id
+          }
           getCommentList(this.mBean[type].params).then(res => {
             let list = []
-            if (res.data.code === 1 && res.data.data) {
-              list = res.data.data
+            if (res.data.code === 1 && res.data.data && res.data.data.list) {
+              list = res.data.data.list
               this.mBean[type].list = [ ...this.transformStudyList(list), ...this.mBean[type].list ]
             }
             this.$nextTick(() => {
@@ -371,14 +325,16 @@
         }
         const that = this
         let isLastPage = false
-        console.log(type)
         await that.getStudyDataList(type).then(list => {
           isLastPage = that.$_.isLastPage(that.mBean[type].params.limit, list)
         })
-        if (that.mBean[type].params.page === 1 && !this.webSocket) {
+        if (type === 'commentListInfo' && this.mBean[type].params.page === 1) {
+          this.mBean.commentListInfo.rollBottom++
+        }
+        if (!this.webSocket) {
           that.connectWebSocket()
         }
-        that.mBean[type].params.page++
+        this.mBean[type].params.page++
         if (isLastPage) {
           if (type === 'studyListInfo') {
             that.mBean.studyListInfo.isShowTopView = true
@@ -392,25 +348,28 @@
        * 分享回调
        */
       shareSuccess () {
-        // 分享统计
-        postShareStatistics({
-          key: this.mBean.key,
-          scene: this.ShareScene
-        })
+        this.webSocket.send(JSON.stringify({
+          'type_mark': 5
+        }))
       },
       connectWebSocket () {
+        console.log('开始连接')
         this.webSocket = new WebSocket(this.mBean.webSocketUrl)
         this.webSocket.onopen = () => {
+          console.log('连接成功')
           this.sendPingTimer = setInterval(() => {
-            this.webSocket.send({
+            this.webSocket.send(JSON.stringify({
               'type_mark': 'ping'
-            })
+            }))
           }, 50000)
         }
         
         this.webSocket.onmessage = this.receiveMessage
 
         this.webSocket.onclose = () => {
+          console.log('连接断开')
+          // 断开重连
+          // this.connectWebSocket()
         }
       },
 
@@ -430,15 +389,38 @@
         if (!data) return
         switch (data.type_mark) {
         case 1:
-          // 文本
+        case 2:
+        case 3:
+        case 4:
+        case 5:
+          // 1文本 2图片 3视频 4红包 5分享记录
           let info = this.transformStudyList([data])
           this.addMessageItem(info[0])
+          this.mBean.totalComments++
           break
-        case 2:
-          // 图片
+        case 6:
+        case 9:
+          // 删除评论
+          // 撤回评论
+          this.mBean.studyListInfo.list = this.mBean.studyListInfo.list.filter(item => {
+            return item.id !== data.id
+          })
+       
+          this.mBean.chatInfo.list = this.mBean.chatInfo.list.filter(item => {
+            return item.id !== data.id
+          })
+          this.mBean.commentListInfo.list = this.mBean.commentListInfo.list.filter(item => {
+            return item.id !== data.id
+          })
+          this.mBean.totalComments--
           break
-        case 3:
-          // 视频
+        case 7:
+          // 禁言
+          this.mBean.isForbidComment = true
+          break
+        case 8:
+          // 禁言
+          this.mBean.isForbidComment = false
           break
         case 'message':
           break
@@ -526,20 +508,45 @@
        */
       seeVideo (info) {
         if (info.type === 1) {
+          getVideoInfo({ scene: info.scene }).then(res => {
+            if (res.data.code === 1) {
+              let data = res.data.data
+              this.videoInfo = {
+                videoUrl: data.path,
+                imgSrc: data.poster
+              }
+              this.isShowVideo = true
+            }
+          })
         } else {
           this.videoInfo = info.videoInfo
+          this.isShowVideo = true
         }
-        this.isShowVideo = true
       },
       /**
        * 发送的内容
-       * @param info {Object} { text: 内容, isProblem: 是否提问 }
+       * @param info {Object} { text: 内容, isProblem: 是否提问, replyInfo: 回复的信息 }
        */
       sendComment (info) {
+        console.log({
+          'type_mark': 1,
+          'content': info.text, // 文本内容
+          'msg_tag': info.isProblem ? 1 : 0, // 消息标签 0无 1问 2赞
+          'pid': info.replyInfo.id, // 回复时才有
+          'passive_uid': info.replyInfo.uid, // 回复时才有
+          'passive_content': info.replyInfo.content, // 被回复的内容
+          'passive_nick_name': info.replyInfo.name, // 被回复人昵称
+          'passive_msg_tag': 0
+        })
         this.webSocket.send(JSON.stringify({
           'type_mark': 1,
           'content': info.text, // 文本内容
-          'msg_tag': info.isProblem ? 1 : 0 // 消息标签 0无 1问 2赞
+          'msg_tag': info.isProblem ? 1 : 0, // 消息标签 0无 1问 2赞
+          'pid': info.replyInfo.id, // 回复时才有
+          'passive_uid': info.replyInfo.uid, // 回复时才有
+          'passive_content': info.replyInfo.content, // 被回复的内容
+          'passive_nick_name': info.replyInfo.name, // 被回复人昵称
+          'passive_msg_tag': 0
         }))
       },
       /**
@@ -564,26 +571,14 @@
         })
       },
       /**
-       * 删除消息
+       * 撤回消息
        * @param info {Object} { id: 消息id, role: 直播间角色 }
        */
       deleteMessage (info) {
-        this.webSocket.send({
-          'type_mark': 6,
+        this.webSocket.send(JSON.stringify({
+          'type_mark': 9,
           'id': info.id
-        })
-        if (info.role) {
-          this.mBean.studyListInfo.list = this.mBean.studyListInfo.list.filter(item => {
-            return item.id !== info.id
-          })
-        } else {
-          this.mBean.chatInfo.list = this.mBean.chatInfo.list.filter(item => {
-            return item.id !== info.id
-          })
-        }
-        this.mBean.commentListInfo.list = this.mBean.commentListInfo.list.filter(item => {
-          return item.id !== info.id
-        })
+        }))
       },
       /**
        * 添加评论列表数据
@@ -591,13 +586,19 @@
       addMessageItem (info) {
         if (this.mBean.commentListInfo.list.length) {
           this.mBean.commentListInfo.list.push(info)
+          this.$nextTick(() => {
+            this.mBean.commentListInfo.rollBottom++
+          })
         }
-        if (info.role) {
+        // 管理员发送的内容、分享记录、打赏记录添加到学习资料区
+        if (info.role || info.type === 5 || info.type === 8) {
           this.mBean.studyListInfo.list.push(info)
-        } else {
+        }
+        // 评论或者回复的消息，添加到最新评论列表
+        if (info.type < 5) {
           this.mBean.chatInfo.list.push({
             id: info.id,
-            avatar: this.avatar,
+            avatar: info.userInfo.avatar,
             text: info.content,
             isAsk: info.type === 2
           })
@@ -611,15 +612,45 @@
       transformStudyList (source) {
         let list = []
         source.forEach(item => {
+          let type = 0
+          switch (item.type_mark) {
+          case 1:
+            // 文本
+            if (item.msg_tag === 1 || item.passive_msg_tag === 1) {
+              // 提问类型并且判断是否是回复
+              type = item.pid ? 4 : 2
+            } else {
+              type = item.pid ? 3 : 1
+            }
+            break
+          case 2:
+            // 图片
+            type = 7
+            break
+          case 3:
+            // 视频
+            type = 6
+            break
+          case 4:
+            // 打赏记录
+            type = 5
+            break
+          case 5:
+            // 分享记录
+            type = 8
+            break
+          default:
+            break
+          }
           list.push({
             time: item.create_time, // 发送消息的时间戳
-            type: 1, // 类型 1: 普通评论 2提问的评论 3: 回复普通评论 4: 回复提问评论 5: 打赏信息 6: 视频资料 7: 图片资料 8分享记录
+            type: type, // 类型 1: 普通评论 2提问的评论 3: 回复普通评论 4: 回复提问评论 5: 打赏信息 6: 视频资料 7: 图片资料 8分享记录
             userInfo: {
               avatar: item.from_header_img, // 头像
               name: item.from_nick_name, // 用户昵称
-              uid: item.from_uid // 发送内容的用户uid
+              uid: +item.from_uid // 发送内容的用户uid
             },
-            label: '', // 管理员标签
+            label: +item.from_user_title, // 管理员标签
             replyInfo: {
               name: item.passive_nick_name, // 被回复的用户昵称
               content: item.passive_content // 被回复的内容

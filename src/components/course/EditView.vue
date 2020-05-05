@@ -52,6 +52,16 @@
             isReply: false
           }
         }
+      },
+      changeInfo: {
+        type: Object,
+        required: false,
+        default () {
+          return {
+            emptyNumber: 0,
+            focusNumber: 0
+          }
+        }
       }
     },
     data () {
@@ -68,16 +78,16 @@
       }
     },
     watch: {
-      changeEdit () {
-        this.$refs.content.focus()
+      emptyNumber () {
         this.content = ''
+        this.$refs.content.innerText = ''
+      },
+      focusNumber () {
+        this.$refs.content.focus()
       }
     },
     created () { vm = this },
     computed: {
-      editText () {
-        return this.content ? this.content : this.placeholder
-      },
       isShowPlaceholder () {
         return !this.content && !this.isFocus
       },
@@ -90,7 +100,13 @@
         }
       },
       editPlaceholder () {
-        return this.replyInfo.isReply ? this.replyInfo.content : this.placeholder
+        return this.replyInfo.isReply ? `回复：${this.replyInfo.content}` : this.placeholder
+      },
+      focusNumber () {
+        return this.changeInfo.focusNumber
+      },
+      emptyNumber () {
+        return this.changeInfo.emptyNumber
       }
     },
     methods: {
@@ -101,6 +117,9 @@
           this.content = ''
         }
       },
+      /**
+       * 点击发送清空输入框内容
+       */
       sendClick () {
         this.$emit('sendComment', this.content)
         this.content = ''

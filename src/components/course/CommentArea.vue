@@ -4,9 +4,9 @@
       position="bottom"
       v-model="isShow"
     )
-      P.top-title(@click="cancelReply") 讨论区({{data.totalComments}})
+      P.top-title 讨论区({{data.totalComments}})
       img.close-btn(src="@icon/close/close-reward.png" @click="isShow = false")
-      div.comment-back(ref="commentList" @click="cancelReply")
+      div.comment-back(ref="commentList")
         ListComment(
           :list="data.commentListInfo.list"
           type="comment"
@@ -15,23 +15,24 @@
           @clickItem="clickItem"
           @commentClick="commentClick"
           @showManageView="showManageView"
+          @cancelReply="cancelReply"
         )
         div.right-anchor
           span.anchor-top(@click="rollTopClick")
           span.anchor-bottom(@click="rollBottomClick")
+        infinite-loading(@infinite="loadMore" direction="top" :identifier="identifier")
+          div(slot="spinner")
+          div(slot="no-more")
+          div(slot="no-results")
       EditView(
         :isProblem="isProblem"
         :data="data"
-        :changeEdit="changeEdit"
         :replyInfo="replyInfo"
+        :changeInfo="changeInfo"
         @problemClick="$emit('problemClick', 5)"
         @sendComment="sendComment"
         @contentBlur="contentBlur"
       )
-      infinite-loading(@infinite="loadMore" direction="top" :identifier="identifier")
-        div(slot="spinner")
-        div(slot="no-more")
-        div(slot="no-results")
     div.manage-view(v-show="isShowManageView" :style="manageStyle")
       p.delete-item 删除评论
       p.forbidden-words 禁言
@@ -56,7 +57,8 @@
               list: [],
               params: {
                 page: 1
-              }
+              },
+              rollBottom: 0
             }
           }
         }
@@ -79,7 +81,10 @@
     data () {
       return {
         isShow: false,
-        changeEdit: 0,
+        changeInfo: {
+          emptyNumber: 0,
+          focusNumber: 0
+        },
         editContent: '',
         replyInfo: {
           content: '',
@@ -110,10 +115,8 @@
           this.isShow = true
         }
       },
-      page (val) {
-        if (val === 2) {
-          this.rollBottomClick()
-        }
+      rollBottom () {
+        this.rollBottomClick()
       }
     },
     created () {
@@ -123,14 +126,17 @@
       isShowPopup () {
         return this.commentInfo.isShow
       },
-      page () {
-        return this.data.commentListInfo.params.page
+      rollBottom () {
+        return this.data.commentListInfo.rollBottom
       },
       manageStyle () {
         return {
           'left': this.fingerPosition.x + 'px',
           'top': this.fingerPosition.y + 'px'
         }
+      },
+      uid () {
+        return this.$store.state.personalInfo.uid
       }
     },
     methods: {
@@ -148,21 +154,44 @@
           this.$_.Toast('请输入评论的内容')
           return
         }
-        this.$emit('sendComment', text)
+        this.$emit('sendComment', {
+          text,
+          isProblem: this.isProblem,
+          replyInfo: {
+            id: this.replyInfo.id,
+            uid: this.replyInfo.uid,
+            content: this.replyInfo.content,
+            name: this.replyInfo.name
+          }
+        })
       },
       clickItem (info) {
         this.$emit('clickItem', info)
       },
+      /**
+       * 点击评论。回复处理
+       */
       commentClick (index) {
         this.isShowManageView = false
-        if (this.data.commentListInfo.list[index].id === this.replyInfo.id) return
+        if (!this.data.commentListInfo.list[index] ||
+          this.data.commentListInfo.list[index].id === this.replyInfo.id ||
+          this.data.commentListInfo.list[index].userInfo.uid === this.uid
+        ) return
         this.replyInfo = {
-          content: `回复：${this.data.commentListInfo.list[index].content}`,
+          content: this.data.commentListInfo.list[index].content,
           isReply: true,
-          id: this.data.commentListInfo.list[index].id
+          id: this.data.commentListInfo.list[index].id,
+          name: this.data.commentListInfo.list[index].userInfo.name,
+          uid: this.data.commentListInfo.list[index].userInfo.name
         }
-        this.changeEdit++
+        this.changeInfo.emptyNumber++
+        setTimeout(() => {
+          this.changeInfo.focusNumber++
+        }, 300)
       },
+      /**
+       * 取消回复评论，更新状态为普通评论
+       */
       cancelReply () {
         this.isShowManageView = false
         if (!this.editContent) {
@@ -173,9 +202,10 @@
         }
       },
       contentBlur (text) {
-        if (this.replyInfo.id) {
-          this.replyCacheList[this.replyInfo.id] = this.replyInfo
-        }
+        this.editContent = text
+        // if (this.replyInfo.id) {
+        //   this.replyCacheList[this.replyInfo.id] = this.replyInfo
+        // }
       },
       /**
        * 管理员长按评论，显示删除评论弹窗

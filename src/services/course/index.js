@@ -52,3 +52,12 @@ export function postRewardCourse (data) {
 export function getCommentList (params) {
   return Vue.axios.get('/course/live/comments', { params })
 }
+
+/**
+ * 获取最新的用户评论
+ * @param params {Object} 请求携带的参数{ key: 直播间对应Key }
+ * @returns {AxiosPromise<any>}
+ */
+export function getNewestCommentList (params) {
+  return Vue.axios.get('/course/live/newest_comment', { params })
+}

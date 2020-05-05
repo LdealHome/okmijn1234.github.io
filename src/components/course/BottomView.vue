@@ -12,7 +12,7 @@
       v-show="isShowEditView"
       :data="liveInfo"
       :isProblem="data.isProblem"
-      :changeEdit="changeEditNum"
+      :changeInfo="changeInfo"
       @problemClick="problemClick"
       @sendComment="sendComment"
       @contentBlur="contentBlur"
@@ -63,8 +63,11 @@
       return {
         isProblem: false, // 是否中提问
         isShowEditView: false,
-        changeEditNum: 0,
-        editContent: ''
+        editContent: '',
+        changeInfo: {
+          emptyNumber: 0,
+          focusNumber: 0
+        }
       }
     },
     watch: {
@@ -105,7 +108,7 @@
       commentClick () {
         if (this.isNotStarted || this.isForbidComment) return
         this.isShowEditView = true
-        this.changeEditNum++
+        this.changeInfo.focusNumber++
       },
       /**
        * 发送评论
@@ -115,7 +118,16 @@
           this.isShowEditView = false
           return
         }
-        this.$emit('sendComment', text)
+        this.$emit('sendComment', {
+          text,
+          isProblem: this.isProblem,
+          replyInfo: {
+            id: 0,
+            uid: 0,
+            content: '',
+            name: ''
+          }
+        })
       },
       contentBlur (text) {
         this.editContent = text

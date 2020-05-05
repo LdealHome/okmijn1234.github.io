@@ -2,13 +2,14 @@
   ul
     li.comment-list-item(
       v-for="(item, index) in list"
-      :key="item.time"
+      :key="item.id"
       :class="{ 'own-comment': isOwnComment(index) }"
+      @click="clickList"
     )
       p.time(v-if="isShowTime(index)") {{item.time | formatTime}}
       div.comment-item(
         v-if="!isRecord(index)"
-        @touchstart="showManageView"
+        @touchstart="showManageView($event ,index)"
         @touchend="touchend(index)"
       )
         div.user-info
@@ -89,7 +90,8 @@
     },
     data () {
       return {
-        timer: null
+        timer: null,
+        isClickComment: false // 是否点击评论
       }
     },
     filters: {
@@ -153,8 +155,11 @@
       }
     },
     methods: {
-      showManageView (e) {
-        if (!this.role) return
+      showManageView (e, index) {
+        if (!this.role) {
+          this.$emit('commentClick', index)
+          return
+        }
         let touches = e.touches[0]
         let { x, y } = { x: touches.pageX, y: touches.pageY }
         this.timer = setTimeout(() => {
@@ -168,12 +173,12 @@
         }, 800)
       },
       touchend (index) {
+        if (this.isOwnComment(index)) return
+        this.isClickComment = true
         if (this.timer) {
           clearTimeout(this.timer)
           // 点击回复评论
-          setTimeout(() => {
-            this.$emit('commentClick', index)
-          }, 300)
+          this.$emit('commentClick', index)
         }
       },
       clickItem (item) {
@@ -202,6 +207,13 @@
           type: item.type,
           ...info
         })
+      },
+      clickList () {
+        // 点击空白取消
+        if (!this.isClickComment) {
+          this.$emit('cancelReply')
+        }
+        this.isClickComment = false
       }
     }
   }

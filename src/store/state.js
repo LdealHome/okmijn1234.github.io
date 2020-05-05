@@ -40,13 +40,11 @@ export default {// 是否已经加载过全局的用户信息
     },
     video_course: {
       community_course_home: '', // 集福中心
-      community_course_rank: '' // 排行榜
+      community_course_rank: '', // 排行榜
+      share_adv: '' // 课程分享
     },
     img: {
       head_img: '' // 头像
-    },
-    share_callback: {
-      live: '' // 课程直播间
     }
   },
   // 账号状态

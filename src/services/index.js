@@ -110,12 +110,3 @@ export function getCourseServe () {
 export function postSendVerificationCode (data) {
   return Vue.axios.post('/user/verify/code', data)
 }
-
-/**
- * 分享统计
- * @param data {Object<{key,scene}>} 课程直播间key和场景值
- * @returns {AxiosPromise<any>}
- */
-export function postShareStatistics (data) {
-  return Vue.axios.post('/pub/share/callback', data)
-}
