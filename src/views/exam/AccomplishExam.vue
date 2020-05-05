@@ -30,7 +30,7 @@
           div.above
             p.headline {{item.title}}
             p.question-type ({{item.type === 1 ? `判断题：${item.typeText}分` : item.type === 2 ? `单选题：${item.typeText}分` : `多选题：${item.typeText}分`}})
-            div.choose(v-for="itm in item.list")
+            div.choose(v-for="itm in item.list" :key="itm.id")
               label.choose-label
                 span.choose-text {{itm.text}}
                 input.choose-type(
@@ -43,7 +43,7 @@
           div.following
             div.answer
               p.answer-left
-                span.answer-state {{item.isCorrect ? '回答正确' : '回答错误'}}
+                span.answer-state(:class="{error: !item.isCorrect}") {{item.isCorrect ? '回答正确' : '回答错误'}}
                 span.answer-icon(:class="{error: !item.isCorrect}")
               p.answer-text (得分: {{item.isCorrect ? item.typeText : 0}}分)
             div.analysis
@@ -146,7 +146,7 @@
             type: item.type_mark, // 1判断题，2单选题，3多选题
             typeText: item.fraction,
             isCorrect: item.is_correct === 1, // 是否回答正确
-            answer: '',
+            answer: item.options_correct,
             analysis: item.analysis_content, // 答案解析
             list: this.transformOptionList(item.option_list)
           })
@@ -414,6 +414,10 @@
           font-size: .32rem;
           font-weight: bold;
           margin-right: .5rem;
+
+          &.error {
+            color: #ff4d4a;
+          }
         }
 
         &-icon {
