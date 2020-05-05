@@ -49,12 +49,19 @@
             div.analysis
               p 答案：{{item.answer}}
               p 解析： {{item.analysis}}
-    MorePupup
+    MorePupup(
+      @collectionClick="isShowCollection = true"
+    )
+    GuideCollection(
+      :isShow="isShowCollection"
+      @close="isShowCollection = false"
+    )
     TechnicalSupport
 </template>
 
 <script>
   import MorePupup from '../../components/MorePupup'
+  import GuideCollection from '../../components/course/GuideCollection'
   import TechnicalSupport from '../../components/TechnicalSupport'
   import {
     getAchievement,
@@ -64,6 +71,7 @@
     name: 'AccomplishExam',
     components: {
       MorePupup,
+      GuideCollection,
       TechnicalSupport
     },
     computed: {
@@ -86,7 +94,8 @@
           title: '',
           number: 222 // 学习人数
         },
-        accomplishList: [] // 解析列表
+        accomplishList: [], // 解析列表
+        isShowCollection: false // 收藏弹框
       }
     },
     created () {

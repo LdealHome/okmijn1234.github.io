@@ -42,7 +42,13 @@
       :fromUid="fromUid"
       @close="isShowPostersShare = false"
     )
-    MorePupup
+    MorePupup(
+      @collectionClick="isShowCollection = true"
+    )
+    GuideCollection(
+      :isShow="isShowCollection"
+      @close="isShowCollection = false"
+    )
     TechnicalSupport
     RouterLink.jump-exam(:to="{name: 'accomplish-exam', params: { liveVideoId: liveVideoId }}" v-if="isExamination") 查看成绩
     RouterLink.jump-exam(:to="{name: 'start-exam', params: { liveVideoId: liveVideoId }}" v-else) 开始考试
@@ -51,6 +57,7 @@
 <script>
   import PostersSharePopup from '../../components/community/PostersSharePopup'
   import MorePupup from '../../components/MorePupup'
+  import GuideCollection from '../../components/course/GuideCollection'
   import TechnicalSupport from '../../components/TechnicalSupport'
   import {
     getExam
@@ -60,6 +67,7 @@
     components: {
       PostersSharePopup,
       MorePupup,
+      GuideCollection,
       TechnicalSupport
     },
     computed: {
@@ -88,7 +96,8 @@
           title: '',
           number: 222 // 学习人数
         },
-        isShowPostersShare: false // 邀请海报弹框
+        isShowPostersShare: false, // 邀请海报弹框
+        isShowCollection: false // 收藏弹框
       }
     },
     created () {

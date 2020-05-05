@@ -26,11 +26,18 @@
                 input.choose-type(:type="item.type !== 3 ? 'radio' : 'checkbox'" :id="`choose${itm.id}`" :value="itm" v-model='item.choose')
       TechnicalSupport
     button.exam__determine(type="button" @click="determine") 提交试卷
-    MorePupup
+    MorePupup(
+      @collectionClick="isShowCollection = true"
+    )
+    GuideCollection(
+      :isShow="isShowCollection"
+      @close="isShowCollection = false"
+    )
 </template>
 
 <script>
   import MorePupup from '../../components/MorePupup'
+  import GuideCollection from '../../components/course/GuideCollection'
   import TechnicalSupport from '../../components/TechnicalSupport'
   import {
     MessageBox
@@ -43,6 +50,7 @@
     name: 'StartExam',
     components: {
       MorePupup,
+      GuideCollection,
       TechnicalSupport
     },
     watch: {
@@ -87,7 +95,8 @@
         isRoll: false, // 是否已经找到未答题的题目
         isTimeOut: false, // 答题时间是否到
         isAnswer: false, // 是否答完并提交试卷
-        timer: null
+        timer: null,
+        isShowCollection: false // 收藏弹框
       }
     },
     beforeRouteLeave (to, from, next) {
