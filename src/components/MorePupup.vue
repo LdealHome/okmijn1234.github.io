@@ -39,6 +39,7 @@
     position: fixed;
     bottom: 3.08rem;
     right: .6rem;
+    z-index: 11;
   }
 
   .content-back {
@@ -52,6 +53,7 @@
     left: 0;
     font-size: .24rem;
     color: #fff;
+    z-index: 11;
   }
 
   .hammer-view {
