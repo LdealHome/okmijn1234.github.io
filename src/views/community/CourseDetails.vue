@@ -225,7 +225,9 @@
           videoUrl: data.src,
           imgSrc: data.cover
         }
-        this.isShowVideo = true
+        this.$nextTick(() => {
+          this.isShowVideo = true
+        })
       },
       /**
        * 跳转链接
