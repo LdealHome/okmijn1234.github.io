@@ -5,8 +5,8 @@
       div.share(@click="isShowPostersShare = true") 分享
       div.following
         p.text {{examInfo.title}}
-        div.portrait
-          img.portrait-img( v-for="item in examInfo.portraitList" :src="item.img_url")
+        div.portrait(v-if="examInfo.portraitList.length")
+          img.portrait-img(v-for="item in examInfo.portraitList" :src="item.img_url")
           span.portrait-text 等人参与考试
     div.exam__info
       h2.title 考试信息
@@ -28,7 +28,7 @@
           p.text 总分
     div.exam__details(v-if="examInfo.encourage")
       h2.title 考试详情
-      p.text 考前勉励：{{examInfo.encourage}}
+      p.text {{examInfo.encourage}}
     div.exam__course
       h2.title 关联课程
       RouterLink(:to="{name: 'column-details'}").course
@@ -117,7 +117,7 @@
                 number: courseInfo.study_number
               }
               this.examInfo = {
-                title: '',
+                title: data.title,
                 portraitList: data.take_member,
                 cover: data.cover,
                 encourage: data.description,
@@ -204,7 +204,7 @@
           border-radius: 1rem;
           border: 1px solid #fff;
           box-shadow: 0 0 3px #fff;
-          margin-left: -.12rem;
+          margin-left: -.14rem;
         }
 
         &-text {

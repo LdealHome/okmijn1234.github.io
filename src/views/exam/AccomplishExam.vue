@@ -28,7 +28,7 @@
           :key="item.id"
         )
           div.above
-            p.headline {{item.title}}
+            p.headline {{item.serialNumber}}、{{item.title}}
             p.question-type ({{item.type === 1 ? `判断题：${item.typeText}分` : item.type === 2 ? `单选题：${item.typeText}分` : `多选题：${item.typeText}分`}})
             div.choose(v-for="itm in item.list" :key="itm.id")
               label.choose-label
@@ -143,6 +143,7 @@
             id: item.id,
             courseID: item.s_id, // 课程id
             title: item.title,
+            serialNumber: item.sort,
             type: item.type_mark, // 1判断题，2单选题，3多选题
             typeText: item.fraction,
             isCorrect: item.is_correct === 1, // 是否回答正确
@@ -379,6 +380,10 @@
             border: none;
             background: url("~@icon/exam/check-active.png") no-repeat center;
             background-size: contain;
+          }
+
+          &:disabled {
+            opacity: 1;
           }
         }
 

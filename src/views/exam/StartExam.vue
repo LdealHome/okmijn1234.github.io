@@ -18,7 +18,7 @@
           ref="indexGroup"
           )
           div.item(:class="{active: item.isChoose}")
-            p.title {{item.title}}
+            p.title {{item.serialNumber}}、{{item.title}}
             p.question-type ({{item.type === 1 ? `判断题：${item.typeText}分` : item.type === 2 ? `单选题：${item.typeText}分` : `多选题：${item.typeText}分`}})
             template(v-for="itm in item.list")
               label.choose(:for="`choose${itm.id}`" :key="itm.id")
@@ -58,10 +58,13 @@
       timeOut () {
         if (this.isTimeOut) {
           MessageBox({
-            message: '考试时间已结束，不能再继续答题，请提交试卷提交试卷',
-            confirmButtonText: '提交试卷'
+            message: '考试时间已结束，不能再继续答题，请提交试卷',
+            confirmButtonText: '提交试卷',
+            closeOnClickModal: false
           }).then(action => {
-            this.determine()
+            if (action === 'confirm') {
+              this.determine()
+            }
           })
         }
       }
@@ -71,12 +74,8 @@
         return this.isTimeOut
       },
       // 本地缓存使用的key值
-      cacheKey () {
+      key () {
         return this.$route.fullPath
-      },
-      // 取出缓存数据
-      getLocalCache () {
-        return this.$store.getters.getLocalCache(this.cacheKey)
       },
       // 课程id
       liveVideoId () {
@@ -96,7 +95,8 @@
         isTimeOut: false, // 答题时间是否到
         isAnswer: false, // 是否答完并提交试卷
         timer: null,
-        isShowCollection: false // 收藏弹框
+        isShowCollection: false, // 收藏弹框
+        localCache: {}
       }
     },
     beforeRouteLeave (to, from, next) {
@@ -108,14 +108,7 @@
           showCancelButton: true
         }).then(action => {
           if (action === 'confirm') { // 确认的回调
-            clearInterval(this.timer)
-            this.$store.commit($_.commits.SET_LOCAL_CACHE, {
-              key: this.cacheKey,
-              value: {
-                storageTime: this.durationRush,
-                examList: this.examList
-              }
-            })
+            this.commonCache()
             next()
           } else {
             console.log(1)
@@ -128,8 +121,10 @@
     },
     destroyed () {
       clearTimeout(this.scrollTimer)
+      window.removeEventListener('pagehide', this.commonCache, false)
     },
     created () {
+      window.addEventListener('pagehide', this.commonCache, false)
       this.mine()
     },
     methods: {
@@ -139,12 +134,14 @@
             let that = this
             let data = res.data.data
             document.title = data.exam_title
+            this.localCache = JSON.parse(localStorage.getItem('localCache')) || {}
             // 考试未完成是否离开过页面
-            if (that.getLocalCache) { // 有缓存
-              that.durationRush = that.getLocalCache.storageTime
-              that.examList = that.getLocalCache.examList
+            if (this.localCache[this.key]) { // 有缓存
+              that.durationRush = this.localCache[this.key].storageTime
+              that.examList = this.localCache[this.key].examList
               // 清空缓存
-              this.$store.commit($_.commits.REMOVE_LOCAL_CACHE, that.cacheKey)
+              delete this.localCache[this.key]
+              localStorage.setItem('localCache', JSON.stringify(this.localCache))
             } else { // 没有缓存
               that.durationRush = data.answer_length // 考试时长秒
               that.examList = that.transformExamList(data.list)
@@ -164,14 +161,14 @@
         // 考试时间
         that.timer = setInterval(() => {
           // 时
-          let hour = that.durationRush / 3600
-          hour = hour > 9 ? Math.floor(hour) : '0' + Math.floor(hour)
+          let hour = parseInt(that.durationRush / 3600)
+          hour = hour > 9 ? hour : '0' + hour
           // 分
-          let minute = that.durationRush % 3600 / 60
-          minute = minute > 9 ? Math.floor(minute) : '0' + Math.floor(minute)
+          let minute = parseInt(that.durationRush % 3600 / 60)
+          minute = minute > 9 ? minute : '0' + minute
           // 秒
-          let second = that.durationRush % 60
-          second = second > 9 ? Math.floor(second) : '0' + Math.floor(second)
+          let second = parseInt(that.durationRush % 60)
+          second = second > 9 ? second : '0' + second
           if (that.durationRush < 0) {
             clearInterval(this.timer)
             this.isTimeOut = true
@@ -181,42 +178,68 @@
           }
         }, 1000)
       },
+      // 缓存的公共部分
+      commonCache () {
+        clearInterval(this.timer)
+        this.localCache = JSON.parse(localStorage.getItem('localCache')) || {}
+        this.localCache[this.key] = {
+          storageTime: this.durationRush,
+          examList: this.examList
+        }
+        localStorage.setItem('localCache', JSON.stringify(this.localCache))
+      },
       // 提交试卷
       determine () {
         let list = []
         let that = this
         this.isRoll = false
         this.examList.forEach((item, index) => {
+          let perItem = item.choose // 选择的每项
+          let optionId = [] // 选择每项的选项id
+          let topicId // 多项选择时题目id是一样的
+
           item.isChoose = false
-          if (item.choose.length === 0 && !this.isTimeOut) {
+          if (perItem.length === 0 && !this.isTimeOut) { // 时间未到提交试卷还有题未回答
             item.isChoose = true
             if (!this.isRoll) {
               this.$refs.indexWrap.scrollTop = that.listHeight[index]
               that.isRoll = true
             }
           }
-          let perItem = item.choose // 选择的每项
-          let optionId = [] // 选择每项的选项id
-          let topicId // 多项选择时题目id是一样的
-          if (Array.isArray(perItem)) {
-            perItem.forEach(itm => {
-              optionId.push(itm.id)
+
+          if (perItem.length === 0 && this.isTimeOut) { // 时间到题未回答完
+            item.list.forEach(itm => {
               topicId = itm.subjectId
             })
             list.push({
-              option_id: optionId
+              option_id: []
             })
             list.forEach(listId => {
               if (!listId.q_id) {
                 listId.q_id = topicId
               }
             })
-          } else {
-            optionId.push(perItem.id)
-            list.push({
-              option_id: optionId,
-              q_id: perItem.subjectId
-            })
+          } else { // 题目回答完成
+            if (Array.isArray(perItem)) {
+              perItem.forEach(itm => {
+                optionId.push(itm.id)
+                topicId = itm.subjectId
+              })
+              list.push({
+                option_id: optionId
+              })
+              list.forEach(listId => {
+                if (!listId.q_id) {
+                  listId.q_id = topicId
+                }
+              })
+            } else {
+              optionId.push(perItem.id)
+              list.push({
+                option_id: optionId,
+                q_id: perItem.subjectId
+              })
+            }
           }
         })
         if (!that.isRoll || that.isTimeOut) { // 全部答完或者答题时间到
@@ -278,6 +301,7 @@
           list.push({
             id: item.id, // 题目id
             courseId: item.s_id, // 单课id
+            serialNumber: item.sort, // 题号
             title: item.title,
             type: item.type_mark, // 1判断题 2单选题 3多选题
             typeText: item.fraction,
