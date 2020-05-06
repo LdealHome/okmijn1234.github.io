@@ -39,7 +39,7 @@
         span {{data.personTime}}人次
       img.retract-btn(
         src="@icon/course/retract-icon.png"
-        @click="isOpenVideo = !isOpenVideo"
+        @click="changeOpenState"
         :class="retractClass"
       )
 </template>
@@ -76,7 +76,12 @@
         videoPlayTime: 0, // 视频直播时播放的进度
         studyTime: 0, // 学习时长
         state: 0,
-        networkStatus: true // 网络状态
+        networkStatus: true, // 网络状态
+        videoLoad: {
+          isLoad: false, // 视频是否加载成功
+          isInit: false // 是否修改video父元素的高度
+        },
+        video: null
       }
     },
     watch: {
@@ -99,17 +104,21 @@
       }
     },
     mounted () {
-      let video = document.getElementById('video')
+      this.video = document.getElementById('video')
       window.addEventListener('offline', this.eventHandle)
       window.addEventListener('online', this.eventHandle)
-      video.addEventListener('ended', this.videoEnded, false)
-      video.addEventListener('loadedmetadata', this.videoLoadedmetadata, false)
-      video.addEventListener('play', this.videoPlayEvent, false)
-      video.addEventListener('pause', this.videoPauseEvent, false)
+      this.video.addEventListener('ended', this.videoEnded, false)
+      this.video.addEventListener('loadedmetadata', this.videoLoadedmetadata, false)
+      this.video.addEventListener('play', this.videoPlayEvent, false)
+      this.video.addEventListener('pause', this.videoPauseEvent, false)
     },
     beforeDestroy () {
       window.removeEventListener('offline', this.eventHandle)
       window.removeEventListener('online', this.eventHandle)
+      this.video.removeEventListener('ended', this.videoEnded, false)
+      this.video.removeEventListener('loadedmetadata', this.videoLoadedmetadata, false)
+      this.video.removeEventListener('play', this.videoPlayEvent, false)
+      this.video.removeEventListener('pause', this.videoPauseEvent, false)
     },
     computed: {
       liveBroadcastState () {
@@ -148,6 +157,10 @@
       },
       videoClass () {
         return { 'hide-video-controls': this.courseState !== 2 }
+      },
+      // 访客
+      isGuest () {
+        return this.$store.state.guest
       }
     },
     methods: {
@@ -160,9 +173,8 @@
       },
       videoEnded () {
         this.isPlayVideo = false
-        if (this.courseState === 1) {
-          this.isEnded = true
-        }
+        if (this.courseState === 1) this.isEnded = true 
+        if (this.isGuest) return
         let time = new Date()
         let videoPlayTime = sessionStorage.getItem('videoPlayTime')
         if (videoPlayTime) {
@@ -178,31 +190,33 @@
       videoLoadedmetadata () {
         // 视频加载完后，修改video容器的高度
         // 解决视频加载后底部会多一截问题
-        let video = document.getElementById('video')
-        this.videoHeight = video.clientHeight + 'px'
-        video.removeEventListener('loadedmetadata', this.videoLoadedmetadata)
+        this.videoLoad.isLoad = true
+        if (this.isOpenVideo) {
+          this.videoHeight = this.video.clientHeight + 'px'
+          this.videoLoad.isInit = true
+        }
+        this.video.removeEventListener('loadedmetadata', this.videoLoadedmetadata)
       },
       playVideo () {
         if (this.notBroadcast || !this.networkStatus) return
-        let video = document.getElementById('video')
         let time = new Date()
         if (this.isEnded) {
           this.state = 2
-          video.controls = true
+          this.video.controls = true
         } else if (this.state === 1) {
           // 如果是直播时，当前直播对应的位置
           let startTime = sessionStorage.getItem('waitTime') || time
-          video.currentTime = Math.floor((time - startTime) / 1000) + this.videoPlayTime
+          this.video.currentTime = Math.floor((time - startTime) / 1000) + this.videoPlayTime
         }
-        video.play()
+        this.video.play()
       },
       videoPlayEvent () {
-        sessionStorage.setItem('videoPlayTime', new Date().getTime())
+        // 游客不做访问时长统计
+        if (!this.isGuest) sessionStorage.setItem('videoPlayTime', new Date().getTime())
         this.isPlayVideo = true
       },
       stopVideo () {
-        let video = document.getElementById('video')
-        video.pause()
+        this.video.pause()
         this.isPlayVideo = false
 
         let time = new Date().getTime()
@@ -214,10 +228,9 @@
       },
       videoPauseEvent () {
         this.isPlayVideo = false
-        let video = document.getElementById('video')
         let time = new Date().getTime()
         // 获取暂停时视频播放的进度
-        this.videoPlayTime = video.currentTime
+        this.videoPlayTime = this.video.currentTime
         let videoPlayTime = sessionStorage.getItem('videoPlayTime')
         if (videoPlayTime) {
           sessionStorage.removeItem('videoPlayTime')
@@ -228,6 +241,15 @@
             play_over: 2
           }))
         }
+      },
+      changeOpenState () {
+        this.isOpenVideo = !this.isOpenVideo
+        this.$nextTick(() => {
+          if (this.videoLoad.isLoad && !this.videoLoad.isInit) {
+            this.videoLoad.isInit = true
+            this.videoHeight = this.video.clientHeight + 'px'
+          }
+        })
       }
     }
   }

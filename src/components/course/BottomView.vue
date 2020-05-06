@@ -1,24 +1,25 @@
 <template lang="pug">
   div.bottom-back
-    div.default-view(v-show="!isShowEditView" :class="{ 'not-broadcast': isNotStarted }")
-      div.comment-view(@click="commentClick")
-        p.comment-edit {{editTips}}
-        div.problem-btn(v-show="isShowProblemBtn" :class="{ 'problem-active': data.isProblem }" @click.stop="problemClick") 提问
-      img.bullet-chat(:src="bulletChatSrc" @click="$emit('clickItem', 1)")
-      span.comment-btn(@click="$emit('clickItem', 2)")
-      span.reward-btn(@click="$emit('clickItem', 3)")
-      img.more-btn(src="@icon/course/more.png" @click="$emit('clickItem', 4)")
-    EditView(
-      v-show="isShowEditView"
-      :data="liveInfo"
-      :isProblem="data.isProblem"
-      :changeInfo="changeInfo"
-      @problemClick="problemClick"
-      @sendComment="sendComment"
-      @contentBlur="contentBlur"
-    )
-    div.unregistered(v-if="false")
-      div.enroll-btn 立即报名
+    div(v-if="!isGuest")
+      div.default-view(v-show="!isShowEditView" :class="{ 'not-broadcast': isNotStarted }")
+        div.comment-view(@click="commentClick")
+          p.comment-edit {{editTips}}
+          div.problem-btn(v-show="isShowProblemBtn" :class="{ 'problem-active': data.isProblem }" @click.stop="problemClick") 提问
+        img.bullet-chat(:src="bulletChatSrc" @click="$emit('clickItem', 1)")
+        span.comment-btn(@click="$emit('clickItem', 2)")
+        span.reward-btn(@click="$emit('clickItem', 3)")
+        img.more-btn(src="@icon/course/more.png" @click="$emit('clickItem', 4)")
+      EditView(
+        v-show="isShowEditView"
+        :data="liveInfo"
+        :isProblem="data.isProblem"
+        :changeInfo="changeInfo"
+        @problemClick="problemClick"
+        @sendComment="sendComment"
+        @contentBlur="contentBlur"
+      )
+    div.unregistered(v-else)
+      div.enroll-btn(@click="enrollClick") 立即报名
       img.bullet-chat(:src="bulletChatSrc" @click="$emit('clickItem', 1)")
 </template>
 
@@ -61,7 +62,6 @@
     },
     data () {
       return {
-        isProblem: false, // 是否中提问
         isShowEditView: false,
         editContent: '',
         changeInfo: {
@@ -82,7 +82,7 @@
         return this.isNotStarted ? require('@icon/course/bullet-chat-grey.png') : (this.isShowChat ? require('@icon/course/bullet-chat.png') : require('@icon/course/bullet-chat-close.png'))
       },
       isShowProblemBtn () {
-        return !this.data.isAdministrators && !this.isForbidComment
+        return !this.liveInfo.role && !this.isForbidComment
       },
       isNotStarted () {
         return this.state === 0
@@ -98,6 +98,13 @@
       },
       isShowChat () {
         return this.liveInfo.chatInfo.isShow
+      },
+      // 访客
+      isGuest () {
+        return this.$store.state.guest
+      },
+      from () {
+        return this.$route.params.from
       }
     },
     methods: {
@@ -118,19 +125,24 @@
           this.isShowEditView = false
           return
         }
+        this.editContent = ''
         this.$emit('sendComment', {
           text,
-          isProblem: this.isProblem,
+          isProblem: this.data.isProblem,
           replyInfo: {
             id: 0,
             uid: 0,
             content: '',
-            name: ''
+            name: '',
+            isAsk: false
           }
         })
       },
       contentBlur (text) {
         this.editContent = text
+      },
+      enrollClick () {
+        this.$router.push({ name: 'particulars', params: { from: this.from } })
       }
     }
   }

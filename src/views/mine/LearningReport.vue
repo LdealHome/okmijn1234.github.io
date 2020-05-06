@@ -195,7 +195,7 @@
         drawQRCode()
       }
       function drawQRCode () {
-        vm.generateQR('http://baidu.com')
+        vm.generateQR(baseInfo.qrCode)
           .then(qr => {
             getImage(qr, 'qr')
               .then(img => {
@@ -245,7 +245,8 @@
             cycle: data.cycle,
             studyTime: data.learn_length, // 学习时长
             courseNum: data.complete_course_num, // 课程数量
-            latestList: data.latest_time
+            latestList: data.latest_time,
+            qrCode: data.qr_code
           }, function () {
             vm.posterImg = poster.canvas.toDataURL('image/jpeg', 1)
             vm.isLoad = true
