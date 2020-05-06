@@ -81,7 +81,11 @@
           isLoad: false, // 视频是否加载成功
           isInit: false // 是否修改video父元素的高度
         },
-        video: null
+        video: null,
+        stopInfo: {
+          timer: null,
+          surplusTime: 0
+        }
       }
     },
     watch: {
@@ -95,8 +99,7 @@
           this.videoPlayTime = this.data.time
           break
         case 2:
-          let video = document.getElementById('video')
-          video.controls = true
+          this.video.controls = true
           break
         default:
           break
@@ -113,6 +116,9 @@
       this.video.addEventListener('pause', this.videoPauseEvent, false)
     },
     beforeDestroy () {
+      if (this.stopInfo.timer) {
+        clearInterval(this.stopInfo.timer)
+      }
       window.removeEventListener('offline', this.eventHandle)
       window.removeEventListener('online', this.eventHandle)
       this.video.removeEventListener('ended', this.videoEnded, false)
@@ -156,7 +162,7 @@
         return this.isEnded && this.isShowPlayBtn
       },
       videoClass () {
-        return { 'hide-video-controls': this.courseState !== 2 }
+        return { 'hide-video-controls': this.courseState !== 2 && this.state !== 2 }
       },
       // 访客
       isGuest () {
@@ -173,6 +179,7 @@
       },
       videoEnded () {
         this.isPlayVideo = false
+        this.video.controls = true
         if (this.courseState === 1) this.isEnded = true 
         if (this.isGuest) return
         let time = new Date()
@@ -209,6 +216,10 @@
           this.video.currentTime = Math.floor((time - startTime) / 1000) + this.videoPlayTime
         }
         this.video.play()
+        if (this.stopInfo.timer) {
+          clearInterval(this.stopInfo.timer)
+          this.stopInfo.timer = null
+        }
       },
       videoPlayEvent () {
         // 游客不做访问时长统计
@@ -224,6 +235,15 @@
           // 储存暂停时的时间
           // 用于计算点击开始播放后，调整视频的播放位置
           sessionStorage.setItem('waitTime', time)
+          // 处理直播暂停期间，如果直播结束更新状态
+          this.stopInfo.surplusTime = Math.floor(this.video.duration - this.video.currentTime)
+          this.stopInfo.timer = setInterval(() => {
+            if (--this.stopInfo.surplusTime <= 0) {
+              clearInterval(this.stopInfo.timer)
+              this.stopInfo.timer = null
+              this.videoEnded()
+            }
+          }, 1000)
         }
       },
       videoPauseEvent () {

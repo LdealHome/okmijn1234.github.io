@@ -1,10 +1,9 @@
 <template lang="pug">
-  ul
+  ul(@click="clickList")
     li.comment-list-item(
       v-for="(item, index) in list"
       :key="item.id"
       :class="{ 'own-comment': isOwnComment(index) }"
-      @click="clickList"
     )
       p.time(v-if="isShowTime(index)") {{item.time | formatTime}}
       div.comment-item(
