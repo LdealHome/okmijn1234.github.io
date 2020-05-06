@@ -12,7 +12,7 @@
       @clickChat="mBean.chatInfo.isShow = !mBean.chatInfo.isShow"
       @sendComment="sendComment"
       @loadMore="loadMore"
-      @deleteMessage="deleteMessage"
+      @changeMessage="changeMessage"
     )
     CustomerServicePopup(
       v-if="isCustomerServicePopup"
@@ -111,7 +111,8 @@
               direction: 1
             },
             list: [],
-            isShowTopView: false
+            isShowTopView: false,
+            direction: 'bottom'
           },
           commentListInfo: {
             list: [],
@@ -123,7 +124,8 @@
               type: 2,
               direction: 1
             },
-            rollBottom: 0
+            rollBottom: 0,
+            forbiddenWordsList: []
           },
           chatInfo: {
             isShow: false,
@@ -192,6 +194,10 @@
       courseKey () {
         return this.mBean.key
       },
+      // 访客
+      isGuest () {
+        return this.$store.state.guest
+      },
       avatar () {
         return this.$store.state.personalInfo.avatar
       }
@@ -223,10 +229,13 @@
                   limit: 20,
                   page: 1,
                   type: 1,
-                  lay_out: this.type
+                  lay_out: this.type,
+                  direction: state !== 1 ? 2 : 1 // 分页查询的方向 1:上拉获取历史数据 2:下拉获取最新数据
                 },
                 list: [],
-                isShowTopView: false
+                isShowTopView: state !== 1,
+                direction: state !== 1 ? 'bottom' : 'top',
+                isLastPage: false
               },
               commentListInfo: {
                 list: [],
@@ -236,9 +245,12 @@
                   limit: 20,
                   page: 1,
                   type: 2,
-                  lay_out: this.type
+                  lay_out: this.type,
+                  direction: 1
                 },
-                rollBottom: 0
+                rollBottom: 0,
+                forbiddenWordsList: [],
+                isLastPage: false
               },
               chatInfo: {
                 isShow: true,
@@ -269,6 +281,7 @@
               title: data.share_info.title,
               link: data.share_info.link
             }
+            this.updateWXConfig()
             this.getWeiXinConfig(shareInfo)
               .then(res => {
                 this.setWeiXinConfig(res, this.shareSuccess)
@@ -304,13 +317,17 @@
         return new Promise((resolve, reject) => {
           let originalList = this.mBean[type].list
           if (originalList.length) {
-            this.mBean[type].params.mark_id = originalList[0].id
+            this.mBean[type].params.mark_id = originalList[this.mBean[type].params.direction === 1 ? 0 : (originalList.length - 1)].id
           }
           getCommentList(this.mBean[type].params).then(res => {
             let list = []
             if (res.data.code === 1 && res.data.data && res.data.data.list) {
               list = res.data.data.list
-              this.mBean[type].list = [ ...this.transformStudyList(list), ...this.mBean[type].list ]
+              if (this.mBean[type].params.direction === 1) {
+                this.mBean[type].list = [ ...this.transformStudyList(list), ...this.mBean[type].list ]
+              } else {
+                this.mBean[type].list.push(...this.transformStudyList(list))
+              }
             }
             this.$nextTick(() => {
               resolve(list)
@@ -336,6 +353,7 @@
         }
         this.mBean[type].params.page++
         if (isLastPage) {
+          this.mBean[type].isLastPage = true
           if (type === 'studyListInfo') {
             that.mBean.studyListInfo.isShowTopView = true
           }
@@ -348,19 +366,16 @@
        * 分享回调
        */
       shareSuccess () {
-        this.webSocket.send(JSON.stringify({
-          'type_mark': 5
-        }))
+        this.sendMessage({ 'type_mark': 5 })
       },
       connectWebSocket () {
         console.log('开始连接')
         this.webSocket = new WebSocket(this.mBean.webSocketUrl)
         this.webSocket.onopen = () => {
           console.log('连接成功')
+          this.sendMessage({ 'type_mark': 'ping' })
           this.sendPingTimer = setInterval(() => {
-            this.webSocket.send(JSON.stringify({
-              'type_mark': 'ping'
-            }))
+            this.sendMessage({ 'type_mark': 'ping' })
           }, 50000)
         }
         
@@ -432,6 +447,14 @@
        * 设置/取消开播提醒
        */
       clickSetRemind () {
+        if (this.isGuest) {
+          this.$router.push({ name: 'particulars', params: { from: this.fromUid } })
+          return
+        }
+        if (!this.mBean.isFollow) {
+          this.isCustomerServicePopup = true
+          return 
+        }
         if (this.mBean.isSetReminders) {
           const that = this
           MessageBox({
@@ -528,26 +551,16 @@
        * @param info {Object} { text: 内容, isProblem: 是否提问, replyInfo: 回复的信息 }
        */
       sendComment (info) {
-        console.log({
+        this.sendMessage({
           'type_mark': 1,
           'content': info.text, // 文本内容
-          'msg_tag': info.isProblem ? 1 : 0, // 消息标签 0无 1问 2赞
+          'msg_tag': info.isProblem && !info.replyInfo.id ? 1 : 0, // 消息标签 0无 1问 2赞
           'pid': info.replyInfo.id, // 回复时才有
           'passive_uid': info.replyInfo.uid, // 回复时才有
           'passive_content': info.replyInfo.content, // 被回复的内容
           'passive_nick_name': info.replyInfo.name, // 被回复人昵称
-          'passive_msg_tag': 0
+          'passive_msg_tag': info.replyInfo.id && info.replyInfo.isAsk ? 1 : 0
         })
-        this.webSocket.send(JSON.stringify({
-          'type_mark': 1,
-          'content': info.text, // 文本内容
-          'msg_tag': info.isProblem ? 1 : 0, // 消息标签 0无 1问 2赞
-          'pid': info.replyInfo.id, // 回复时才有
-          'passive_uid': info.replyInfo.uid, // 回复时才有
-          'passive_content': info.replyInfo.content, // 被回复的内容
-          'passive_nick_name': info.replyInfo.name, // 被回复人昵称
-          'passive_msg_tag': 0
-        }))
       },
       /**
        * 打赏-唤醒支付
@@ -571,27 +584,47 @@
         })
       },
       /**
-       * 撤回消息
-       * @param info {Object} { id: 消息id, role: 直播间角色 }
+       * 更改消息
+       * @param info {Object} { type: 类型 (100撤回、101删除评论、102禁言、解除禁言) id: 消息id }
        */
-      deleteMessage (info) {
-        this.webSocket.send(JSON.stringify({
-          'type_mark': 9,
-          'id': info.id
-        }))
+      changeMessage (info) {
+        if (info.type === 102) {
+          let list = this.mBean.commentListInfo.forbiddenWordsList
+          let type = list.includes(info.uid) ? 8 : 7
+          if (type === 7) {
+            list.push(info.uid)
+          } else {
+            this.mBean.commentListInfo.forbiddenWordsList = list.filter(item => { return item !== info.uid })
+          }
+          this.sendMessage({
+            'type_mark': type,
+            'uid': info.uid
+          })
+        } else {
+          this.sendMessage({
+            'type_mark': info.type === 100 ? 9 : 6,
+            'id': info.id
+          })
+        }
+      },
+      sendMessage (data) {
+        console.log(data)
+        this.webSocket.send(JSON.stringify(data))
       },
       /**
        * 添加评论列表数据
        */
       addMessageItem (info) {
-        if (this.mBean.commentListInfo.list.length) {
+        if (this.mBean.commentListInfo.list.length || this.mBean.commentListInfo.isLastPage) {
           this.mBean.commentListInfo.list.push(info)
           this.$nextTick(() => {
             this.mBean.commentListInfo.rollBottom++
           })
         }
         // 管理员发送的内容、分享记录、打赏记录添加到学习资料区
-        if (info.role || info.type === 5 || info.type === 8) {
+        if (
+          (info.label || info.type === 5 || info.type === 8) &&
+          (this.mBean.state === 1 || this.mBean.studyListInfo.isLastPage)) {
           this.mBean.studyListInfo.list.push(info)
         }
         // 评论或者回复的消息，添加到最新评论列表
@@ -612,6 +645,11 @@
       transformStudyList (source) {
         let list = []
         source.forEach(item => {
+          // 禁言用户列表
+          if (this.mBean.commentListInfo.forbiddenWordsList.includes(+item.from_uid) && item.from_user_is_say === 2) {
+            this.mBean.commentListInfo.forbiddenWordsList.push(+item.from_uid)
+          }
+          // 消息类型
           let type = 0
           switch (item.type_mark) {
           case 1:
@@ -652,6 +690,7 @@
             },
             label: +item.from_user_title, // 管理员标签
             replyInfo: {
+              delete: item.passive_is_del === 2,
               name: item.passive_nick_name, // 被回复的用户昵称
               content: item.passive_content // 被回复的内容
             },

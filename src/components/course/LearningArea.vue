@@ -1,18 +1,17 @@
 <template lang="pug">
   div.learning-area-back
+    div.right-anchor
+      span.anchor-top(@click="rollTopClick")
+      span.anchor-bottom(@click="rollBottomClick")
     div.content(ref="learningView" @click="$emit('cancelComment')")
-      div(v-show="isShowTopView")
-        div.right-anchor
-          span.anchor-top(@click="rollTopClick")
-          span.anchor-bottom(@click="rollBottomClick")
-        div.fu-center
-          div.fu-text(@click="goHomePage")
-            img.fu-text-img(src="@images/course/fu-text.png")
-          img.fortune-bag(src="@icon/course/fortune-bag.png" @click="seeShareVideo")
-          p.click-tips(@click="seeShareVideo") 点击福字，了解分享后好处
-          div.tips-btn(@click="$emit('shareBtnClick')") 分享课程，为课程点赞
+      div.fu-center(v-show="isShowTopView")
+        div.fu-text(@click="goHomePage")
+          img.fu-text-img(src="@images/course/fu-text.png")
+        img.fortune-bag(src="@icon/course/fortune-bag.png" @click="seeShareVideo")
+        p.click-tips(@click="seeShareVideo") 点击福字，了解分享后好处
+        div.tips-btn(@click="$emit('shareBtnClick')") 分享课程，为课程点赞
       ListComment(:list="studyListInfo.list" @clickItem="clickItem")
-      infinite-loading(@infinite="loadMore" direction="top")
+      infinite-loading(@infinite="loadMore" :direction="studyListInfo.direction")
         div(slot="spinner")
         div(slot="no-more")
         div(slot="no-results")
@@ -37,7 +36,8 @@
             list: [],
             params: {
               page: 1
-            }
+            },
+            direction: 'bottom'
           }
         }
       },
@@ -51,7 +51,8 @@
     },
     watch: {
       page (val) {
-        if (val === 2) {
+        // 如果是直播中，加载第一页数据后滚动到底部
+        if (val === 2 && this.studyListInfo.direction === 'top') {
           this.rollBottomClick()
         }
       }
@@ -107,7 +108,7 @@
   }
 
   .right-anchor {
-    height: 1.35rem;
+    height: 1.55rem;
     position: absolute;
     display: flex;
     flex-direction: column;
@@ -123,20 +124,22 @@
   .anchor-bottom {
     width: .5rem;
     height: .5rem;
+    padding: .1rem;
+    box-sizing: content-box;
 
     &:active {
-      opacity: .8;
+      transform: scale(1.1);
     }
   }
 
   .anchor-top {
-    background: url('~@icon/course/top-arrow.png') no-repeat;
-    background-size: 100%;
+    background: url('~@icon/course/top-arrow.png') no-repeat center center;
+    background-size: .5rem;
   }
 
   .anchor-bottom {
-    background: url('~@icon/course/bottom-arrow.png') no-repeat;
-    background-size: 100%;
+    background: url('~@icon/course/bottom-arrow.png') no-repeat center center;
+    background-size: .5rem;
   }
 
   .fu-center {

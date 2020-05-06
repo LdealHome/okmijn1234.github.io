@@ -18,11 +18,13 @@
           p.name {{item.userInfo.name}}
         p.comment-content(v-if="item.type === 1 || item.type === 2")
           span.withdraw-btn(v-show="isShowWithdraw(index)" @click.stop="clickItem({ ...item, type: 100 })") 撤回
-          span(:class="{ 'problem-comment': item.type === 2 }") {{item.content}}
+          span.problem-comment(v-if="item.type === 2")
+          span {{item.content}}
         div.reply-view(v-if="item.type === 3 || item.type === 4")
           p.reply-problem
             span.withdraw-btn(v-show="isShowWithdraw(index)" @click.stop="clickItem({ ...item, type: 100 })") 撤回
-            span(:class="{ 'problem-reply-view': item.type === 4 }") {{item.replyInfo.name}}：{{item.replyInfo.content}}
+            span(v-if="item.replyInfo.delete") 该评论已被删除
+            span(v-else :class="{ 'problem-reply-view': item.type === 4 }") {{item.replyInfo.name}}：{{item.replyInfo.content}}
           p.reply-content {{item.content}}
         div.media-view.video-back(v-if="item.type === 6" @click="clickItem(item)")
           img.media-img(:src="item.videoInfo.cover")
@@ -167,19 +169,21 @@
           this.timer = null
           this.$emit('showManageView', {
             x,
-            y
+            y,
+            id: this.list[index].id,
+            uid: this.list[index].userInfo.uid,
+            role: this.list[index].label
           })
           // 长按事件
         }, 800)
       },
       touchend (index) {
-        if (this.isOwnComment(index)) return
-        this.isClickComment = true
         if (this.timer) {
           clearTimeout(this.timer)
           // 点击回复评论
           this.$emit('commentClick', index)
         }
+        if (!this.isOwnComment(index)) this.isClickComment = true
       },
       clickItem (item) {
         let info = {}
@@ -223,6 +227,10 @@
   .comment-list-item {
     overflow: hidden;
     position: relative;
+    word-break: break-all;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
   }
 
   .time {
@@ -348,10 +356,6 @@
     margin-top: .04rem;
     display: inline-block;
     text-align: left;
-    word-break: break-all;
-    -webkit-user-select: none;
-    user-select: none;
-    -webkit-touch-callout: none;
   }
 
   .comment-content,
@@ -372,19 +376,14 @@
   }
 
   .problem-comment {
-    padding-left: .5rem;
+    width: .42rem;
+    height: .42rem;
+    background: url('~@icon/course/ask-comment.png') no-repeat;
+    background-size: 100%;
+    display: inline-block;
+    margin-right: .08rem;
     position: relative;
-
-    &::before {
-      width: .42rem;
-      height: .42rem;
-      position: absolute;
-      content: '';
-      left: 0;
-      top: -.04rem;
-      background: url('~@icon/course/ask-comment.png') no-repeat;
-      background-size: 100%;
-    }
+    top: .06rem;
   }
 
   .withdraw-btn {
@@ -396,6 +395,7 @@
     line-height: .28rem;
     padding: 0 .1rem;
     margin-right: .1rem;
+    white-space: nowrap;
 
     &:active {
       opacity: .8;

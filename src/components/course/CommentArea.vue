@@ -4,9 +4,12 @@
       position="bottom"
       v-model="isShow"
     )
+      div.right-anchor
+        span.anchor-top(@click="rollTopClick")
+        span.anchor-bottom(@click="rollBottomClick")
       P.top-title 讨论区({{data.totalComments}})
       img.close-btn(src="@icon/close/close-reward.png" @click="isShow = false")
-      div.comment-back(ref="commentList")
+      div.comment-back(ref="commentList" @scroll="isShowManageView = false")
         ListComment(
           :list="data.commentListInfo.list"
           type="comment"
@@ -17,9 +20,6 @@
           @showManageView="showManageView"
           @cancelReply="cancelReply"
         )
-        div.right-anchor
-          span.anchor-top(@click="rollTopClick")
-          span.anchor-bottom(@click="rollBottomClick")
         infinite-loading(@infinite="loadMore" direction="top" :identifier="identifier")
           div(slot="spinner")
           div(slot="no-more")
@@ -33,9 +33,9 @@
         @sendComment="sendComment"
         @contentBlur="contentBlur"
       )
-    div.manage-view(v-show="isShowManageView" :style="manageStyle")
-      p.delete-item 删除评论
-      p.forbidden-words 禁言
+    div.manage-view(v-show="isShowManageView" :style="manageStyle" ref="manageView")
+      p.delete-item(@click="deleteComment") 删除评论
+      p.forbidden-words(@click="forbiddenWords" :class="{ 'locking-btn': fingerPosition.role }") {{forbiddenWordsText}}
 </template>
 
 <script>
@@ -58,7 +58,8 @@
               params: {
                 page: 1
               },
-              rollBottom: 0
+              rollBottom: 0,
+              forbiddenWordsList: []
             }
           }
         }
@@ -95,9 +96,24 @@
         isShowManageView: false,
         fingerPosition: {
           x: 0,
-          y: 0
+          y: 0,
+          uid: 0,
+          role: 0
         },
-        identifier: 0
+        identifier: 0,
+        screenInfo: {
+          width: 0,
+          height: 0
+        }
+      }
+    },
+    created () {
+      this.isShow = this.isShowPopup
+    },
+    mounted () {
+      this.screenInfo = {
+        width: document.body.clientWidth,
+        height: document.body.clientHeight
       }
     },
     watch: {
@@ -105,6 +121,7 @@
         this.$root.$emit('toggleModal', Boolean(val))
         if (!val) {
           this.$emit('close')
+          this.isShowManageView = false
         }
       },
       isShowPopup (val) {
@@ -118,9 +135,6 @@
       rollBottom () {
         this.rollBottomClick()
       }
-    },
-    created () {
-      this.isShow = this.isShowPopup
     },
     computed: {
       isShowPopup () {
@@ -137,6 +151,9 @@
       },
       uid () {
         return this.$store.state.personalInfo.uid
+      },
+      forbiddenWordsText () {
+        return this.data.commentListInfo.forbiddenWordsList.includes(this.fingerPosition.uid) ? '解除禁言' : '禁言'
       }
     },
     methods: {
@@ -157,13 +174,12 @@
         this.$emit('sendComment', {
           text,
           isProblem: this.isProblem,
-          replyInfo: {
-            id: this.replyInfo.id,
-            uid: this.replyInfo.uid,
-            content: this.replyInfo.content,
-            name: this.replyInfo.name
-          }
+          replyInfo: this.replyInfo
         })
+        this.replyInfo = {
+          content: '',
+          isReply: false
+        }
       },
       clickItem (info) {
         this.$emit('clickItem', info)
@@ -175,16 +191,19 @@
         this.isShowManageView = false
         if (!this.data.commentListInfo.list[index] ||
           this.data.commentListInfo.list[index].id === this.replyInfo.id ||
-          this.data.commentListInfo.list[index].userInfo.uid === this.uid
+          this.data.commentListInfo.list[index].userInfo.uid === this.uid ||
+          this.data.commentListInfo.list[index].label
         ) return
         this.replyInfo = {
           content: this.data.commentListInfo.list[index].content,
           isReply: true,
           id: this.data.commentListInfo.list[index].id,
           name: this.data.commentListInfo.list[index].userInfo.name,
-          uid: this.data.commentListInfo.list[index].userInfo.name
+          uid: this.data.commentListInfo.list[index].userInfo.uid,
+          isAsk: this.data.commentListInfo.list[index].type === 2
         }
         this.changeInfo.emptyNumber++
+        // 让输入框获取焦点
         setTimeout(() => {
           this.changeInfo.focusNumber++
         }, 300)
@@ -213,7 +232,36 @@
        */
       showManageView (info) {
         this.fingerPosition = info
+        let { x, y } = this.fingerPosition
         this.isShowManageView = true
+        this.$nextTick(() => {
+          // 更新操作弹窗位置，显示在屏幕内
+          let maxXNmber = this.screenInfo.width - this.$refs.manageView.offsetWidth - 10
+          this.fingerPosition.x = x < maxXNmber ? x : maxXNmber
+          let maxYNmber = this.screenInfo.height - this.$refs.manageView.offsetHeight - 10
+          this.fingerPosition.y = y < maxYNmber ? y : maxYNmber
+        })
+      },
+      /**
+       * 删除评论
+       */
+      deleteComment () {
+        this.isShowManageView = false
+        this.$emit('clickItem', {
+          type: 101,
+          id: this.fingerPosition.id
+        })
+      },
+      /**
+       * 禁言/解除禁言
+       */
+      forbiddenWords () {
+        this.isShowManageView = false
+        if (this.fingerPosition.role) return
+        this.$emit('clickItem', {
+          type: 102,
+          uid: this.fingerPosition.uid
+        })
       }
     }
   }
@@ -298,7 +346,7 @@
   }
 
   .right-anchor {
-    height: 1.35rem;
+    height: 1.55rem;
     position: absolute;
     display: flex;
     flex-direction: column;
@@ -314,20 +362,22 @@
   .anchor-bottom {
     width: .5rem;
     height: .5rem;
+    padding: .1rem;
+    box-sizing: content-box;
 
     &:active {
-      opacity: .8;
+      transform: scale(1.1);
     }
   }
 
   .anchor-top {
-    background: url('~@icon/course/top-arrow.png') no-repeat;
-    background-size: 100%;
+    background: url('~@icon/course/top-arrow.png') no-repeat center center;
+    background-size: .5rem;
   }
 
   .anchor-bottom {
-    background: url('~@icon/course/bottom-arrow.png') no-repeat;
-    background-size: 100%;
+    background: url('~@icon/course/bottom-arrow.png') no-repeat center center;
+    background-size: .5rem;
   }
 
   .manage-view {
@@ -337,9 +387,8 @@
     border-radius: .08rem;
     font-size: .24rem;
     color: #fff;
-    left: 1rem;
-    top: 1.4rem;
     z-index: 30;
+    white-space: nowrap;
   }
 
   .delete-item,
@@ -369,6 +418,14 @@
       background: #fff;
       border-radius: .02rem;
       margin: auto 0;
+    }
+  }
+  
+  .locking-btn {
+    opacity: .7;
+
+    &:active {
+      color: #fff;
     }
   }
 </style>

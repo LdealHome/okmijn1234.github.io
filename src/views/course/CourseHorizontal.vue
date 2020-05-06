@@ -132,7 +132,7 @@
       /**
        * 点击学习区各种消息类型
        * @param info {Object} 消息信息
-       * @param info.type {Number} 消息类型 1: 普通评论 2提问的评论 3: 回复普通评论 4: 回复提问评论 5: 打赏信息 6: 视频资料 7: 图片资料 8分享记录 100撤回/删除
+       * @param info.type {Number} 消息类型 1: 普通评论 2提问的评论 3: 回复普通评论 4: 回复提问评论 5: 打赏信息 6: 视频资料 7: 图片资料 8分享记录 100 :撤回 101: 删除评论 101: 禁言、解除禁言
        */
       clickLearningItem (info) {
         switch (info.type) {
@@ -160,7 +160,9 @@
           this.$emit('shareBtnClick')
           break
         case 100:
-          this.$emit('deleteMessage', info)
+        case 101:
+        case 102:
+          this.$emit('changeMessage', info)
           break
         default:
           break
