@@ -252,7 +252,7 @@
 
             // 分享
             let shareInfo = data.share_info
-            this.getWeiXinConfig({
+            that.getWeiXinConfig({
               desc: shareInfo.content,
               img: shareInfo.img_url,
               title: shareInfo.title,
@@ -324,7 +324,7 @@
         const that = this
         let isLastPage = false
         if (isLastPage || (that.liveBroadcastList.length > 0 && that.liveBroadcastList.length < that.params.limit)) { // 不满一页
-          this.isLoadMoreShow = false
+          that.isLoadMoreShow = false
           res.complete()
           return
         }
@@ -333,7 +333,7 @@
             isLastPage = that.$_.isLastPage(that.params.limit, list)
           })
         if (isLastPage) {
-          this.isLoadMoreShow = false
+          that.isLoadMoreShow = false
           res.complete()
         } else {
           res.loaded()
@@ -394,6 +394,7 @@
         this.chooseCurrent++
         this.liveBroadcastList = []
         this.params.scope = scope
+        this.params.page = 1
         this.getLiveBroadcastList()
         if (this.isMore) {
           this.isMore = false
