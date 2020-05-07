@@ -234,6 +234,7 @@
                   direction: state !== 1 ? 2 : 1 // 分页查询的方向 1:上拉获取历史数据 2:下拉获取最新数据
                 },
                 list: [],
+                rollBottom: 0,
                 isShowTopView: state !== 1,
                 direction: state !== 1 ? 'bottom' : 'top',
                 isLastPage: false
@@ -328,7 +329,20 @@
                 this.mBean[type].list.push(...this.transformStudyList(list))
               }
             }
+            // 学习资料区滚动到最后一页时，显示顶部的集福中心样式
+            if (type === 'studyListInfo' &&
+              list.length < this.mBean[type].params.limit
+            ) {
+              this.mBean.studyListInfo.isShowTopView = true
+            }
             this.$nextTick(() => {
+              // 直播中进入页面学习资料区滚动到底部
+              if (type === 'studyListInfo' &&
+                this.mBean[type].params.page === 1 &&
+                this.mBean[type].params.direction === 1
+              ) {
+                this.mBean.studyListInfo.rollBottom++
+              }
               resolve(list)
             })
           })
@@ -347,15 +361,13 @@
         if (type === 'commentListInfo' && this.mBean[type].params.page === 1) {
           this.mBean.commentListInfo.rollBottom++
         }
+        // 连接websocket
         if (!this.webSocket) {
           that.connectWebSocket()
         }
         this.mBean[type].params.page++
         if (isLastPage) {
           this.mBean[type].isLastPage = true
-          if (type === 'studyListInfo') {
-            that.mBean.studyListInfo.isShowTopView = true
-          }
           res.complete()
         } else {
           res.loaded()
@@ -374,6 +386,7 @@
             clearTimeout(this.reconnectTimer)
             this.reconnectTimer = null
           }
+          if (this.sendPingTimer) clearInterval(this.sendPingTimer)
           this.sendMessage({ 'type_mark': 'ping' })
           this.sendPingTimer = setInterval(() => {
             this.sendMessage({ 'type_mark': 'ping' })

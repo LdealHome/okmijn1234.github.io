@@ -15,7 +15,7 @@
         div(slot="spinner")
         div(slot="no-more")
         div(slot="no-results")
-      PopupChat(:chatInfo="chatInfo")
+      PopupChat(:chatInfo="chatInfo" @showCommentPopup="$emit('showCommentPopup')")
 </template>
 
 <script>
@@ -37,7 +37,8 @@
             params: {
               page: 1
             },
-            direction: 'bottom'
+            direction: 'bottom',
+            rollBottom: 0
           }
         }
       },
@@ -50,19 +51,16 @@
       }
     },
     watch: {
-      page (val) {
-        // 如果是直播中，加载第一页数据后滚动到底部
-        if (val === 2 && this.studyListInfo.direction === 'top') {
-          this.rollBottomClick()
-        }
+      rollBottom (val) {
+        this.rollBottomClick()
       }
     },
     computed: {
       isShowChat () {
         return this.bottomInfo.isShow && !this.isNotBroadcast
       },
-      page () {
-        return this.studyListInfo.params.page
+      rollBottom () {
+        return this.studyListInfo.rollBottom
       },
       // 是否显示顶部集福中心view
       isShowTopView () {

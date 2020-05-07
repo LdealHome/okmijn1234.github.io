@@ -91,7 +91,10 @@
         currentTime: 0,
         isCanplay: false,
         isShowVideoControl: false,
-        showControlTimer: null
+        showControlTimer: null,
+        doubleClick: {
+          timer: null
+        }
       }
     },
     watch: {
@@ -298,6 +301,17 @@
             clearTimeout(this.showControlTimer)
             this.showControlTimer = null
           }, 2500)
+          if (this.doubleClick.timer) {
+            // 双击屏幕暂停播放
+            clearTimeout(this.doubleClick.timer)
+            this.doubleClick.timer = null
+            this.stopVideo()
+          } else {
+            this.doubleClick.timer = setTimeout(() => {
+              clearTimeout(this.doubleClick.timer)
+              this.doubleClick.timer = null
+            }, 1e3)
+          }
         }
       }
     }

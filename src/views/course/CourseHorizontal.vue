@@ -13,6 +13,7 @@
       @clickItem="clickLearningItem"
       @loadMore="loadMore"
       @cancelComment="cancelComment"
+      @showCommentPopup="commentInfo.isShow = true"
     )
     BottomView(
       :data="bottomInfo"

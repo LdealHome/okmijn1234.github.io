@@ -7,7 +7,7 @@
       :closeOnClickModal="false"
     )
       ul.chat-list
-        li.chat-item(v-for="item in chatInfo.list.slice(-3)" :key="item.id")
+        li.chat-item(v-for="item in chatInfo.list.slice(-3)" :key="item.id" @click="$emit('showCommentPopup')")
           div.chat-info(:class="{ 'ask-chat': item.isAsk }")
             p.item-text {{item.text}}
             img.item-avatar(:src="item.avatar")
