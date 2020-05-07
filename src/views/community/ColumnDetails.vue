@@ -88,7 +88,7 @@
             span.following-text(:class="{unlock: itm.isLock}") {{itm.text}}
             span.following-lock(v-if="!itm.isLock")
     NothingCommon(:config="config" v-if="currentIndex === 1 && this.liveBroadcastList.length === 0")
-    infinite-loading(@infinite="loadMore" :identifier="chooseCurrent" v-if="isLoadMoreShow")
+    infinite-loading(@infinite="loadMore" :identifier="chooseCurrent")
       div(slot="spinner")
       div(slot="no-more")
       div(slot="no-results") {{noResults}}
@@ -182,7 +182,7 @@
         isGraduation: false, // 是否毕业
         isShowCertificate: false, // 毕业证书弹框
         navbarList: ['课程介绍', '直播列表'], // 导航
-        currentIndex: 0, // 导航默认选择
+        currentIndex: 1, // 导航默认选择
         moreList: [], // 更多日期选择
         isMore: false, // 是否点击更多日期选择
         moreIndex: 0, // 选择日期角标
@@ -209,8 +209,7 @@
         config: {
           tips: '暂无数据'
         },
-        chooseCurrent: 0, // 改变数据变化
-        isLoadMoreShow: false // 自动加载数据是否显示，默认为false
+        chooseCurrent: 0 // 改变数据变化
       }
     },
     beforeRouteLeave (to, from, next) {
@@ -324,7 +323,6 @@
         const that = this
         let isLastPage = false
         if (isLastPage || (that.liveBroadcastList.length > 0 && that.liveBroadcastList.length < that.params.limit)) { // 不满一页
-          that.isLoadMoreShow = false
           res.complete()
           return
         }
@@ -333,7 +331,6 @@
             isLastPage = that.$_.isLastPage(that.params.limit, list)
           })
         if (isLastPage) {
-          that.isLoadMoreShow = false
           res.complete()
         } else {
           res.loaded()
@@ -345,12 +342,13 @@
        * @param index {Number} 选择的角标
        */
       chooseNav (index) {
+        let that = this
         this.currentIndex = index
         if (index === 1) {
-          if (!this.isLoadMoreShow) {
-            this.isLoadMoreShow = true
-          }
-          this.chooseCurrent++
+          that.isMore = false
+          that.liveBroadcastList = []
+          that.params.page = 1
+          that.chooseCurrent++
         }
       },
       /**
@@ -390,16 +388,16 @@
        * @param index {Number} 选择的角标
        */
       moreChoose (index, scope) {
-        this.moreIndex = index
-        this.chooseCurrent++
-        this.liveBroadcastList = []
-        this.params.scope = scope
-        this.params.page = 1
-        this.getLiveBroadcastList()
-        if (this.isMore) {
-          this.isMore = false
+        let that = this
+        that.moreIndex = index
+        that.liveBroadcastList = []
+        that.params.scope = scope
+        that.params.page = 1
+        that.chooseCurrent++
+        if (that.isMore) {
+          that.isMore = false
           setTimeout(() => {
-            this.$refs.moreScrollLeft.scrollLeft = index * 80
+            that.$refs.moreScrollLeft.scrollLeft = index * 80
           }, 100)
         }
       },
