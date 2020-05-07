@@ -4,6 +4,7 @@
       v-show="isOpenVideo"
       :class="videoBackClass"
       :style="{ 'height': videoHeight }"
+      @click="clickVideo"
     )
       video.video(
         :src="data.video.src"
@@ -14,7 +15,7 @@
         id="video"
         :class="videoClass"
       )
-      img.play-btn(src="@icon/course/play-btn.png" @click="playVideo" v-show="isShowPlayBtn")
+      img.play-btn(src="@icon/course/play-btn.png" @click.stop="playVideo" v-show="isShowPlayBtn")
       div.count-down-view(v-show="notBroadcast")
         div.count-down-info
           p.count-down 倒计时: 
@@ -30,8 +31,8 @@
       div.follow-view(v-if="!data.isFollow" @click="$emit('followBtnClick')")
         img.follow-avatar(:src="data.followBtnAvatar")
         p.follow-text 关注润阳老师
-      div.video-control(v-show="isShowVideoControl")
-        img.video-state(src="@icon/course/stop-icon.png" @click="stopVideo")
+      div.video-control(v-show="isShowVideoControl && isPlayVideo")
+        img.video-state(src="@icon/course/stop-icon.png" @click.stop="stopVideo")
         img.full-screen(src="@icon/course/full-screen.png")
     div.live-broadcast-info
       p.state.not-started(:class="liveBroadcastClass") {{liveBroadcastState}}
@@ -45,6 +46,7 @@
 </template>
 
 <script>
+  import getDeviceSystem from '../../utils/get-device-system'
   export default {
     name: 'HorizontalVideo',
     props: {
@@ -85,7 +87,11 @@
         stopInfo: {
           timer: null,
           surplusTime: 0
-        }
+        },
+        currentTime: 0,
+        isCanplay: false,
+        isShowVideoControl: false,
+        showControlTimer: null
       }
     },
     watch: {
@@ -114,6 +120,7 @@
       this.video.addEventListener('loadedmetadata', this.videoLoadedmetadata, false)
       this.video.addEventListener('play', this.videoPlayEvent, false)
       this.video.addEventListener('pause', this.videoPauseEvent, false)
+      this.video.addEventListener('canplay', this.videoCanplay, false)
     },
     beforeDestroy () {
       if (this.stopInfo.timer) {
@@ -125,6 +132,7 @@
       this.video.removeEventListener('loadedmetadata', this.videoLoadedmetadata, false)
       this.video.removeEventListener('play', this.videoPlayEvent, false)
       this.video.removeEventListener('pause', this.videoPauseEvent, false)
+      this.video.removeEventListener('canplay', this.videoCanplay, false)
     },
     computed: {
       liveBroadcastState () {
@@ -148,9 +156,6 @@
       },
       courseState () {
         return this.data.state
-      },
-      isShowVideoControl () {
-        return this.isPlayVideo && this.state === 1
       },
       isShowPlayBtn () {
         return !this.isPlayVideo && this.state !== 2
@@ -193,6 +198,7 @@
           play_length: this.studyTime,
           play_over: 1
         })
+        this.video.currentTime = 0
       },
       videoLoadedmetadata () {
         // 视频加载完后，修改video容器的高度
@@ -213,12 +219,24 @@
         } else if (this.state === 1) {
           // 如果是直播时，当前直播对应的位置
           let startTime = sessionStorage.getItem('waitTime') || time
-          this.video.currentTime = Math.floor((time - startTime) / 1000) + this.videoPlayTime
+          this.currentTime = Math.floor((time - startTime) / 1000) + this.videoPlayTime
+          if (getDeviceSystem() === 'ios') {
+            this.isCanplay && (this.video.currentTime = this.currentTime)
+          } else {
+            this.video.currentTime = this.currentTime
+          }
         }
         this.video.play()
         if (this.stopInfo.timer) {
           clearInterval(this.stopInfo.timer)
           this.stopInfo.timer = null
+        }
+      },
+      videoCanplay () {
+        if (getDeviceSystem() === 'ios') {
+          this.isCanplay = true
+          this.video.currentTime = this.currentTime
+          this.video.removeEventListener('canplay', this.videoCanplay, false)
         }
       },
       videoPlayEvent () {
@@ -270,6 +288,17 @@
             this.videoHeight = this.video.clientHeight + 'px'
           }
         })
+      },
+      clickVideo () {
+        if (this.state === 1 && this.isPlayVideo) {
+          this.isShowVideoControl = true
+          this.showControlTimer && clearTimeout(this.showControlTimer)
+          this.showControlTimer = setTimeout(() => {
+            this.isShowVideoControl = false
+            clearTimeout(this.showControlTimer)
+            this.showControlTimer = null
+          }, 2500)
+        }
       }
     }
   }

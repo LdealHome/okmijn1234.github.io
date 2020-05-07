@@ -44,7 +44,6 @@
   import {
     getCourseInfo,
     postChangeRemindState,
-    postAddVisits,
     postRewardCourse,
     getCommentList,
     getNewestCommentList
@@ -63,6 +62,7 @@
     if (vm.updateCountDownTimer) clearInterval(vm.updateCountDownTimer) 
     if (vm.sendPingTimer) clearInterval(vm.sendPingTimer) 
     if (vm.updateTimer) clearInterval(vm.updateTimer) 
+    if (vm.reconnectTimer) clearTimeout(vm.reconnectTimer)
     let videoPlayTime = sessionStorage.getItem('videoPlayTime')
     if (videoPlayTime) {
       let playTime = JSON.parse(localStorage.getItem('studyStatistics') || '{}').play_length || 0
@@ -160,7 +160,8 @@
         studyDataLoad: null,
         webSocket: null,
         sendPingTimer: null,
-        updateTimer: null
+        updateTimer: null,
+        reconnectTimer: null
       }
     },
     mixins: [weixinConfig],
@@ -208,7 +209,6 @@
           if (res.data.code === 1) {
             let data = res.data.data
             let state = data.is_start === 1 ? (data.is_live === 1 ? 1 : 2) : 0
-
             this.type = data.lay_out // 1横屏、2竖屏全屏、3竖屏小屏
             this.mBean = {
               id: data.id, // 课程id
@@ -219,6 +219,7 @@
               followBtnAvatar: data.user_focus_info.focus_anchor_img,
               state: state, // 直播状态 0: 未开始 1:直播中 2:回放
               personTime: state > 0 ? data.watch_number : data.set_start_number, // 人次
+              visitPersonTime: data.watch_number, // 累计访问人次
               time: state > 0 ? data.current_live_time : data.differ_time, // state对应不同时间 state：0距离直播开始时间 1直播播放的位置
               isSetReminders: data.is_set_remind === 1, // 是否设置开播提醒
               countDownList: [],
@@ -271,8 +272,6 @@
             } else {
               this.updateServerTime()
               this.getNewestComment()
-              // 新增课程浏览量
-              postAddVisits({ course_single_id: this.courseId })
             }
 
             let shareInfo = {
@@ -369,10 +368,12 @@
         this.sendMessage({ 'type_mark': 5 })
       },
       connectWebSocket () {
-        console.log('开始连接')
         this.webSocket = new WebSocket(this.mBean.webSocketUrl)
         this.webSocket.onopen = () => {
-          console.log('连接成功')
+          if (this.reconnectTimer) {
+            clearTimeout(this.reconnectTimer)
+            this.reconnectTimer = null
+          }
           this.sendMessage({ 'type_mark': 'ping' })
           this.sendPingTimer = setInterval(() => {
             this.sendMessage({ 'type_mark': 'ping' })
@@ -381,13 +382,26 @@
         
         this.webSocket.onmessage = this.receiveMessage
 
+        // 断开重连
         this.webSocket.onclose = () => {
-          console.log('连接断开')
-          // 断开重连
-          // this.connectWebSocket()
+          this.reconnectWebSocket()
+        }
+        this.webSocket.onerror = () => {
+          this.reconnectWebSocket()
         }
       },
-
+      /**
+       * 重新连接WebSocked
+       */
+      reconnectWebSocket () {
+        if (this.reconnectTimer) return
+        // 设置延时重连，没连接上会一直重连
+        this.connectWebSocket()
+        this.reconnectTimer = setTimeout(() => {
+          this.connectWebSocket()
+          this.reconnectTimer = null
+        }, 2000)
+      },
       /**
        * 更新本地的服务器时间，用于判断显示自己评论的撤回按钮
        */
@@ -438,6 +452,10 @@
           this.mBean.isForbidComment = false
           break
         case 'message':
+          this.$_.Toast(data.message)
+          break
+        case 'join':
+          this.mBean.personTime++
           break
         default:
           break
@@ -494,6 +512,8 @@
             // 到开播时间修改课程状态，关闭计算倒计时定时器
             this.clearCountDownTimer()
             this.mBean.state = 1
+            // 修改访问人次，未开播和开播后访问的人次是不同的两个值
+            this.mBean.personTime = this.mBean.visitPersonTime
           } else {
             this.mBean.countDownList = this.transformCountDownList()
           }
@@ -598,7 +618,7 @@
           }
           this.sendMessage({
             'type_mark': type,
-            'uid': info.uid
+            'passive_uid': info.uid
           })
         } else {
           this.sendMessage({
@@ -646,7 +666,7 @@
         let list = []
         source.forEach(item => {
           // 禁言用户列表
-          if (this.mBean.commentListInfo.forbiddenWordsList.includes(+item.from_uid) && item.from_user_is_say === 2) {
+          if (!this.mBean.commentListInfo.forbiddenWordsList.includes(+item.from_uid) && item.from_user_is_say === 2) {
             this.mBean.commentListInfo.forbiddenWordsList.push(+item.from_uid)
           }
           // 消息类型
