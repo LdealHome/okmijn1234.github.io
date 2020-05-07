@@ -10,7 +10,7 @@
       P.top-title 讨论区({{data.totalComments}})
       img.close-btn(src="@icon/close/close-reward.png" @click="isShow = false")
       div.comment-back(ref="commentList" @scroll="isShowManageView = false")
-        ListComment(
+        ListComment.comment-list-back(
           :list="data.commentListInfo.list"
           type="comment"
           :role="data.role"
@@ -194,19 +194,24 @@
           this.data.commentListInfo.list[index].userInfo.uid === this.uid ||
           this.data.commentListInfo.list[index].label
         ) return
-        this.replyInfo = {
+        this.preparedInfo = {
           content: this.data.commentListInfo.list[index].content,
           isReply: true,
           id: this.data.commentListInfo.list[index].id,
           name: this.data.commentListInfo.list[index].userInfo.name,
           uid: this.data.commentListInfo.list[index].userInfo.uid,
-          isAsk: this.data.commentListInfo.list[index].type === 2
+          isAsk: this.data.commentListInfo.list[index].type === 2,
+          defaultText: this.replyCacheList[this.data.commentListInfo.list[index].id] || ''
         }
-        this.changeInfo.emptyNumber++
-        // 让输入框获取焦点
+        // // 让输入框获取焦点
         setTimeout(() => {
-          this.changeInfo.focusNumber++
-        }, 300)
+          if (this.preparedInfo) {
+            this.changeInfo.emptyNumber++
+            this.replyInfo = this.preparedInfo
+            this.preparedInfo = null
+            this.changeInfo.focusNumber++
+          }
+        }, 100)
       },
       /**
        * 取消回复评论，更新状态为普通评论
@@ -222,9 +227,15 @@
       },
       contentBlur (text) {
         this.editContent = text
-        // if (this.replyInfo.id) {
-        //   this.replyCacheList[this.replyInfo.id] = this.replyInfo
-        // }
+        if (this.replyInfo.isReply) {
+          this.replyCacheList[this.replyInfo.id] = text
+        }
+        if (this.preparedInfo) {
+          this.changeInfo.emptyNumber++
+          this.replyInfo = this.preparedInfo
+          this.preparedInfo = null
+          this.changeInfo.focusNumber++
+        }
       },
       /**
        * 管理员长按评论，显示删除评论弹窗
@@ -307,6 +318,8 @@
     -webkit-overflow-scrolling: touch;
     padding-bottom: .2rem;
   }
+
+  .comment-list-back { min-height: 100%; }
 
   .comment-bottom {
     box-shadow: 0 0 .03rem 0 rgba(206, 202, 202, 1);

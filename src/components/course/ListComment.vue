@@ -32,7 +32,7 @@
       p.reward-item(v-if="item.type === 5" :class="recordTopSpacing(index)")
         span.reward-name {{item.userInfo.name}}
         span 赞赏了一个
-        span.amount {{item.amount}}元红包
+        span.amount {{item.amount}}红包
         span.reward-btn(@click="clickItem(item)") 我也要赞赏
       p.share-item(v-if="item.type === 8" :class="recordTopSpacing(index)")
         span.share-name {{item.userInfo.name}}

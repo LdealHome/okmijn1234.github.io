@@ -1,7 +1,7 @@
 <template lang="pug">
   div.edit-back
     div.edit-left
-      p.forbid-comment(v-if="data.isForbidComment") 已被管理员禁言，如有疑问请联系客服
+      p.forbid-comment(v-if="data.isForbidComment" contenteditable="false") 已被管理员禁言，如有疑问请联系客服
       p.edit-content(
         v-else
         ref="content"
@@ -69,7 +69,8 @@
         content: '',
         placeholder: '说点什么吧~',
         isFocus: false,
-        scrollTimer: null
+        scrollTimer: null,
+        preparedInfo: null
       }
     },
     beforeDestroy () {
@@ -84,6 +85,12 @@
       },
       focusNumber () {
         this.$refs.content.focus()
+      },
+      replyId (val) {
+        if (val && this.replyInfo.defaultText) {
+          this.content = this.replyInfo.defaultText
+          this.$refs.content.innerText = this.replyInfo.defaultText
+        }
       }
     },
     created () { vm = this },
@@ -92,7 +99,7 @@
         return !this.content && !this.isFocus
       },
       isShowProblem () {
-        return !this.data.isForbidComment && !this.data.role && !this.replyInfo.isReply
+        return !this.data.isForbidComment && !this.data.role && !this.isReply
       },
       editContentClass () {
         return {
@@ -100,13 +107,19 @@
         }
       },
       editPlaceholder () {
-        return this.replyInfo.isReply ? `回复：${this.replyInfo.content}` : this.placeholder
+        return this.isReply ? `回复：${this.replyInfo.content}` : this.placeholder
       },
       focusNumber () {
         return this.changeInfo.focusNumber
       },
       emptyNumber () {
         return this.changeInfo.emptyNumber
+      },
+      isReply () {
+        return this.replyInfo.isReply
+      },
+      replyId () {
+        return this.replyInfo.id
       }
     },
     methods: {
@@ -121,6 +134,10 @@
        * 点击发送清空输入框内容
        */
       sendClick () {
+        if (this.content.length > 200) {
+          this.$_.Toast('内容不能超过200字哦！')
+          return
+        }
         this.$emit('sendComment', this.content)
         this.content = ''
         this.$refs.content.innerText = ''

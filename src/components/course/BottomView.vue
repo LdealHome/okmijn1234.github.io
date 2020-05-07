@@ -19,7 +19,7 @@
         @contentBlur="contentBlur"
       )
     div.unregistered(v-else)
-      div.enroll-btn(@click="enrollClick") 立即报名
+      div.enroll-btn(@click="enrollClick") 参与课程
       img.bullet-chat(:src="bulletChatSrc" @click="$emit('clickItem', 1)")
 </template>
 
