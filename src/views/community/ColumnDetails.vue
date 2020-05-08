@@ -241,11 +241,11 @@
             that.isFollow = data.is_focus === 1 // 是否关注公众号1是
             that.followInfo.codeSrc = data.focus_code
 
-            let isCloseFollow = localStorage.getItem('isCloseFollow')
+            let isCloseFollow = localStorage.getItem('isLoadFollow')
             // 未关注公众号
-            if (isCloseFollow) { // 用户进入过此页面
+            if (isCloseFollow) { // 其他页面或者本页面已经弹过一次
               that.isShowCustomerService = false
-            } else { // 用户第一次进入
+            } else {
               that.isShowCustomerService = data.is_focus === 2 // 关注公众号弹框
             }
 
@@ -355,9 +355,9 @@
        * 关闭公众号弹框
        */
       closeFollow () {
-        this.isShowCustomerService = false
         // 缓存用户已进入过此页面
-        localStorage.setItem('isCloseFollow', this.isShowCustomerService)
+        localStorage.setItem('isLoadFollow', this.isShowCustomerService)
+        this.isShowCustomerService = false
       },
       /**
        * 视频播放
