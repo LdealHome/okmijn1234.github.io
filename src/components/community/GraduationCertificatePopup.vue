@@ -117,15 +117,9 @@
       let {
         portraitSrc,
         nicknameText,
-        curriculumText,
-        taskNumber,
-        learningCurriculum,
-        dailyAttendance,
-        numberExaminations,
-        codeSrc,
-        sentenceText
+        codeSrc
       } = config
-      if (portraitSrc && nicknameText && curriculumText && taskNumber && learningCurriculum && dailyAttendance && numberExaminations && codeSrc && sentenceText) {
+      if (portraitSrc && nicknameText && codeSrc) {
         this.data = { ...this.data, ...config }
         canvasWrapText()
         this.callback = callback
