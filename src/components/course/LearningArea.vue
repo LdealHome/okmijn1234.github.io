@@ -3,7 +3,7 @@
     div.right-anchor
       span.anchor-top(@click="rollTopClick")
       span.anchor-bottom(@click="rollBottomClick")
-    div.content(ref="learningView" @click="$emit('cancelComment')")
+    div.content(ref="learningView" @click="$emit('cancelComment')" @scroll="scrollEvent")
       div.fu-center(v-show="isShowTopView")
         div.fu-text(@click="goHomePage")
           img.fu-text-img(src="@images/course/fu-text.png")
@@ -50,6 +50,11 @@
         }
       }
     },
+    data () {
+      return {
+        isBottom: false
+      }
+    },
     watch: {
       rollBottom (val) {
         this.rollBottomClick()
@@ -68,6 +73,19 @@
       }
     },
     methods: {
+      scrollEvent () {
+        let scrollTop = this.$refs.learningView.scrollTop
+        let scrollHeight = this.$refs.learningView.scrollHeight
+        let offsetHeight = this.$refs.learningView.offsetHeight
+        // 滚动到底部时告诉父组件，在接受到新的消息时，滚动到新消息位置
+        if ((scrollTop + offsetHeight) >= scrollHeight) {
+          this.isBottom = true
+          this.$emit('changeStudyRollState', { type: 'studyListInfo', state: true })
+        } else if (this.isBottom) {
+          this.isBottom = false
+          this.$emit('changeStudyRollState', { type: 'studyListInfo', state: false })
+        }
+      },
       rollTopClick () {
         this.$refs.learningView.scrollTop = 0
       },

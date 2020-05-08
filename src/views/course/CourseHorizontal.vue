@@ -14,6 +14,7 @@
       @loadMore="loadMore"
       @cancelComment="cancelComment"
       @showCommentPopup="commentInfo.isShow = true"
+      @changeStudyRollState="changeRollState"
     )
     BottomView(
       :data="bottomInfo"
@@ -36,6 +37,7 @@
       @loadMore="loadMore"
       @sendComment="sendComment"
       @clickItem="clickLearningItem"
+      @changeCommentRollState="changeRollState"
     )
     PhotoSwipe(
       :photoSwipeInit="photoSwipeInit"
@@ -180,6 +182,9 @@
       },
       cancelComment () {
         this.changeEditState++
+      },
+      changeRollState (info) {
+        this.$emit('changeRollState', info)
       }
     }
   }

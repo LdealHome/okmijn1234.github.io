@@ -13,6 +13,7 @@
       @sendComment="sendComment"
       @loadMore="loadMore"
       @changeMessage="changeMessage"
+      @changeRollState="changeRollState"
     )
     CustomerServicePopup(
       v-if="isCustomerServicePopup"
@@ -112,7 +113,8 @@
             },
             list: [],
             isShowTopView: false,
-            direction: 'bottom'
+            direction: 'bottom',
+            isRollBottom: false
           },
           commentListInfo: {
             list: [],
@@ -125,7 +127,8 @@
               direction: 1
             },
             rollBottom: 0,
-            forbiddenWordsList: []
+            forbiddenWordsList: [],
+            isRollBottom: false
           },
           chatInfo: {
             isShow: false,
@@ -237,7 +240,8 @@
                 rollBottom: 0,
                 isShowTopView: state !== 1,
                 direction: state !== 1 ? 'bottom' : 'top',
-                isLastPage: false
+                isLastPage: false,
+                isRollBottom: false
               },
               commentListInfo: {
                 list: [],
@@ -251,8 +255,9 @@
                   direction: 1
                 },
                 rollBottom: 0,
-                forbiddenWordsList: [],
-                isLastPage: false
+                forbiddenWordsList: [], // 显示的列表中，被禁言的用户uid列表
+                isLastPage: false,
+                isRollBottom: true
               },
               chatInfo: {
                 isShow: true,
@@ -342,6 +347,7 @@
                 this.mBean[type].params.direction === 1
               ) {
                 this.mBean.studyListInfo.rollBottom++
+                this.mBean.studyListInfo.isRollBottom = true
               }
               resolve(list)
             })
@@ -538,26 +544,6 @@
           this.updateCountDownTimer = null
         }
       },
-      transformCountDownList () {
-        let s = +this.mBean.time
-        let day = Math.floor(s / 86400)
-        let hour = Math.floor(s % 86400 / 3600)
-        let minute = Math.floor(s % 3600 / 60)
-        let second = Math.floor(s % 3600 % 60)
-        if (day < 10) {
-          day = '0' + day
-        }
-        if (hour < 10) {
-          hour = '0' + hour
-        }
-        if (minute < 10) {
-          minute = '0' + minute
-        }
-        if (second < 10) {
-          second = '0' + second
-        }
-        return [day, hour, minute, second]
-      },
       /**
        * 查看视频
        * @param info {Object} { type: 类型(1根据场景值获取视频，2直接显示视频信息), scene: 场景值信息, videoInfo: 视频信息 }
@@ -650,15 +636,25 @@
       addMessageItem (info) {
         if (this.mBean.commentListInfo.list.length || this.mBean.commentListInfo.isLastPage) {
           this.mBean.commentListInfo.list.push(info)
-          this.$nextTick(() => {
-            this.mBean.commentListInfo.rollBottom++
-          })
+          if (this.mBean.commentListInfo.isRollBottom) {
+            this.$nextTick(() => {
+              // 评论区滚动到底部时，接受到新消息，要滚动到新消息位置
+              this.mBean.commentListInfo.rollBottom++
+            })
+          }
         }
         // 管理员发送的内容、分享记录、打赏记录添加到学习资料区
         if (
           (info.label || info.type === 5 || info.type === 8) &&
-          (this.mBean.state === 1 || this.mBean.studyListInfo.isLastPage)) {
+          (this.mBean.state === 1 || this.mBean.studyListInfo.isLastPage)
+        ) {
           this.mBean.studyListInfo.list.push(info)
+          if (this.mBean.studyListInfo.isRollBottom) {
+            this.$nextTick(() => {
+              // 学习资料区滚动到底部时，接受到新消息，要滚动到新消息位置
+              this.mBean.studyListInfo.rollBottom++
+            })
+          }
         }
         // 评论或者回复的消息，添加到最新评论列表
         if (info.type < 5) {
@@ -669,6 +665,33 @@
             isAsk: info.type === 2
           })
         }
+      },
+      /**
+       * 改变学习资料区、评论区是否滚动到底部状态
+       * @param info {Object} 改变相关数据 { type: 资料区、评论区对应属性名, state: 状态 }
+       */
+      changeRollState (info) {
+        this.mBean[info.type].isRollBottom = info.state
+      },
+      transformCountDownList () {
+        let s = +this.mBean.time
+        let day = Math.floor(s / 86400)
+        let hour = Math.floor(s % 86400 / 3600)
+        let minute = Math.floor(s % 3600 / 60)
+        let second = Math.floor(s % 3600 % 60)
+        if (day < 10) {
+          day = '0' + day
+        }
+        if (hour < 10) {
+          hour = '0' + hour
+        }
+        if (minute < 10) {
+          minute = '0' + minute
+        }
+        if (second < 10) {
+          second = '0' + second
+        }
+        return [day, hour, minute, second]
       },
       /**
        * 学习资料区列表数据转换

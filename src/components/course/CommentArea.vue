@@ -9,7 +9,7 @@
         span.anchor-bottom(@click="rollBottomClick")
       P.top-title 讨论区({{data.totalComments}})
       img.close-btn(src="@icon/close/close-reward.png" @click="isShow = false")
-      div.comment-back(ref="commentList" @scroll="isShowManageView = false")
+      div.comment-back(ref="commentList" @scroll="scrollEvent")
         ListComment.comment-list-back(
           :list="data.commentListInfo.list"
           type="comment"
@@ -104,7 +104,8 @@
         screenInfo: {
           width: 0,
           height: 0
-        }
+        },
+        isBottom: true
       }
     },
     created () {
@@ -157,6 +158,24 @@
       }
     },
     methods: {
+      /**
+       * 滚动监听
+       */
+      scrollEvent () {
+        this.isShowManageView = false
+
+        let scrollTop = this.$refs.commentList.scrollTop
+        let scrollHeight = this.$refs.commentList.scrollHeight
+        let offsetHeight = this.$refs.commentList.offsetHeight
+        // 滚动到底部时告诉父组件，在接受到新的消息时，滚动到新消息位置
+        if ((scrollTop + offsetHeight) >= scrollHeight - 1) {
+          this.isBottom = true
+          this.$emit('changeCommentRollState', { type: 'commentListInfo', state: true })
+        } else if (this.isBottom) {
+          this.isBottom = false
+          this.$emit('changeCommentRollState', { type: 'commentListInfo', state: false })
+        }
+      },
       rollTopClick () {
         this.$refs.commentList.scrollTop = 0
       },
