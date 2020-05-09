@@ -213,6 +213,7 @@
             let data = res.data.data
             let state = data.is_start === 1 ? (data.is_live === 1 ? 1 : 2) : 0
             this.type = data.lay_out // 1横屏、2竖屏全屏、3竖屏小屏
+            document.title = data.title
             this.mBean = {
               id: data.id, // 课程id
               video: { // 视频信息
@@ -611,8 +612,12 @@
           let list = this.mBean.commentListInfo.forbiddenWordsList
           let type = list.includes(info.uid) ? 8 : 7
           if (type === 7) {
+            // 禁言
+            this.$_.Toast('该用户已被禁言')
             list.push(info.uid)
           } else {
+            // 解除禁言
+            this.$_.Toast('已解除该用户禁言')
             this.mBean.commentListInfo.forbiddenWordsList = list.filter(item => { return item !== info.uid })
           }
           this.sendMessage({
@@ -620,6 +625,9 @@
             'passive_uid': info.uid
           })
         } else {
+          if (info.type === 101) {
+            this.$_.Toast('该用户评论已删除')
+          }
           this.sendMessage({
             'type_mark': info.type === 100 ? 9 : 6,
             'id': info.id
@@ -627,7 +635,6 @@
         }
       },
       sendMessage (data) {
-        console.log(data)
         this.webSocket.send(JSON.stringify(data))
       },
       /**
