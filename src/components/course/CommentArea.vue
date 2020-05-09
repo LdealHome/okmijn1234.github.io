@@ -197,6 +197,7 @@
           isProblem: this.isProblem,
           replyInfo: this.replyInfo
         })
+        this.replyInfo.id && (this.replyCacheList[this.replyInfo.id] = '')
         this.replyInfo = {
           content: '',
           isReply: false
