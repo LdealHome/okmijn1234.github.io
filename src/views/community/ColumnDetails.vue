@@ -65,7 +65,7 @@
     // 直播列表
     ul.column__broadcast(v-show="currentIndex === 1 && this.liveBroadcastList.length")
       li.broadcast-item(v-for="(item, index) in liveBroadcastList" :key="item.id")
-        div.broadcast-above
+        div.broadcast-above(@click="toggleArrow(index)")
           div.synopsis
             p.title {{item.title}}
             // 进行中
@@ -74,10 +74,7 @@
             p.date(v-else)
               span.date-text {{item.date}}
               span.date-time(v-if="item.time") {{item.time}}
-          i.icon-arrow(
-            :class="{up: upIndex === index}"
-            @click="toggleArrow(index)"
-            )
+          i.icon-arrow(:class="{up: upIndex === index}")
         ul.broadcast-following(v-show="upIndex === index")
           li.following-item(
             v-for="(itm, index) in item.list"
@@ -88,7 +85,7 @@
             span.following-text(:class="{unlock: itm.isLock}") {{itm.text}}
             span.following-lock(v-if="!itm.isLock")
     NothingCommon(:config="config" v-if="currentIndex === 1 && this.liveBroadcastList.length === 0")
-    infinite-loading(@infinite="loadMore" :identifier="chooseCurrent")
+    infinite-loading(@infinite="loadMore" :identifier="chooseCurrent" v-if="isLoadMoreShow")
       div(slot="spinner")
       div(slot="no-more")
       div(slot="no-results") {{noResults}}
@@ -165,6 +162,13 @@
       },
       noResults () {
         return this.liveBroadcastList.length ? '没有更多了哦' : ''
+      },
+      key () {
+        return this.$route.fullPath
+      },
+      // 获取缓存的数据
+      getLocalCache () {
+        return this.$store.getters.getLocalCache(this.key)
       }
     },
     data () {
@@ -188,7 +192,7 @@
         moreIndex: 0, // 选择日期角标
         contentList: [], // 课程介绍
         liveBroadcastList: [], // 直播列表
-        upIndex: 0, // 展示隐藏列表的角标
+        upIndex: -1, // 展示隐藏列表的角标
         isShowVideo: false, // 视频弹框
         videoInfo: { // 视频弹框
           videoUrl: '',
@@ -209,7 +213,10 @@
         config: {
           tips: '暂无数据'
         },
-        chooseCurrent: 0 // 改变数据变化
+        chooseCurrent: 0, // 改变数据变化
+        isLoadMoreShow: false, // 自动加载数据是否显示，默认为false
+        distanceScrollTop: 0, // 滚动距离
+        sessionCache: {} // 缓存的数据
       }
     },
     beforeRouteLeave (to, from, next) {
@@ -223,6 +230,26 @@
       // 课程信息
       mine () {
         let that = this
+        let getLocalCache = that.getLocalCache
+        if (getLocalCache) { // 有缓存
+          that.moreIndex = getLocalCache.moreIndex
+          that.moreList = getLocalCache.moreList
+          that.moreScrollLeft(getLocalCache.moreIndex)
+          that.isLoadMoreShow = getLocalCache.isLoadMoreShow
+          that.params = getLocalCache.params
+          that.liveBroadcastList = getLocalCache.liveBroadcastList
+          that.upIndex = getLocalCache.upIndex
+          this.$nextTick(() => {
+            document.documentElement.scrollTop = getLocalCache.distanceScrollTop
+          })
+
+          // 清空缓存
+          that.$store.commit($_.commits.REMOVE_LOCAL_CACHE, that.key)
+        } else { // 没有缓存
+          that.isLoadMoreShow = true
+          that.getLiveListMore()
+        }
+
         getColumnDetails().then(res => {
           if (res.data.code === 1) {
             let data = res.data.data
@@ -258,7 +285,6 @@
               link: shareInfo.link
             }).then(this.setWeiXinConfig)
             that.countdownStarts()
-            that.getLiveListMore()
           }
         })
       },
@@ -323,6 +349,7 @@
         const that = this
         let isLastPage = false
         if (isLastPage || (that.liveBroadcastList.length > 0 && that.liveBroadcastList.length < that.params.limit)) { // 不满一页
+          that.isLoadMoreShow = false
           res.complete()
           return
         }
@@ -331,6 +358,7 @@
             isLastPage = that.$_.isLastPage(that.params.limit, list)
           })
         if (isLastPage) {
+          that.isLoadMoreShow = false
           res.complete()
         } else {
           res.loaded()
@@ -345,6 +373,10 @@
         let that = this
         this.currentIndex = index
         if (index === 1) {
+          if (!this.isLoadMoreShow) {
+            this.isLoadMoreShow = true
+          }
+          that.moreScrollLeft(that.moreIndex)
           that.isMore = false
           that.liveBroadcastList = []
           that.params.page = 1
@@ -390,15 +422,15 @@
       moreChoose (index, scope) {
         let that = this
         that.moreIndex = index
+        that.isLoadMoreShow = true
+        that.upIndex = -1
         that.liveBroadcastList = []
         that.params.scope = scope
         that.params.page = 1
         that.chooseCurrent++
         if (that.isMore) {
           that.isMore = false
-          setTimeout(() => {
-            that.$refs.moreScrollLeft.scrollLeft = index * 80
-          }, 100)
+          that.moreScrollLeft(index)
         }
       },
       /**
@@ -422,6 +454,8 @@
         // 1表示直播，2表示考试，3表示预告视频，4表示辅助视频
         switch (itm.isState) {
         case 1: // 直播
+          that.distanceScrollTop = document.documentElement.scrollTop || document.body.scrollTop
+          this.commonCache()
           this.$router.push({
             name: 'curriculum',
             params: {
@@ -432,6 +466,8 @@
           break
         case 2: // 考试
           if (itm.isLock) {
+            that.distanceScrollTop = document.documentElement.scrollTop || document.body.scrollTop
+            this.commonCache()
             this.$router.push({
               name: 'exam',
               params: {
@@ -455,6 +491,34 @@
 
           break
         }
+      },
+      /**
+       * 公共缓存
+       */
+      commonCache () {
+        let that = this
+        that.$store.commit($_.commits.SET_LOCAL_CACHE, {
+          key: this.key,
+          value: {
+            moreIndex: that.moreIndex,
+            moreList: that.moreList, // 更多列表
+            liveBroadcastList: that.liveBroadcastList, // 直播列表
+            isLoadMoreShow: that.isLoadMoreShow, // 是否加载到最后一页
+            params: that.params, // 请求列表参数
+            distanceScrollTop: that.distanceScrollTop, // 滚动的距离
+            upIndex: that.upIndex
+          }
+        })
+      },
+      /**
+       * 更多滚动到对应的位置
+       * @param leftNumber {Number} 第几个
+       */
+      moreScrollLeft (leftNumber) {
+        let that = this
+        this.$nextTick(() => {
+          that.$refs.moreScrollLeft.scrollLeft = leftNumber * 80
+        })
       },
       /**
        * 转换内容数据
