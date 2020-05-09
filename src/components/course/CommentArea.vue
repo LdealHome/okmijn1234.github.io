@@ -19,6 +19,7 @@
           @commentClick="commentClick"
           @showManageView="showManageView"
           @cancelReply="cancelReply"
+          @fingersAway="fingersAway"
         )
         infinite-loading(@infinite="loadMore" direction="top" :identifier="identifier")
           div(slot="spinner")
@@ -105,7 +106,8 @@
           width: 0,
           height: 0
         },
-        isBottom: true
+        isBottom: true,
+        isClickableManage: false
       }
     },
     created () {
@@ -261,6 +263,7 @@
        * @param info {Object} { x: 手指按下的x坐标，y: y坐标 }
        */
       showManageView (info) {
+        this.isClickableManage = false
         this.fingerPosition = info
         let { x, y } = this.fingerPosition
         this.isShowManageView = true
@@ -273,9 +276,18 @@
         })
       },
       /**
+       * 长按结束后，才能点击禁言/删除评论
+       */
+      fingersAway () {
+        setTimeout(() => {
+          this.isClickableManage = true
+        }, 100)
+      },
+      /**
        * 删除评论
        */
       deleteComment () {
+        if (!this.isClickableManage) return
         this.isShowManageView = false
         this.$emit('clickItem', {
           type: 101,
@@ -286,8 +298,8 @@
        * 禁言/解除禁言
        */
       forbiddenWords () {
+        if (this.fingerPosition.role || !this.isClickableManage) return
         this.isShowManageView = false
-        if (this.fingerPosition.role) return
         this.$emit('clickItem', {
           type: 102,
           uid: this.fingerPosition.uid
@@ -319,6 +331,10 @@
     color: #2b2b2b;
     padding: .4rem;
     text-align: center;
+    word-break: break-all;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
   }
 
   .close-btn {
@@ -338,7 +354,13 @@
     padding-bottom: .2rem;
   }
 
-  .comment-list-back { min-height: 100%; }
+  .comment-list-back {
+    min-height: 100%;
+    word-break: break-all;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+  }
 
   .comment-bottom {
     box-shadow: 0 0 .03rem 0 rgba(206, 202, 202, 1);
@@ -421,6 +443,10 @@
     color: #fff;
     z-index: 30;
     white-space: nowrap;
+    word-break: break-all;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
   }
 
   .delete-item,

@@ -3,7 +3,6 @@
     div.video-back(
       v-show="isOpenVideo"
       :class="videoBackClass"
-      :style="{ 'height': videoHeight }"
       @click="clickVideo"
     )
       video.video(
@@ -74,15 +73,10 @@
         isPlayVideo: false, // 是否在播放视频
         isOpenVideo: true, // 是否显示视频
         isEnded: false,
-        videoHeight: 'auto',
         videoPlayTime: 0, // 视频直播时播放的进度
         studyTime: 0, // 学习时长
         state: 0,
         networkStatus: true, // 网络状态
-        videoLoad: {
-          isLoad: false, // 视频是否加载成功
-          isInit: false // 是否修改video父元素的高度
-        },
         video: null,
         stopInfo: {
           timer: null,
@@ -120,7 +114,6 @@
       window.addEventListener('offline', this.eventHandle)
       window.addEventListener('online', this.eventHandle)
       this.video.addEventListener('ended', this.videoEnded, false)
-      this.video.addEventListener('loadedmetadata', this.videoLoadedmetadata, false)
       this.video.addEventListener('play', this.videoPlayEvent, false)
       this.video.addEventListener('pause', this.videoPauseEvent, false)
       this.video.addEventListener('canplay', this.videoCanplay, false)
@@ -132,7 +125,6 @@
       window.removeEventListener('offline', this.eventHandle)
       window.removeEventListener('online', this.eventHandle)
       this.video.removeEventListener('ended', this.videoEnded, false)
-      this.video.removeEventListener('loadedmetadata', this.videoLoadedmetadata, false)
       this.video.removeEventListener('play', this.videoPlayEvent, false)
       this.video.removeEventListener('pause', this.videoPauseEvent, false)
       this.video.removeEventListener('canplay', this.videoCanplay, false)
@@ -202,16 +194,6 @@
           play_over: 1
         })
         this.video.currentTime = 0
-      },
-      videoLoadedmetadata () {
-        // 视频加载完后，修改video容器的高度
-        // 解决视频加载后底部会多一截问题
-        this.videoLoad.isLoad = true
-        if (this.isOpenVideo) {
-          this.videoHeight = this.video.clientHeight + 'px'
-          this.videoLoad.isInit = true
-        }
-        this.video.removeEventListener('loadedmetadata', this.videoLoadedmetadata)
       },
       playVideo () {
         if (this.notBroadcast || !this.networkStatus) return
@@ -285,12 +267,6 @@
       },
       changeOpenState () {
         this.isOpenVideo = !this.isOpenVideo
-        this.$nextTick(() => {
-          if (this.videoLoad.isLoad && !this.videoLoad.isInit) {
-            this.videoLoad.isInit = true
-            this.videoHeight = this.video.clientHeight + 'px'
-          }
-        })
       },
       clickVideo () {
         if (this.state === 1 && this.isPlayVideo) {
@@ -355,6 +331,7 @@
 
   .video {
     width: 100%;
+    display: block;
   }
 
   .play-btn {

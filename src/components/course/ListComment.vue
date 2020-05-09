@@ -181,6 +181,10 @@
           clearTimeout(this.timer)
           // 点击回复评论
           this.$emit('commentClick', index)
+        } else {
+          // 长按显示管理弹窗，手指离开屏幕后，才能操作删除和禁言功能
+          // 解决ios长按后，手指离开同时触发了删除评论点击事件
+          this.$emit('fingersAway')
         }
         if (!this.isOwnComment(index)) this.isClickComment = true
       },
@@ -226,10 +230,6 @@
   .comment-list-item {
     overflow: hidden;
     position: relative;
-    word-break: break-all;
-    -webkit-user-select: none;
-    user-select: none;
-    -webkit-touch-callout: none;
   }
 
   .time {
