@@ -117,6 +117,7 @@
       this.video.addEventListener('play', this.videoPlayEvent, false)
       this.video.addEventListener('pause', this.videoPauseEvent, false)
       this.video.addEventListener('canplay', this.videoCanplay, false)
+      this.video.addEventListener('loadedmetadata', this.videoLoadedmetadata, false)
     },
     beforeDestroy () {
       if (this.stopInfo.timer) {
@@ -128,6 +129,7 @@
       this.video.removeEventListener('play', this.videoPlayEvent, false)
       this.video.removeEventListener('pause', this.videoPauseEvent, false)
       this.video.removeEventListener('canplay', this.videoCanplay, false)
+      this.video.removeEventListener('loadedmetadata', this.videoLoadedmetadata, false)
     },
     computed: {
       liveBroadcastState () {
@@ -195,6 +197,13 @@
         })
         this.video.currentTime = 0
       },
+      videoLoadedmetadata () {
+        // 视频加载完后，获取视频总时长
+        if (this.courseState === 1) {
+          this.startLiveEndMonitor(this.video.duration - this.videoPlayTime)
+        }
+        this.video.removeEventListener('loadedmetadata', this.videoLoadedmetadata, false)
+      },
       playVideo () {
         if (this.notBroadcast || !this.networkStatus) return
         let time = new Date()
@@ -239,15 +248,22 @@
           // 用于计算点击开始播放后，调整视频的播放位置
           sessionStorage.setItem('waitTime', time)
           // 处理直播暂停期间，如果直播结束更新状态
-          this.stopInfo.surplusTime = Math.floor(this.video.duration - this.video.currentTime)
-          this.stopInfo.timer = setInterval(() => {
-            if (--this.stopInfo.surplusTime <= 0) {
-              clearInterval(this.stopInfo.timer)
-              this.stopInfo.timer = null
-              this.videoEnded()
-            }
-          }, 1000)
+          this.startLiveEndMonitor(Math.floor(this.video.duration - this.video.currentTime))
         }
+      },
+      /**
+       * 直播中进入页面后或暂停直播后监听直播是否结束
+       * @param timer {Number} 距离直播结束剩余的时长 s
+       */
+      startLiveEndMonitor (time) {
+        this.stopInfo.surplusTime = time
+        this.stopInfo.timer = setInterval(() => {
+          if (--this.stopInfo.surplusTime <= 0) {
+            clearInterval(this.stopInfo.timer)
+            this.stopInfo.timer = null
+            this.videoEnded()
+          }
+        }, 1000)
       },
       videoPauseEvent () {
         this.isPlayVideo = false
