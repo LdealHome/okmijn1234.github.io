@@ -9,13 +9,13 @@
       p.name {{rewardInfo.name}}
       div.reward-list(v-if="isFixed")
         div.reward-item(
-          v-for="(amountItem, index) in amountList"
+          v-for="(amountItem, index) in rewardInfo.amountList"
           :key="index"
           :style="{'margin-right': (index+1)%3 === 0 ? 0 : '2%'}"
-          @click="$emit('rewardClick', amountItem)"
+          @click="$emit('rewardClick', amountItem.price)"
         )
           span.symbol ￥
-            span.sum {{amountItem}}
+            span.sum {{amountItem.price}}
         button.other-amount(@click="isFixed = false") 其他金额
       div(v-else)
         div.reward-sum
@@ -40,7 +40,8 @@
           return {
             isShow: true,
             avatar: '',
-            name: ''
+            name: '',
+            amountList: []
           }
         }
       }
@@ -51,8 +52,7 @@
         isFixed: true, // 是否选择打赏固定金额
         isShowMessageBox: false, // 是否显示消息框
         editSum: '', // 输入的打赏金额
-        beforeChange: '', // 打赏金额输入前的值
-        amountList: [1, 2, 5, 10, 20, 50]
+        beforeChange: '' // 打赏金额输入前的值
       }
     },
     created () {

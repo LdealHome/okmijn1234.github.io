@@ -144,7 +144,8 @@
         rewardInfo: {
           isShow: false,
           avatar: '',
-          name: ''
+          name: '',
+          amountList: []
         },
         updateCountDownTimer: null, // 更新倒计时的定时器
         isShowCollect: false, // 是否显示收藏引导弹窗
@@ -298,14 +299,15 @@
             this.rewardInfo = {
               isShow: false,
               avatar: rewardInfo.anchor_img,
-              name: rewardInfo.nick_name
+              name: rewardInfo.nick_name,
+              amountList: data.reward_info
             }
             this.customerServiceData.codeSrc = data.user_focus_info.focus_code
           }
         })
       },
       getNewestComment () {
-        getNewestCommentList({ key: this.mBean.key }).then(res => {
+        getNewestCommentList({ key: this.courseKey }).then(res => {
           if (res.data.code === 1 && res.data.data && res.data.data.list) {
             let list = res.data.data.list
             list.forEach(item => {
@@ -357,7 +359,7 @@
       },
       async loadMore (type, res) {
         this.studyDataLoad = { type, res }
-        if (!this.mBean.key) {
+        if (!this.courseKey) {
           return
         }
         const that = this
@@ -581,6 +583,11 @@
           'passive_nick_name': info.replyInfo.name, // 被回复人昵称
           'passive_msg_tag': info.replyInfo.id && info.replyInfo.isAsk ? 1 : 0
         })
+        // 自己发送评论或回复评论时，需滚动到评论列表底部
+        this.mBean.commentListInfo.isRollBottom = true
+        if (this.mBean.state === 1 || this.mBean.studyListInfo.isLastPage) {
+          this.mBean.studyListInfo.isRollBottom = true
+        }
       },
       /**
        * 打赏-唤醒支付
@@ -590,7 +597,7 @@
         const that = this
         postRewardCourse({
           amount,
-          course_single_id: this.courseId
+          key: this.courseKey
         }).then(res => {
           if (res.data.code === 1) {
             window.wx.chooseWXPay({

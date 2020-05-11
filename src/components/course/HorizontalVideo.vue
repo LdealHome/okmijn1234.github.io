@@ -32,7 +32,7 @@
         p.follow-text 关注润阳老师
       div.video-control(v-show="isShowVideoControl && isPlayVideo")
         img.video-state(src="@icon/course/stop-icon.png" @click.stop="stopVideo")
-        img.full-screen(src="@icon/course/full-screen.png")
+        //- img.full-screen(src="@icon/course/full-screen.png")
     div.live-broadcast-info
       p.state.not-started(:class="liveBroadcastClass") {{liveBroadcastState}}
         span.interval |
@@ -320,6 +320,8 @@
     border-radius: .12rem;
     overflow: hidden;
     position: relative;
+    height: 4.7rem;
+    background: #000;
   }
 
   .ended-video {
@@ -347,6 +349,7 @@
 
   .video {
     width: 100%;
+    height: 100%;
     display: block;
   }
 

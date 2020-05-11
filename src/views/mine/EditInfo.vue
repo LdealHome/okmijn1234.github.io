@@ -244,6 +244,7 @@
 <style scoped lang="less">
   .whole {
     min-height: 100vh;
+    padding-bottom: 5rem;
     background: #eeeeed;
   }
 
