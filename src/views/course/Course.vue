@@ -279,7 +279,6 @@
               totalComments: data.comment_number,
               serverTime: res.data.timestamp
             }
-            this.connectWebSocket()
             if (!state) {
               // 未开播时更新距离开播倒计时
               this.updateCountDownList()
@@ -395,6 +394,7 @@
         this.sendMessage({ 'type_mark': 5 })
       },
       connectWebSocket () {
+        if (!this.mBean.webSocketUrl) return
         this.webSocket = new WebSocket(this.mBean.webSocketUrl)
         this.webSocket.onopen = () => {
           if (this.reconnectTimer) {
@@ -424,7 +424,6 @@
       reconnectWebSocket () {
         if (this.reconnectTimer) return
         // 设置延时重连，没连接上会一直重连
-        this.connectWebSocket()
         this.reconnectTimer = setTimeout(() => {
           this.connectWebSocket()
           this.reconnectTimer = null
