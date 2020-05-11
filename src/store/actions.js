@@ -9,7 +9,8 @@ import {
   postShareSuccess,
   postErrorInfo,
   getServiceInfo,
-  getPayCommunity
+  getPayCommunity,
+  getGlobalInfo
 } from '../services'
 import {
   postSubmitViewingRecords
@@ -20,7 +21,8 @@ import {
   SET_TABLE_INFO,
   SET_SCENE_INFO,
   SET_ACCESS_STATUS,
-  SET_GUEST_INFO
+  SET_GUEST_INFO,
+  SET_GLOBAL_INFO
 } from './mutation-type'
 
 export default {
@@ -105,6 +107,19 @@ export default {
         localStorage.removeItem('studyStatistics')
       }
     })
+  },
+  // 获取全局公用信息
+  getGlobalInfo ({ commit }, payload) {
+    let globalInfo = sessionStorage.getItem('globalInfo')
+    if (globalInfo) {
+      commit(SET_GLOBAL_INFO, JSON.parse(globalInfo))
+      return Promise.resolve()
+    } else {
+      return getGlobalInfo().then(res => {
+        sessionStorage.setItem('globalInfo', JSON.stringify(res.data.data))
+        commit(SET_GLOBAL_INFO, res.data.data)
+      })
+    }
   },
   // 设置登录限制
   setAccessStatus ({ state, commit }, payload) {

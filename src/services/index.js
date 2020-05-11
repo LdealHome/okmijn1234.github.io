@@ -110,3 +110,11 @@ export function getCourseServe () {
 export function postSendVerificationCode (data) {
   return Vue.axios.post('/user/verify/code', data)
 }
+
+/**
+ * 获取全局公用信息
+ * @returns {AxiosPromise<any>}
+ */
+export function getGlobalInfo () {
+  return Vue.axios.get('/pub/app/info')
+}

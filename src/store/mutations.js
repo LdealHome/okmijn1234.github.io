@@ -10,7 +10,8 @@ import {
   SET_GUEST_INFO,
   SET_ACCESS_STATUS,
   SET_LOCAL_CACHE,
-  REMOVE_LOCAL_CACHE
+  REMOVE_LOCAL_CACHE,
+  SET_GLOBAL_INFO
 } from './mutation-type'
 
 export default {
@@ -41,6 +42,9 @@ export default {
   },
   [SET_ACCESS_STATUS] (state, payload) {
     state.accessStatus = payload
+  },
+  [SET_GLOBAL_INFO] (state, payload) {
+    state.globalInfo = payload
   },
   [SET_LOCAL_CACHE] (state, payload) {
     let { key, value } = payload

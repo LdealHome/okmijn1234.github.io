@@ -6,6 +6,7 @@
 
 <script>
   import { MessageBox } from 'mint-ui'
+  import weixinConfig from './mixin/weixinConfig'
   export default {
     name: 'App',
     data () {
@@ -15,6 +16,7 @@
         clickCount: 0
       }
     },
+    mixins: [weixinConfig],
     computed: {
       isTransition () {
         return this.$route.meta.transition === true
@@ -27,6 +29,12 @@
       },
       desc () {
         return this.$store.state.accessStatus.desc
+      },
+      shareInfo () {
+        return this.$store.state.globalInfo.share_info
+      },
+      routerMeta () {
+        return this.$route.meta || {}
       }
     },
     watch: {
@@ -39,6 +47,7 @@
           })
           location.replace(location.origin + pathname)
         }
+        this.baseWeixinShare()
       },
       desc (val) {
         if (val) {
@@ -52,8 +61,13 @@
         }
       },
       $route () {
+        // 路由更新后，获取分享信息
+        this.baseWeixinShare()
         // 解决页面在显示弹窗时，直接关闭页面或跳转页面后，无法滚动问题
         this.handleToggleModal(false)
+      },
+      shareInfo (val) {
+        this.baseWeixinShare()
       }
     },
     created () {
@@ -89,6 +103,18 @@
             this.timer = null
           }, 1e3)
         }
+      },
+      baseWeixinShare () {
+        if (this.routerMeta.share || !this.shareInfo || !this.uid) return
+        this.getWeiXinConfig({
+          desc: this.shareInfo.content,
+          img: this.shareInfo.img_url,
+          title: this.shareInfo.title,
+          link: `${location.origin}/particulars/from/${this.uid}`
+        })
+          .then(res => {
+            this.setWeiXinConfig(res, this.shareSuccess)
+          })
       }
     }
   }

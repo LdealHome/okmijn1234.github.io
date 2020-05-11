@@ -29,6 +29,9 @@ export default {// 是否已经加载过全局的用户信息
     positionType: null, // 职位类型
     liveRoleType: null // 直播间角色
   },
+  globalInfo: {
+    share_info: null
+  },
   // 场景值信息
   sceneInfo: {
     ad: {

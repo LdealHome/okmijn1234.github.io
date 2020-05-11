@@ -23,6 +23,7 @@ router.beforeEach((to, from, next) => {
     // 全局通用的字段对照表
     if (!$_.store.state.typeTableLoaded) {
       $_.store.dispatch('getTypeTable')
+      $_.store.dispatch('getGlobalInfo')
     }
     // 获取场景值信息
     if (!$_.store.state.isLoadScene) {

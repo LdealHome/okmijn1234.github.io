@@ -10,6 +10,8 @@ export const SET_TABLE_INFO = 'setTableInfo'
 export const SET_ACCESS_STATUS = 'setAccessStatus'
 // 设置场景值信息
 export const SET_SCENE_INFO = 'setSceneInfo'
+// 设置全局公用信息
+export const SET_GLOBAL_INFO = 'setGlobalInfo'
 // 设置全局缓存数据
 export const SET_LOCAL_CACHE = 'setLocalCache'
 // 移除全局缓存数据
