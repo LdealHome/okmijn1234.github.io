@@ -73,8 +73,9 @@
         isPlayVideo: false, // 是否在播放视频
         isOpenVideo: true, // 是否显示视频
         isEnded: false,
-        videoPlayTime: 0, // 视频直播时播放的进度
+        videoPlayTime: 0, // 视频直播时，进入页面或者暂停时播放的进度
         studyTime: 0, // 学习时长
+        videoDuration: 0,
         state: 0,
         networkStatus: true, // 网络状态
         video: null,
@@ -192,13 +193,17 @@
         }
         this.$_.store.dispatch('postStudyStatistics', {
           course_single_id: this.data.id,
-          play_length: this.studyTime,
+          study_duration: this.studyTime,
+          study_close_time: Math.floor(time.getTime() / 1000),
+          play_length: this.videoDuration,
           play_over: 1
         })
+        // 视频播放完后，从初始位置重新播放
         this.video.currentTime = 0
       },
       videoLoadedmetadata () {
         // 视频加载完后，获取视频总时长
+        this.videoDuration = this.video.duration
         if (this.courseState === 1) {
           this.startLiveEndMonitor(this.video.duration - this.videoPlayTime)
         }
@@ -211,7 +216,8 @@
           this.state = 2
           this.video.controls = true
         } else if (this.state === 1) {
-          // 如果是直播时，当前直播对应的位置
+          // 如果是直播时，更新当前直播对应的位置
+          // 暂停期间的时长 + 暂停时播放的位置
           let startTime = sessionStorage.getItem('waitTime') || time
           this.currentTime = Math.floor((time - startTime) / 1000) + this.videoPlayTime
           if (getDeviceSystem() === 'ios') {
@@ -235,7 +241,12 @@
       },
       videoPlayEvent () {
         // 游客不做访问时长统计
-        if (!this.isGuest) sessionStorage.setItem('videoPlayTime', new Date().getTime())
+        if (!this.isGuest) {
+          let time = new Date().getTime()
+          sessionStorage.setItem('videoPlayTime', time)
+          this.videoPlayTime = this.video.currentTime
+          this.setStudyStatistics()
+        }
         this.isPlayVideo = true
       },
       stopVideo () {
@@ -274,12 +285,21 @@
         if (videoPlayTime) {
           sessionStorage.removeItem('videoPlayTime')
           this.studyTime += Math.floor((time - videoPlayTime) / 1000)
-          localStorage.setItem('studyStatistics', JSON.stringify({
-            course_single_id: this.data.id,
-            play_length: this.studyTime,
-            play_over: 2
-          }))
+          this.setStudyStatistics()
         }
+      },
+      /**
+       * 缓存课程访问统计
+       */
+      setStudyStatistics () {
+        let time = new Date().getTime()
+        localStorage.setItem('studyStatistics', JSON.stringify({
+          course_single_id: this.data.id,
+          study_duration: this.studyTime,
+          study_close_time: Math.floor(time / 1000),
+          play_length: this.videoPlayTime,
+          play_over: 2
+        }))
       },
       changeOpenState () {
         this.isOpenVideo = !this.isOpenVideo

@@ -66,10 +66,16 @@
     if (vm.reconnectTimer) clearTimeout(vm.reconnectTimer)
     let videoPlayTime = sessionStorage.getItem('videoPlayTime')
     if (videoPlayTime) {
-      let playTime = JSON.parse(localStorage.getItem('studyStatistics') || '{}').play_length || 0
+      sessionStorage.removeItem('videoPlayTime')
+      let data = JSON.parse(localStorage.getItem('studyStatistics') || '{}')
+      let time = new Date()
+      // 最后一次的播放时长(暂停后单独算一次)
+      let watchTime = Math.floor((time - videoPlayTime) / 1000)
       localStorage.setItem('studyStatistics', JSON.stringify({
         course_single_id: vm.courseId,
-        play_length: Math.floor((new Date() - videoPlayTime) / 1000) + playTime,
+        study_close_time: Math.floor(time.getTime() / 1000),
+        study_duration: watchTime + (data.study_duration || 0),
+        play_length: (data.play_length || 0) + watchTime,
         play_over: 2
       }))
     }
@@ -604,7 +610,7 @@
               ...res.data.data.js_sdk_config,
               success (res) {
                 that.rewardInfo.isShow = false
-                that.$_.Toast('打赏成功')
+                that.$_.Toast('打赏完毕，谢主隆恩')
               }
             })
           }

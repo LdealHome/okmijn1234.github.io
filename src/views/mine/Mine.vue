@@ -58,7 +58,7 @@
       component(
         :is="type"
         :list="list"
-        @specialDetails="toShequnDetails"
+        @specialDetails="specialDetails"
         @courseDetails="courseDetails"
       )
     TechnicalSupport
@@ -188,6 +188,9 @@
       },
       learningReport () {
         this.$router.push({ name: 'learning-report' })
+      },
+      specialDetails () {
+        this.$router.push({ name: 'column-details' })
       },
       /**
        * 去社群详情页
