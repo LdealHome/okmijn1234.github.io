@@ -46,8 +46,8 @@
       img.dynamic-btn(v-show="!isRollPage" src="~@images/community/follow-btn.gif")
     infinite-loading(@infinite="loadMore")
       div(slot="spinner")
-      div(slot="no-more") 没有更多了哦
-      div(slot="no-results") {{noResults}}
+      div(slot="no-more")
+      div(slot="no-results")
     VideoPopup(:isShow="isShowVideo" :video="videoInfo" @videoClose="isShowVideo = false")
     ObtainCoursePopup(
       v-if="isObtainCoursePopup"
@@ -252,9 +252,6 @@
       // 是否加载访客信息
       isLoadGuestInfo () {
         return this.$store.state.isLoadGuestInfo
-      },
-      noResults () {
-        return this.extensionList.length ? '没有更多了哦' : ''
       }
     },
     methods: {
@@ -743,9 +740,5 @@
         .ellipsisLn(3);
       }
     }
-  }
-
-  .infinite-loading-container {
-    color: #ccc;
   }
 </style>
