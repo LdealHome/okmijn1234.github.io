@@ -193,7 +193,7 @@
        * 去社群详情页
        */
       toShequnDetails () {
-        this.$router.push({ name: 'column-details' })
+        this.$router.push({ name: 'particulars', params: { from: this.uid } })
       },
       rankingClick () {
         this.$router.push({ name: 'community-ranking' })
