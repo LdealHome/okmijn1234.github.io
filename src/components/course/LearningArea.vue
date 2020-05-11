@@ -70,6 +70,13 @@
       // 是否显示顶部集福中心view
       isShowTopView () {
         return this.studyListInfo.isShowTopView
+      },
+      // 访客
+      isGuest () {
+        return this.$store.state.guest
+      },
+      from () {
+        return this.$route.params.from
       }
     },
     methods: {
@@ -93,7 +100,11 @@
         this.$refs.learningView.scrollTop = this.$refs.learningView.scrollHeight
       },
       goHomePage () {
-        this.$router.push({ name: 'home' })
+        if (this.isGuest) {
+          this.$router.push({ name: 'particulars', params: { from: this.from } })
+        } else {
+          this.$router.push({ name: 'home' })
+        }
       },
       seeShareVideo () {
         this.$emit('seeVideo', { type: 1, scene: this.$store.state.sceneInfo.video_course.share_adv })

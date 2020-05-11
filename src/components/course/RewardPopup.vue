@@ -25,7 +25,7 @@
     // 输入的打赏金额错误消息框
     div.msg-back(v-if="isShowMessageBox")
       div.message-box
-        p.tips-text 单笔金额不可低于一元
+        p.tips-text 单笔金额不可低于0.3元
         button.msg-confirm(@click="isShowMessageBox = false") 确定
 </template>
 
@@ -80,7 +80,7 @@
        */
       confirmSumClick () {
         const that = this
-        if (!(that.editSum >= 1)) {
+        if (!(that.editSum >= 0.3)) {
           that.isShowMessageBox = true
           return
         }
