@@ -1,7 +1,7 @@
 <template lang="pug">
   div.video-player
     video.video-js.vjs-fluid.vjs-big-play-centered(
-      :class="{'is-live': !options.isLive}"
+      :class="{'is-live': options.isLive}"
       ref="videoPlayer"
       playsinline="true"
       webkit-playsinline="true"
@@ -63,6 +63,9 @@
         })
         this.on('ended', function () {
           self.$emit('ended', this)
+        })
+        this.one('canplay', function () {
+          self.$emit('canplay', this, this.duration())
         })
       })
     },

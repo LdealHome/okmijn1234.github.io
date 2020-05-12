@@ -5,16 +5,15 @@
       :class="videoBackClass"
       @click="clickVideo"
     )
-      video.video(
-        :src="data.video.src"
-        :poster="data.video.poster"
-        x5-playsinline
-        playsinline
-        webkit-playsinline
-        id="video"
-        :class="videoClass"
+      VideoPlayer(
+        v-if="isShowVideo"
+        :options="options"
+        @play="videoPlayEvent"
+        @pause="videoPauseEvent"
+        @ended="videoEnded"
+        @canplay="videoCanplay"
       )
-      img.play-btn(src="@icon/course/play-btn.png" @click.stop="playVideo" v-show="isShowPlayBtn")
+      img.video-poster(:src="options.poster" v-show="notBroadcast")
       div.count-down-view(v-show="notBroadcast")
         div.count-down-info
           p.count-down 倒计时: 
@@ -29,10 +28,8 @@
           div.remind-btn(@click="$emit('clickSetRemind')" v-show="!isGuest") {{remindBtnText}}
       div.follow-view(v-if="!data.isFollow" @click="$emit('followBtnClick')")
         img.follow-avatar(:src="data.followBtnAvatar")
-        p.follow-text 关注润阳老师
-      div.video-control(v-show="isShowVideoControl && isPlayVideo")
-        img.video-state(src="@icon/course/stop-icon.png" @click.stop="stopVideo")
-        //- img.full-screen(src="@icon/course/full-screen.png")
+        p.follow-text 关注润阳老师)
+      div.occlusion-layer(v-show="!self")
     div.live-broadcast-info
       p.state.not-started(:class="liveBroadcastClass") {{liveBroadcastState}}
         span.interval |
@@ -46,8 +43,12 @@
 
 <script>
   import getDeviceSystem from '../../utils/get-device-system'
+  import VideoPlayer from '../VideoPlayer'
   export default {
     name: 'HorizontalVideo',
+    components: {
+      VideoPlayer
+    },
     props: {
       data: {
         type: Object,
@@ -70,15 +71,20 @@
     },
     data () {
       return {
-        isPlayVideo: false, // 是否在播放视频
+        isShowVideo: false,
+        options: {
+          controls: true,
+          poster: '',
+          src: '',
+          isLive: true
+        },
         isOpenVideo: true, // 是否显示视频
         isEnded: false,
-        videoPlayTime: 0, // 视频直播时，进入页面或者暂停时播放的进度
+        videoCurrent: 0, // 视频播放的进度
         studyTime: 0, // 学习时长
-        videoDuration: 0,
+        videoDuration: 0, // 视频总时长
         state: 0,
-        networkStatus: true, // 网络状态
-        video: null,
+        videoHeight: 'auto',
         stopInfo: {
           timer: null,
           surplusTime: 0
@@ -89,36 +95,35 @@
         showControlTimer: null,
         doubleClick: {
           timer: null
-        }
+        },
+        self: null
       }
     },
     watch: {
       courseState (val) {
-        this.state = val
+        this.options.poster = this.data.video.poster
+        this.options.src = this.data.video.src
         switch (val) {
         case 1:
           // 储存进入页面时，直播开始后等待的开始时间
           // 用于计算点击开始播放后，调整视频的播放位置
           sessionStorage.setItem('waitTime', new Date().getTime())
-          this.videoPlayTime = this.data.time
+          this.videoCurrent = this.data.time
+          this.isShowVideo = true
           break
         case 2:
-          this.video.controls = true
+          this.options.isLive = false
+          this.isShowVideo = true
           break
         default:
           break
         }
+        this.state = val
       }
     },
-    mounted () {
-      this.video = document.getElementById('video')
+    created () {
       window.addEventListener('offline', this.eventHandle)
       window.addEventListener('online', this.eventHandle)
-      this.video.addEventListener('ended', this.videoEnded, false)
-      this.video.addEventListener('play', this.videoPlayEvent, false)
-      this.video.addEventListener('pause', this.videoPauseEvent, false)
-      this.video.addEventListener('canplay', this.videoCanplay, false)
-      this.video.addEventListener('loadedmetadata', this.videoLoadedmetadata, false)
     },
     beforeDestroy () {
       if (this.stopInfo.timer) {
@@ -126,11 +131,6 @@
       }
       window.removeEventListener('offline', this.eventHandle)
       window.removeEventListener('online', this.eventHandle)
-      this.video.removeEventListener('ended', this.videoEnded, false)
-      this.video.removeEventListener('play', this.videoPlayEvent, false)
-      this.video.removeEventListener('pause', this.videoPauseEvent, false)
-      this.video.removeEventListener('canplay', this.videoCanplay, false)
-      this.video.removeEventListener('loadedmetadata', this.videoLoadedmetadata, false)
     },
     computed: {
       liveBroadcastState () {
@@ -155,17 +155,11 @@
       courseState () {
         return this.data.state
       },
-      isShowPlayBtn () {
-        return !this.isPlayVideo && this.state !== 2
-      },
       videoBackClass () {
         return { 'ended-video': this.isShowEnded }
       },
       isShowEnded () {
-        return this.isEnded && this.isShowPlayBtn
-      },
-      videoClass () {
-        return { 'hide-video-controls': this.courseState !== 2 && this.state !== 2 }
+        return this.isEnded && this.state === 1
       },
       // 访客
       isGuest () {
@@ -175,15 +169,16 @@
     methods: {
       eventHandle (event) {
         // 如果在直播状态时，断网后暂停播放视频
-        if (event.type === 'offline' && this.isPlayVideo && this.courseState === 1) {
-          this.stopVideo()
+        if (event.type === 'offline' && this.state === 1 && !this.isEnded) {
+          this.self.pause()
         }
-        this.networkStatus = !this.networkStatus
       },
       videoEnded () {
-        this.isPlayVideo = false
-        this.video.controls = true
-        if (this.courseState === 1) this.isEnded = true 
+        // 直播中，课程结束后更新状态
+        if (this.state === 1) {
+          this.isEnded = true
+          this.isShowVideo = false
+        }
         if (this.isGuest) return
         let time = new Date()
         let videoPlayTime = sessionStorage.getItem('videoPlayTime')
@@ -201,75 +196,15 @@
             key: this.data.key
           })
         }
-        // 视频播放完后，从初始位置重新播放
-        this.video.currentTime = 0
-      },
-      videoLoadedmetadata () {
-        // 视频加载完后，获取视频总时长
-        this.videoDuration = this.video.duration
-        if (this.courseState === 1) {
-          this.startLiveEndMonitor(this.video.duration - this.videoPlayTime)
-        }
-        this.video.removeEventListener('loadedmetadata', this.videoLoadedmetadata, false)
-      },
-      playVideo () {
-        if (this.notBroadcast || !this.networkStatus) return
-        let time = new Date()
-        if (this.isEnded) {
-          this.state = 2
-          this.video.controls = true
-        } else if (this.state === 1) {
-          // 如果是直播时，更新当前直播对应的位置
-          // 暂停期间的时长 + 暂停时播放的位置
-          let startTime = sessionStorage.getItem('waitTime') || time
-          this.currentTime = Math.floor((time - startTime) / 1000) + this.videoPlayTime
-          if (getDeviceSystem() === 'ios') {
-            this.isCanplay && (this.video.currentTime = this.currentTime)
-          } else {
-            this.video.currentTime = this.currentTime
-          }
-        }
-        this.video.play()
-        if (this.stopInfo.timer) {
-          clearInterval(this.stopInfo.timer)
-          this.stopInfo.timer = null
-        }
-      },
-      videoCanplay () {
-        if (getDeviceSystem() === 'ios') {
-          this.isCanplay = true
-          this.video.currentTime = this.currentTime
-          this.video.removeEventListener('canplay', this.videoCanplay, false)
-        }
-      },
-      videoPlayEvent () {
-        // 游客不做访问时长统计
-        if (!this.isGuest) {
-          let time = new Date().getTime()
-          sessionStorage.setItem('videoPlayTime', time)
-          this.videoPlayTime = this.video.currentTime
-          this.setStudyStatistics()
-        }
-        this.isPlayVideo = true
-      },
-      stopVideo () {
-        this.video.pause()
-        this.isPlayVideo = false
-
-        let time = new Date().getTime()
-        if (this.state === 1) {
-          // 储存暂停时的时间
-          // 用于计算点击开始播放后，调整视频的播放位置
-          sessionStorage.setItem('waitTime', time)
-          // 处理直播暂停期间，如果直播结束更新状态
-          this.startLiveEndMonitor(Math.floor(this.video.duration - this.video.currentTime))
-        }
       },
       /**
        * 直播中进入页面后或暂停直播后监听直播是否结束
        * @param timer {Number} 距离直播结束剩余的时长 s
        */
       startLiveEndMonitor (time) {
+        if (this.stopInfo.timer) {
+          clearInterval(this.stopInfo.timer)
+        }
         this.stopInfo.surplusTime = time
         this.stopInfo.timer = setInterval(() => {
           if (--this.stopInfo.surplusTime <= 0) {
@@ -279,11 +214,47 @@
           }
         }, 1000)
       },
-      videoPauseEvent () {
-        this.isPlayVideo = false
+      /**
+       * 视频播放事件
+       */
+      videoPlayEvent () {
         let time = new Date().getTime()
+        if (this.state === 1) {
+          // 如果是直播时，更新当前直播对应的位置
+          // 暂停期间的时长 + 暂停时播放的位置
+          let startTime = sessionStorage.getItem('waitTime') || time
+          this.currentTime = Math.floor((time - startTime) / 1000) + this.videoCurrent
+          if (getDeviceSystem() === 'ios') {
+            this.isCanplay && this.self.currentTime(this.currentTime)
+          } else {
+            this.self.currentTime(this.currentTime)
+          }
+          // 关闭直播结束判断定时器
+          if (this.stopInfo.timer) {
+            clearInterval(this.stopInfo.timer)
+            this.stopInfo.timer = null
+          }
+        }
+        sessionStorage.removeItem('waitTime')
+        // 游客不做访问时长统计
+        if (this.isGuest) return
+        sessionStorage.setItem('videoPlayTime', time)
+        this.setStudyStatistics()
+      },
+      /**
+       * 视频暂停监听
+       */
+      videoPauseEvent () {
+        let time = new Date().getTime()
+        if (this.state === 1) {
+          // 储存暂停时的时间
+          // 用于计算点击开始播放后，调整视频的播放位置
+          sessionStorage.setItem('waitTime', time)
+          // 处理直播暂停期间，如果直播结束更新状态
+          this.startLiveEndMonitor(Math.floor(this.videoDuration - this.self.currentTime()))
+        }
         // 获取暂停时视频播放的进度
-        this.videoPlayTime = this.video.currentTime
+        this.videoCurrent = this.self.currentTime()
         let videoPlayTime = sessionStorage.getItem('videoPlayTime')
         if (videoPlayTime) {
           sessionStorage.removeItem('videoPlayTime')
@@ -292,43 +263,52 @@
         }
       },
       /**
+       * 视频加载完成事件
+       * 获取视频总时长
+       * 开启定时器，判断直播是否结束
+       */
+      videoCanplay (self, duration) {
+        this.self = self
+        if (this.isEnded) {
+          this.isEnded = false
+          this.self.play()
+        }
+        this.videoDuration = duration
+        if (this.courseState === 1) {
+          this.startLiveEndMonitor(duration - this.videoCurrent)
+          if (getDeviceSystem() === 'ios') {
+            this.isCanplay = true
+            this.self.currentTime(this.currentTime)
+          }
+        }
+      },
+      /**
        * 缓存课程访问统计
        */
       setStudyStatistics () {
-        if (!this.data.isStatistics) return
+        if (!this.data.isStatistics || !this.self) return
         let time = new Date().getTime()
         localStorage.setItem('studyStatistics', JSON.stringify({
           course_single_id: this.data.id,
           study_duration: this.studyTime,
           study_close_time: Math.floor(time / 1000),
-          play_length: this.videoPlayTime,
+          play_length: this.self.currentTime(),
           play_over: 2,
           key: this.data.key
         }))
       },
+      /**
+       * 打开、收起视频
+       */
       changeOpenState () {
         this.isOpenVideo = !this.isOpenVideo
       },
       clickVideo () {
-        if (this.state === 1 && this.isPlayVideo) {
-          this.isShowVideoControl = true
-          this.showControlTimer && clearTimeout(this.showControlTimer)
-          this.showControlTimer = setTimeout(() => {
-            this.isShowVideoControl = false
-            clearTimeout(this.showControlTimer)
-            this.showControlTimer = null
-          }, 2500)
-          if (this.doubleClick.timer) {
-            // 双击屏幕暂停播放
-            clearTimeout(this.doubleClick.timer)
-            this.doubleClick.timer = null
-            this.stopVideo()
-          } else {
-            this.doubleClick.timer = setTimeout(() => {
-              clearTimeout(this.doubleClick.timer)
-              this.doubleClick.timer = null
-            }, 1e3)
-          }
+        if (this.isEnded) {
+          // 更新直播结束状态
+          this.state = 2
+          this.options.isLive = false
+          this.isShowVideo = true
         }
       }
     }
@@ -336,6 +316,17 @@
 </script>
 
 <style scoped lang="less">
+  .occlusion-layer {
+    width: 100%;
+    height: 4.7rem;
+    position: absolute;
+    z-index: 10;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+  }
+
   .top-view {
     z-index: 1; // 这里加层级是解决，直播状态栏底部边框样式，会被滚动的内容挡住
   }
@@ -344,13 +335,19 @@
     margin: .3rem .3rem 0;
     border-radius: .12rem;
     overflow: hidden;
-    position: relative;
-    height: 4.7rem;
     background: #000;
+    position: relative;
+  }
+
+  .video-poster {
+    width: 100%;
+    height: 4.7rem;
   }
 
   .ended-video {
-    position: relative;
+    height: 4.7rem;
+    background: #000 url('~@icon/course/play-btn.png') no-repeat center center;
+    background-size: .94rem .94rem;
 
     &::after {
       width: 100%;
@@ -368,7 +365,6 @@
       align-items: center;
       justify-content: center;
       padding-top: .73rem;
-      background: rgba(0, 0, 0, .5);
     }
   }
 
