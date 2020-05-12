@@ -4,7 +4,7 @@
     div.mask(@click="$emit('cancel')")
     div.content
       p.title 切换当前列表学员期数：
-        span.title-text (您的学习期数为{{realPeriodsName}})
+        span.title-text (您的学习期数为第{{realPeriodsName}}期)
       div.middle
         ul.list
           li.list-item(
@@ -15,7 +15,7 @@
           ) {{item.title}}
       div.btns
         button.cancel(type="button" @click="$emit('cancel')") 取消
-        button.determine(type="button" @click="$emit('determine', selectData)") 确认
+        button.determine(type="button" @click="$emit('determine', selectIndex)") 确认
 </template>
 
 <script>
@@ -27,10 +27,6 @@
     data () {
       return {
         periodsList: [], // 列表
-        selectData: {
-          id: -1,
-          name: ''
-        },
         selectIndex: -1, // 是否选中
         realPeriodsId: -1, // 真实所说期数id
         realPeriodsName: '' // 真实所属期数名
@@ -59,10 +55,6 @@
        */
       change (item) {
         this.selectIndex = item.id
-        this.selectData = {
-          id: item.id,
-          title: item.title
-        }
       }
     }
   }

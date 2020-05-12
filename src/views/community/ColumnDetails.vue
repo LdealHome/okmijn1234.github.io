@@ -23,7 +23,7 @@
       button.see(type="button" @click="isShowCertificate = true") 查看
     // 是否拥有超级管理员
     div.column__role(v-if="superAdmin !== 0")
-      p.text 当前列表学员期数：{{realPeriods}}
+      p.text 当前列表学员期数：第{{realPeriods}}期
       button.see(type="button" @click="change") 切换
     // 导航切换
     ul.column__navbar
@@ -221,7 +221,7 @@
         currentIndex: 1, // 导航默认选择
         moreList: [], // 更多日期选择
         isMore: false, // 是否点击更多日期选择
-        moreIndex: 0, // 选择日期角标
+        moreIndex: -1, // 选择日期角标
         contentList: [], // 课程介绍
         liveBroadcastList: [], // 直播列表
         upIndex: -1, // 展示隐藏列表的角标
@@ -240,7 +240,7 @@
         params: {
           page: 1,
           limit: 10,
-          scope: 1 // 范围场景值
+          scope: '' // 范围场景值
         },
         config: {
           tips: '暂无数据'
@@ -279,7 +279,6 @@
           // 清空缓存
           that.$store.commit($_.commits.REMOVE_LOCAL_CACHE, that.key)
         } else { // 没有缓存
-          that.isLoadMoreShow = true
           that.getLiveListMore()
         }
 
@@ -359,6 +358,8 @@
                 let deleteItem = this.moreList.splice(index, 1)
                 this.moreList.unshift(deleteItem[0])
                 this.params.scope = item.enum
+                this.moreIndex = 0
+                this.isLoadMoreShow = true
               }
             })
           }
@@ -432,21 +433,23 @@
       change () {
         this.isShowRole = true
         document.documentElement.scrollTop = 0
+        this.isLoadMoreShow = false
       },
       /**
        * 确定选择的期数
-       * @param select {Object} 对应的数据
+       * @param id {Number} 对应的数据
        */
-      roleDetermine (select) {
+      roleDetermine (id) {
         let that = this
-        postSetPeriods({ id: select.id }).then((res) => {
+        postSetPeriods({ id: id }).then((res) => {
           if (res.data.code === 1) {
             that.isShowRole = false
-            that.realPeriods = select.title
+            that.moreIndex = -1
             that.moreList = []
-            that.getLiveListMore()
             that.liveBroadcastList = []
+            that.mine()
             that.params.page = 1
+            that.params.scope = ''
             that.chooseCurrent++
           }
         })
