@@ -403,6 +403,7 @@
 
   .media-view {
     width: 4.5rem;
+    height: 2.3rem;
     border-radius: .12rem;
     overflow: hidden;
     margin-left: 1.07rem;
@@ -442,6 +443,7 @@
 
   .media-img {
     width: 100%;
+    height: 100%;
   }
 
   .reply-view {
