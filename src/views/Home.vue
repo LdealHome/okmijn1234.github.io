@@ -257,7 +257,6 @@
     methods: {
       main () {
         if (this.isGuest) {
-          this.$router.replace({ name: '404' })
           return
         }
         this.isLoad = true
