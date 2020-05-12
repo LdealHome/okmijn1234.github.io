@@ -499,6 +499,8 @@
   .banner-img {
     width: 100%;
     height: 100%;
+    border-bottom-left-radius: .22rem;
+    border-bottom-right-radius: .22rem;
   }
 
   .wallet {
@@ -685,7 +687,7 @@
   }
 
   .extension {
-    margin: .3rem;
+    margin: .3rem .3rem 0 .3rem;
 
     &-item {
       display: flex;
@@ -693,6 +695,10 @@
       border-radius: .1rem;
       box-shadow: 1px 1px 6px 0 rgba(240, 240, 240, .8);
       margin-bottom: .3rem;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
     }
 
     &-left {
