@@ -76,7 +76,8 @@
         study_close_time: Math.floor(time.getTime() / 1000),
         study_duration: watchTime + (data.study_duration || 0),
         play_length: (data.play_length || 0) + watchTime,
-        play_over: 2
+        play_over: 2,
+        key: vm.courseKey
       }))
     }
     window.removeEventListener('pagehide', pagehide, false)
