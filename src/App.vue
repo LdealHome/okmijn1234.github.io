@@ -35,6 +35,12 @@
       },
       routerMeta () {
         return this.$route.meta || {}
+      },
+      isLoadGuestInfo () {
+        return this.$store.state.isLoadGuestInfo
+      },
+      isGuest () {
+        return this.$store.state.guest
       }
     },
     watch: {
@@ -68,6 +74,9 @@
       },
       shareInfo () {
         this.baseWeixinShare()
+      },
+      isLoadGuestInfo () {
+        this.guestHandle()
       }
     },
     created () {
@@ -113,6 +122,11 @@
           link: `${location.origin}/particulars/from/${this.uid}`
         })
           .then(this.setWeiXinConfig)
+      },
+      guestHandle () {
+        if (this.isLoadGuestInfo && this.isGuest && !this.routerMeta.share) {
+          this.$router.replace({ name: 'particulars', params: { from: 1 } })
+        }
       }
     }
   }
