@@ -26,7 +26,7 @@
             span.count-down-unit 分
             span.count-down-num {{data.countDownList[3]}}
             span.count-down-unit 秒
-          div.remind-btn(@click="$emit('clickSetRemind')") {{remindBtnText}}
+          div.remind-btn(@click="$emit('clickSetRemind')" v-show="!isGuest") {{remindBtnText}}
       div.follow-view(v-if="!data.isFollow" @click="$emit('followBtnClick')")
         img.follow-avatar(:src="data.followBtnAvatar")
         p.follow-text 关注润阳老师
@@ -191,13 +191,16 @@
           sessionStorage.removeItem('videoPlayTime')
           this.studyTime += Math.floor((time - videoPlayTime) / 1000)
         }
-        this.$_.store.dispatch('postStudyStatistics', {
-          course_single_id: this.data.id,
-          study_duration: this.studyTime,
-          study_close_time: Math.floor(time.getTime() / 1000),
-          play_length: this.videoDuration,
-          play_over: 1
-        })
+        if (this.data.isStatistics) {
+          this.$_.store.dispatch('postStudyStatistics', {
+            course_single_id: this.data.id,
+            study_duration: this.studyTime,
+            study_close_time: Math.floor(time.getTime() / 1000),
+            play_length: this.videoDuration,
+            play_over: 1,
+            key: this.data.key
+          })
+        }
         // 视频播放完后，从初始位置重新播放
         this.video.currentTime = 0
       },
@@ -292,13 +295,15 @@
        * 缓存课程访问统计
        */
       setStudyStatistics () {
+        if (!this.data.isStatistics) return
         let time = new Date().getTime()
         localStorage.setItem('studyStatistics', JSON.stringify({
           course_single_id: this.data.id,
           study_duration: this.studyTime,
           study_close_time: Math.floor(time / 1000),
           play_length: this.videoPlayTime,
-          play_over: 2
+          play_over: 2,
+          key: this.data.key
         }))
       },
       changeOpenState () {

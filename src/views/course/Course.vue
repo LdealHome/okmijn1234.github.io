@@ -65,7 +65,7 @@
     if (vm.updateTimer) clearInterval(vm.updateTimer) 
     if (vm.reconnectTimer) clearTimeout(vm.reconnectTimer)
     let videoPlayTime = sessionStorage.getItem('videoPlayTime')
-    if (videoPlayTime) {
+    if (videoPlayTime && vm.mBean.isStatistics) {
       sessionStorage.removeItem('videoPlayTime')
       let data = JSON.parse(localStorage.getItem('studyStatistics') || '{}')
       let time = new Date()
@@ -145,7 +145,8 @@
           webSocketUrl: '',
           isForbidComment: false,
           role: 0,
-          totalComments: 0
+          totalComments: 0,
+          isStatistics: false
         },
         rewardInfo: {
           isShow: false,
@@ -277,7 +278,8 @@
               isForbidComment: data.is_comment === 2,
               role: data.role,
               totalComments: data.comment_number,
-              serverTime: res.data.timestamp
+              serverTime: res.data.timestamp,
+              isStatistics: data.is_statistics
             }
             if (!state) {
               // 未开播时更新距离开播倒计时
