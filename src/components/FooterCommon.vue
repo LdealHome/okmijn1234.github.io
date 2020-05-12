@@ -71,10 +71,10 @@
     bottom: 0;
     z-index: 10;
     padding-bottom: env(safe-area-inset-bottom);
+    background: #fff;
   }
 
   .list {
-    background: #fff;
     display: flex;
     box-shadow: 0 -1px 1px 0 rgba(228, 226, 226, 1);
   }
@@ -86,6 +86,7 @@
     flex-direction: column;
     align-items: center;
     padding-top: .08rem;
+    position: relative;
   }
 
   .item-icon {
