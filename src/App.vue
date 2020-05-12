@@ -66,7 +66,7 @@
         // 解决页面在显示弹窗时，直接关闭页面或跳转页面后，无法滚动问题
         this.handleToggleModal(false)
       },
-      shareInfo (val) {
+      shareInfo () {
         this.baseWeixinShare()
       }
     },
@@ -112,9 +112,7 @@
           title: this.shareInfo.title,
           link: `${location.origin}/particulars/from/${this.uid}`
         })
-          .then(res => {
-            this.setWeiXinConfig(res, this.shareSuccess)
-          })
+          .then(this.setWeiXinConfig)
       }
     }
   }
