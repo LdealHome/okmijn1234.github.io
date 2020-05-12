@@ -1,6 +1,7 @@
 <template lang="pug">
   div.video-player
     video.video-js.vjs-fluid.vjs-big-play-centered(
+      :class="{'is-live': !options.isLive}"
       ref="videoPlayer"
       playsinline="true"
       webkit-playsinline="true"
@@ -60,8 +61,8 @@
         this.on('pause', function () {
           self.$emit('pause', this)
         })
-        this.on('end', function () {
-          self.$emit('end', this)
+        this.on('ended', function () {
+          self.$emit('ended', this)
         })
       })
     },
@@ -70,7 +71,6 @@
         this.player.dispose()
       }
     }
-
   }
 </script>
 
@@ -106,4 +106,23 @@
     margin-top: -1em;
     margin-left: -1.5em;
   }
-</style>
+
+  .video-js.vjs-playing .vjs-tech {
+    pointer-events: auto;
+  }
+
+  .video-js .vjs-current-time,
+  .vjs-no-flex .vjs-current-time {
+    display: block;
+  }
+
+  .is-live.video-js .vjs-progress-control,
+  .is-live.video-js .vjs-fullscreen-control,
+  .is-live.video-js .vjs-remaining-time {
+    display: none;
+  }
+
+  .is-live.video-js .vjs-seek-to-live-control {
+    display: block;
+  }
+  </style>
