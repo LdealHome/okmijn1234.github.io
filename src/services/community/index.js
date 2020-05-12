@@ -129,3 +129,19 @@ export function getLiveBroadcastList (params) {
 export function getGraduationCertificate () {
   return Vue.axios.get('/course/graduate/info')
 }
+
+/**
+ * 获取所有期数列表
+ * @return {AxiosPromise<any>>}
+ */
+export function getPeriodsList () {
+  return Vue.axios.get('/stage/list')
+}
+
+/**
+ * 设置临时期数
+ * @return {AxiosPromise<id>>} 所选期数id
+ */
+export function postSetPeriods (data) {
+  return Vue.axios.post('/stage/setting', data)
+}

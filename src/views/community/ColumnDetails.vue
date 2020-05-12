@@ -12,15 +12,19 @@
         p.describe {{courseInfo.describe}}
         p.time 上课时间:{{courseInfo.time}}开始
     // 添加班主任(课程未开始或者未学时显示)
-    div.column__headmaster(v-if="!isGraduation")
+    div.column__headmaster(v-if="!isGraduation && superAdmin === 0")
       p.text 请务必添加班主任，否则无法上课。
       button.see(type="button" @click="isShowCourseCustomerService = true") 查看
     // 课程学习完后显示
-    div.column__curriculum(v-else)
+    div.column__curriculum(v-if="isGraduation")
       div.curriculum
         p.curriculum-title
         p.curriculum-text 直到今天，你达到的比你想象的还多
       button.see(type="button" @click="isShowCertificate = true") 查看
+    // 是否拥有超级管理员
+    div.column__role(v-if="superAdmin !== 0")
+      p.text 当前列表学员期数：{{realPeriods}}
+      button.see(type="button" @click="change") 切换
     // 导航切换
     ul.column__navbar
       li.item(
@@ -122,6 +126,12 @@
       :customer="followInfo"
       @close="closeFollow"
       )
+    // 选择期数
+    RolePopup(
+      v-if="isShowRole"
+      @cancel="isShowRole = false"
+      @determine="roleDetermine"
+    )
     TechnicalSupport
     FooterCommon(:selectedTab="-1")
 </template>
@@ -133,6 +143,7 @@
   import CustomerServicePopup from '../../components/community/CustomerServicePopup'
   import GraduationCertificatePopup from '../../components/community/GraduationCertificatePopup'
   import VideoPopup from '../../components/VideoPopup'
+  import RolePopup from '../../components/community/RolePopup'
   import TechnicalSupport from '../../components/TechnicalSupport'
   import FooterCommon from '../../components/FooterCommon'
   import NothingCommon from '../../components/NothingCommon'
@@ -140,7 +151,8 @@
   import {
     getColumnDetails,
     getLiveListMore,
-    getLiveBroadcastList
+    getLiveBroadcastList,
+    postSetPeriods
   } from '../../services/community'
   export default {
     name: 'ColumnDetails',
@@ -152,9 +164,27 @@
       CustomerServicePopup,
       GraduationCertificatePopup,
       VideoPopup,
+      RolePopup,
       TechnicalSupport,
       FooterCommon,
       NothingCommon
+    },
+    watch: {
+      isShowRole (val) {
+        this.$root.$emit('toggleModal', Boolean(val))
+      },
+      isShowCustomerService (val) {
+        this.$root.$emit('toggleModal', Boolean(val))
+      },
+      isShowCertificate (val) {
+        this.$root.$emit('toggleModal', Boolean(val))
+      },
+      isShowVideo (val) {
+        this.$root.$emit('toggleModal', Boolean(val))
+      },
+      isShowCourseCustomerService (val) {
+        this.$root.$emit('toggleModal', Boolean(val))
+      }
     },
     computed: {
       fromUid () {
@@ -185,6 +215,8 @@
         isShowCourseCustomerService: false, // 客服弹框
         isGraduation: false, // 是否毕业
         isShowCertificate: false, // 毕业证书弹框
+        superAdmin: 0, // 登陆人角色 0普通 1班主任 2班长 3组长
+        realPeriods: '', // 设置的期数名
         navbarList: ['课程介绍', '直播列表'], // 导航
         currentIndex: 1, // 导航默认选择
         moreList: [], // 更多日期选择
@@ -215,6 +247,7 @@
         },
         chooseCurrent: 0, // 改变数据变化
         isLoadMoreShow: false, // 自动加载数据是否显示，默认为false
+        isShowRole: false, // 期数选择弹框
         distanceScrollTop: 0, // 滚动距离
         sessionCache: {} // 缓存的数据
       }
@@ -267,6 +300,8 @@
             that.isGraduation = data.is_graduate === 1 // 是否毕业1是
             that.isFollow = data.is_focus === 1 // 是否关注公众号1是
             that.followInfo.codeSrc = data.focus_code
+            that.superAdmin = data.role // 登陆人角色 0普通 1班主任 2班长 3组长
+            that.realPeriods = data.stage_name
 
             let isCloseFollow = localStorage.getItem('isLoadFollow')
             // 未关注公众号
@@ -390,6 +425,31 @@
         // 缓存用户已进入过此页面
         localStorage.setItem('isLoadFollow', this.isShowCustomerService)
         this.isShowCustomerService = false
+      },
+      /**
+       * 选择期数弹框
+       */
+      change () {
+        this.isShowRole = true
+        document.documentElement.scrollTop = 0
+      },
+      /**
+       * 确定选择的期数
+       * @param select {Object} 对应的数据
+       */
+      roleDetermine (select) {
+        let that = this
+        postSetPeriods({ id: select.id }).then((res) => {
+          if (res.data.code === 1) {
+            that.isShowRole = false
+            that.realPeriods = select.title
+            that.moreList = []
+            that.getLiveListMore()
+            that.liveBroadcastList = []
+            that.params.page = 1
+            that.chooseCurrent++
+          }
+        })
       },
       /**
        * 视频播放
@@ -614,10 +674,12 @@
 </script>
 
 <style scoped lang="less">
+  @colorWhite: #fff;
+
   .column {
     min-height: 100vh;
     padding-bottom: 1.2rem;
-    background-color: #fff;
+    background-color: @colorWhite;
 
     &__above {
       padding: .3rem;
@@ -652,7 +714,7 @@
         background-size: .28rem;
 
         &:active {
-          background-color: darken(#fff, 5%);
+          background-color: darken(@colorWhite, 5%);
         }
       }
 
@@ -740,6 +802,34 @@
           font-size: .24rem;
           transform: scale(.92) translateX(-.2rem);
         }
+      }
+    }
+
+    &__role {
+      display: flex;
+      align-items: center;
+      width: 6.9rem;
+      height: .82rem;
+      margin: auto;
+      padding: 0 .3rem 0 .78rem;
+      border-radius: .08rem;
+      background: #faf6ef url("~@icon/community/column-role.png") no-repeat .3rem center;
+      background-size: .36rem .32rem;
+
+      .text {
+        flex: 1;
+        color: #ffa641;
+        font-size: .32rem;
+      }
+
+      .see {
+        text-align: left;
+        padding-left: .2rem;
+        line-height: .52rem;
+        background-image: url("~@icon/community/column-arrow-white.png");
+        background-position: .8rem center;
+        background-repeat: no-repeat;
+        background-size: .08rem .16rem;
       }
     }
 
@@ -900,7 +990,7 @@
   .see {
     width: 1.1rem;
     height: .5rem;
-    color: #fff;
+    color: @colorWhite;
     font-size: .24rem;
     border-radius: 1rem;
     background-color: #fba627;
@@ -936,7 +1026,7 @@
       background-color: #f5f7f9;
 
       &.active {
-        color: #fff;
+        color: @colorWhite;
         background-color: #fba627;
       }
     }
@@ -951,7 +1041,7 @@
       font-size: .28rem;
       text-align: left;
       padding-left: .06rem;
-      background: #fff url("~@icon/community/column-more-down.png") no-repeat .78rem center;
+      background: @colorWhite url("~@icon/community/column-more-down.png") no-repeat .78rem center;
       background-size: .16rem .08rem;
     }
 
@@ -965,7 +1055,7 @@
       font-size: .28rem;
       text-align: left;
       padding-left: .06rem;
-      background: #fff url("~@icon/community/column-more-up.png") no-repeat .78rem center;
+      background: @colorWhite url("~@icon/community/column-more-up.png") no-repeat .78rem center;
       background-size: .16rem .08rem;
     }
   }
@@ -1001,7 +1091,7 @@
       }
 
       &.active {
-        color: #fff;
+        color: @colorWhite;
         background-color: #fba627;
       }
     }
