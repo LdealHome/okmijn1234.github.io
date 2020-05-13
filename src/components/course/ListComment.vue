@@ -274,6 +274,10 @@
     margin-right: .1rem;
   }
 
+  .reward-name {
+    max-width: .9rem;
+  }
+
   .amount { color: #ff3d4c; }
 
   .reward-btn,
