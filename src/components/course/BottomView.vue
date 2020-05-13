@@ -19,7 +19,7 @@
         @contentBlur="contentBlur"
       )
     div.unregistered(v-else)
-      div.enroll-btn(@click="enrollClick") 参与课程
+      div.enroll-btn(@click="enrollClick") 点击了解：19元学习365天
       img.bullet-chat(:src="bulletChatSrc" @click="$emit('clickItem', 1)")
 </template>
 
@@ -238,21 +238,22 @@
     display: flex;
     align-items: center;
     padding: 0 .2rem 0 .3rem;
+    background: #fff;
   }
 
   .enroll-btn {
     flex: 1;
     height: .7rem;
     line-height: .7rem;
-    background: #fdb418;
-    font-size: .32rem;
-    color: #090909;
+    background: #f9d400;
+    font-size: .34rem;
+    color: #f3000c;
     text-align: center;
     border-radius: .35rem;
     margin-right: .1rem;
 
     &:active {
-      background: darken(#fdb418, 5%);
+      background: darken(#f9d400, 5%);
     }
   }
 
