@@ -68,7 +68,7 @@
           self.$emit('ended', this)
         })
         this.one('canplay', function () {
-          self.$emit('canplay', this, this.duration())
+          self.$emit('canplay', this)
         })
         this.one('timeupdate', function () {
           self.$emit('timeupdate', this)

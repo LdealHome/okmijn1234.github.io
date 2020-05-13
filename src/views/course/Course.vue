@@ -291,7 +291,8 @@
               role: data.role,
               totalComments: data.comment_number,
               serverTime: res.data.timestamp,
-              isStatistics: data.is_statistics
+              isStatistics: data.is_statistics,
+              videoLength: data.video_length
             }
             this.isLoad = true
             this.showFollowPopup()

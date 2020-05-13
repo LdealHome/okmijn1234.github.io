@@ -82,7 +82,6 @@
         isEnded: false,
         videoCurrent: 0, // 视频播放的进度
         studyTime: 0, // 学习时长
-        videoDuration: 0, // 视频总时长
         state: 0,
         videoHeight: 'auto',
         stopInfo: {
@@ -198,7 +197,7 @@
             course_single_id: this.data.id,
             study_duration: this.studyTime,
             study_close_time: Math.floor(time.getTime() / 1000),
-            play_length: this.videoDuration,
+            play_length: this.data.videoLength,
             play_over: 1,
             key: this.data.key
           })
@@ -208,13 +207,12 @@
       },
       /**
        * 直播中进入页面后或暂停直播后监听直播是否结束
-       * @param timer {Number} 距离直播结束剩余的时长 s
        */
-      startLiveEndMonitor (time) {
+      startLiveEndMonitor () {
         if (this.stopInfo.timer) {
           clearInterval(this.stopInfo.timer)
         }
-        this.stopInfo.surplusTime = time
+        this.stopInfo.surplusTime = Math.floor(this.data.videoLength - this.videoCurrent)
         this.stopInfo.timer = setInterval(() => {
           if (--this.stopInfo.surplusTime <= 0) {
             clearInterval(this.stopInfo.timer)
@@ -263,7 +261,7 @@
           // 用于计算点击开始播放后，调整视频的播放位置
           sessionStorage.setItem('waitTime', time)
           // 处理直播暂停期间，如果直播结束更新状态
-          this.startLiveEndMonitor(Math.floor(this.videoDuration - this.videoCurrent))
+          this.startLiveEndMonitor()
         }
         let videoPlayTime = sessionStorage.getItem('videoPlayTime')
         if (videoPlayTime) {
@@ -277,15 +275,14 @@
        * 获取视频总时长
        * 开启定时器，判断直播是否结束
        */
-      videoCanplay (self, duration) {
+      videoCanplay (self) {
         this.self = self
-        this.videoDuration = duration
         if (this.isEnded) {
           this.isEnded = false
           this.self.currentTime(0)
           this.self.play()
         } else if (this.state === 1) {
-          this.startLiveEndMonitor(duration - this.videoCurrent)
+          this.startLiveEndMonitor()
           if (getDeviceSystem() === 'ios') {
             this.isCanplay = true
             this.self.currentTime(this.videoCurrent)
