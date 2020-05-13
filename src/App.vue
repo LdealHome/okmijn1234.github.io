@@ -71,6 +71,7 @@
         this.baseWeixinShare()
         // 解决页面在显示弹窗时，直接关闭页面或跳转页面后，无法滚动问题
         this.handleToggleModal(false)
+        this.guestHandle()
       },
       shareInfo () {
         this.baseWeixinShare()
@@ -124,7 +125,7 @@
           .then(this.setWeiXinConfig)
       },
       guestHandle () {
-        if (this.isLoadGuestInfo && this.isGuest && !this.routerMeta.share) {
+        if (this.isLoadGuestInfo && this.isGuest && this.$route.name && !this.routerMeta.share) {
           this.$router.replace({ name: 'particulars', params: { from: 1 } })
         }
       }
