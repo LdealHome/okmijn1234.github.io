@@ -95,7 +95,8 @@
         doubleClick: {
           timer: null
         },
-        self: null
+        self: null,
+        isPlay: false
       }
     },
     watch: {
@@ -168,7 +169,7 @@
     methods: {
       eventHandle (event) {
         // 如果在直播状态时，断网后暂停播放视频
-        if (event.type === 'offline' && this.state === 1 && !this.isEnded) {
+        if (event.type === 'offline' && this.state === 1 && !this.isEnded && this.isPlay) {
           this.self.pause()
         }
       },
@@ -217,6 +218,8 @@
        * 视频播放事件
        */
       videoPlayEvent () {
+        if (this.isPlay) return
+        this.isPlay = true
         let time = new Date().getTime()
         if (this.state === 1) {
           // 如果是直播时，更新当前直播对应的位置
@@ -244,6 +247,7 @@
        * 视频暂停监听
        */
       videoPauseEvent () {
+        this.isPlay = false
         let time = new Date().getTime()
         if (this.state === 1) {
           // 储存暂停时的时间
