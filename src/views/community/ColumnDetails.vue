@@ -725,14 +725,14 @@
         position: absolute;
         left: 0;
         bottom: .1rem;
-        color: #2b2b2b;
+        color: #fff;
         font-size: .28rem;
         height: .54rem;
         line-height: .54rem;
         border-top-left-radius: 1rem;
         border-top-right-radius: 1rem;
         border-bottom-right-radius: 1rem;
-        background-color: rgba(255, 255, 255, .8);
+        background-color: #ff4c49;
         padding: 0 .14rem;
       }
 
