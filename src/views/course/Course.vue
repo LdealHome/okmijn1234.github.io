@@ -1,5 +1,5 @@
 <template lang="pug">
-  div(v-if="isLoad")
+  div
     component(
       :is="courseType"
       :data="mBean"
@@ -293,6 +293,8 @@
               serverTime: res.data.timestamp,
               isStatistics: data.is_statistics
             }
+            this.isLoad = true
+            this.showFollowPopup()
             if (!state) {
               // 未开播时更新距离开播倒计时
               this.updateCountDownList()
@@ -312,8 +314,6 @@
               .then(res => {
                 this.setWeiXinConfig(res, this.shareSuccess)
               })
-            this.isLoad = true
-            this.showFollowPopup()
 
             let rewardInfo = data.anchor_info
             this.rewardInfo = {
