@@ -1,9 +1,9 @@
 <template lang="pug">
   div.whole
     ul
-      li.item(v-for="item in list" :key="item.id")
+      li.item(v-for="(item, index) in list" :key="item.id")
         p.title {{item.title}}
-        p.content(v-html="item.content")
+        p.content(v-html="item.content" @click="contentClick(index)")
         p.time {{item.time}}
     div(v-show="!list.length")
       div.empty-tips 你还没有获得任何消息
@@ -70,6 +70,9 @@
             return list
           }
         })
+      },
+      contentClick (index) {
+        this.list[index].link && this.$_.entryOtherPage(this.list[index].link)
       }
     }
   }
