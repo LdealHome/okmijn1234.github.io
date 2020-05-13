@@ -236,6 +236,7 @@
               this.countDown--
               this.timer = setInterval(() => {
                 if (this.countDown <= 1) {
+                  this.countDown = 60
                   clearInterval(this.timer)
                   this.timer = null
                 } else {
