@@ -12,6 +12,7 @@
         @pause="videoPauseEvent"
         @ended="videoEnded"
         @canplay="videoCanplay"
+        @timeupdate="videTimeupdate"
       )
       img.video-poster(:src="options.poster" v-show="notBroadcast")
       div.count-down-view(v-show="notBroadcast")
@@ -88,7 +89,6 @@
           timer: null,
           surplusTime: 0
         },
-        currentTime: 0,
         isCanplay: false,
         isShowVideoControl: false,
         showControlTimer: null,
@@ -167,6 +167,13 @@
       }
     },
     methods: {
+      videTimeupdate () {
+        // 解决安卓手机直播中，播放按钮点击太快时，没有从直播位置播放问题，而是从头开始播放的
+        if (this.state === 1 && getDeviceSystem() !== 'ios') {
+          this.isCanplay = true
+          this.self.currentTime(this.videoCurrent)
+        }
+      },
       eventHandle (event) {
         // 如果在直播状态时，断网后暂停播放视频
         if (event.type === 'offline' && this.state === 1 && !this.isEnded && this.isPlay) {
@@ -227,11 +234,9 @@
           // 如果是直播时，更新当前直播对应的位置
           // 暂停期间的时长 + 暂停时播放的位置
           let startTime = sessionStorage.getItem('waitTime') || time
-          this.currentTime = Math.floor((time - startTime) / 1000) + this.videoCurrent
-          if (getDeviceSystem() === 'ios') {
-            this.isCanplay && this.self.currentTime(this.currentTime)
-          } else {
-            this.self.currentTime(this.currentTime)
+          this.videoCurrent += Math.floor((time - startTime) / 1000)
+          if (this.isCanplay) {
+            this.self.currentTime(this.videoCurrent)
           }
           // 关闭直播结束判断定时器
           if (this.stopInfo.timer) {
@@ -251,15 +256,15 @@
       videoPauseEvent () {
         this.isPlay = false
         let time = new Date().getTime()
+        // 获取暂停时视频播放的进度
+        this.videoCurrent = this.self.currentTime()
         if (this.state === 1) {
           // 储存暂停时的时间
           // 用于计算点击开始播放后，调整视频的播放位置
           sessionStorage.setItem('waitTime', time)
           // 处理直播暂停期间，如果直播结束更新状态
-          this.startLiveEndMonitor(Math.floor(this.videoDuration - this.self.currentTime()))
+          this.startLiveEndMonitor(Math.floor(this.videoDuration - this.videoCurrent))
         }
-        // 获取暂停时视频播放的进度
-        this.videoCurrent = this.self.currentTime()
         let videoPlayTime = sessionStorage.getItem('videoPlayTime')
         if (videoPlayTime) {
           sessionStorage.removeItem('videoPlayTime')
@@ -274,16 +279,16 @@
        */
       videoCanplay (self, duration) {
         this.self = self
+        this.videoDuration = duration
         if (this.isEnded) {
           this.isEnded = false
+          this.self.currentTime(0)
           this.self.play()
-        }
-        this.videoDuration = duration
-        if (this.courseState === 1) {
+        } else if (this.state === 1) {
           this.startLiveEndMonitor(duration - this.videoCurrent)
           if (getDeviceSystem() === 'ios') {
             this.isCanplay = true
-            this.self.currentTime(this.currentTime)
+            this.self.currentTime(this.videoCurrent)
           }
         }
       },
