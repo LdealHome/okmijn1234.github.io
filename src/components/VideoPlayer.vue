@@ -58,6 +58,9 @@
         this.on('play', function () {
           self.$emit('play', this)
         })
+        this.on('playing', function () {
+          self.$emit('playing', this)
+        })
         this.on('pause', function () {
           self.$emit('pause', this)
         })

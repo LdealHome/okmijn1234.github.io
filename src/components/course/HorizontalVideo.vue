@@ -8,7 +8,7 @@
       VideoPlayer(
         v-if="isShowVideo"
         :options="options"
-        @play="videoPlayEvent"
+        @playing="videoPlayEvent"
         @pause="videoPauseEvent"
         @ended="videoEnded"
         @canplay="videoCanplay"
@@ -29,7 +29,6 @@
       div.follow-view(v-if="!data.isFollow" @click="$emit('followBtnClick')")
         img.follow-avatar(:src="data.followBtnAvatar")
         p.follow-text 关注润阳老师)
-      div.occlusion-layer(v-show="!self")
     div.live-broadcast-info
       p.state.not-started(:class="liveBroadcastClass") {{liveBroadcastState}}
         span.interval |
@@ -316,17 +315,6 @@
 </script>
 
 <style scoped lang="less">
-  .occlusion-layer {
-    width: 100%;
-    height: 4.7rem;
-    position: absolute;
-    z-index: 10;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-  }
-
   .top-view {
     z-index: 1; // 这里加层级是解决，直播状态栏底部边框样式，会被滚动的内容挡住
   }
