@@ -172,7 +172,8 @@
         }
       },
       editInfoClick () {
-        this.$router.push({ name: 'edit-info' })
+        // 这里跳转编辑页面，query参数type值是没有意义的，用于编辑页面点击保存时跳转处理
+        this.$router.push({ name: 'edit-info', query: { type: 'edit' } })
       },
       newsClick () {
         this.$router.push({ name: 'news' })

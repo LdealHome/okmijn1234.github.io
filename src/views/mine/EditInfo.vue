@@ -75,6 +75,11 @@
         }
       }
     },
+    watch: {
+      avatarScene () {
+        this.setImageScene() 
+      }
+    },
     beforeRouteLeave (to, from, next) {
       if (this.timer) {
         clearInterval(this.timer)
@@ -123,12 +128,14 @@
       },
       positionType () {
         return this.$store.state.typeTable.positionType || []
+      },
+      routerType () {
+        return this.$route.query.type
       }
     },
     methods: {
       main () {
-        // 设置上传图片的环境
-        this.$store.dispatch('getQiniuToken', [this.avatarScene])
+        this.setImageScene()
         getEditInfo().then(res => {
           if (res.data.code === 1) {
             let data = res.data.data
@@ -144,6 +151,12 @@
             }
           }
         })
+      },
+      setImageScene () {
+        // 设置上传图片的环境
+        if (this.avatarScene) {
+          this.$store.dispatch('getQiniuToken', [this.avatarScene])
+        }
       },
       saveBtnClick () {
         if (!this.name) {
@@ -180,7 +193,11 @@
               if (res.data.code === 1) {
                 this.$_.store.dispatch('getUserInfo').then(() => {
                   this.$_.Toast('保存成功')
-                  this.$router.go(-1)
+                  if (this.routerType) {
+                    this.$router.go(-1)
+                  } else {
+                    this.$router.push({ name: 'mine' })
+                  }
                 })
               }
             })
