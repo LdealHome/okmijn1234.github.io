@@ -96,7 +96,7 @@
     data () {
       return {
         type: 1,
-        isLoad: true,
+        isLoad: false,
         mBean: {
           id: 0, // 课程id
           video: { // 视频信息
@@ -191,6 +191,14 @@
         if (val && this.studyDataLoad) {
           this.loadMore(this.studyDataLoad.type, this.studyDataLoad.res)
         }
+      },
+      isLoadGuestInfo () {
+        this.showFollowPopup()
+      },
+      isCustomerServicePopup (val) {
+        if (!val) {
+          localStorage.setItem('courseFollowPopup', true)
+        }
       }
     },
     computed: {
@@ -213,6 +221,9 @@
       },
       avatar () {
         return this.$store.state.personalInfo.avatar
+      },
+      isLoadGuestInfo () {
+        return this.$store.state.isLoadGuestInfo
       }
     },
     methods: {
@@ -302,6 +313,7 @@
                 this.setWeiXinConfig(res, this.shareSuccess)
               })
             this.isLoad = true
+            this.showFollowPopup()
 
             let rewardInfo = data.anchor_info
             this.rewardInfo = {
@@ -313,6 +325,13 @@
             this.customerServiceData.codeSrc = data.user_focus_info.focus_code
           }
         })
+      },
+      /**
+       * 已购买社群但未关注用户，第一次进入显示关注弹窗
+       */
+      showFollowPopup () {
+        if (!this.isLoad || !this.isLoadGuestInfo) return
+        if (!this.isGuest && !this.mBean.isFollow && !localStorage.getItem('courseFollowPopup')) this.isCustomerServicePopup = true
       },
       getNewestComment () {
         getNewestCommentList({ key: this.courseKey }).then(res => {
