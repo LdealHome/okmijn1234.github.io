@@ -6,11 +6,11 @@
         div.share(@click="isShowPostersShare = true") 分享
         div.countdown(v-if="countdown !== 0")
           span 倒计时：
-          span {{courseInfo.countdown}}
+          span {{countdownText}}
       div.following
         h2.title {{courseInfo.title}}
         p.describe {{courseInfo.describe}}
-        p.time 上课时间:{{courseInfo.time}}开始
+        p.time 上课时间：{{courseInfo.time}}开始
     // 添加班主任(课程未开始或者未学时显示)
     div.column__headmaster(v-if="!isGraduation && superAdmin === 0")
       p.text 请务必添加班主任，否则无法上课。
@@ -173,16 +173,10 @@
       isShowRole (val) {
         this.$root.$emit('toggleModal', Boolean(val))
       },
-      isShowCustomerService (val) {
-        this.$root.$emit('toggleModal', Boolean(val))
-      },
       isShowCertificate (val) {
         this.$root.$emit('toggleModal', Boolean(val))
       },
-      isShowVideo (val) {
-        this.$root.$emit('toggleModal', Boolean(val))
-      },
-      isShowCourseCustomerService (val) {
+      isShowPostersShare (val) {
         this.$root.$emit('toggleModal', Boolean(val))
       }
     },
@@ -205,11 +199,11 @@
       return {
         courseInfo: {
           imgSrc: '', // 封面
-          countdown: '', // 倒计时
           title: '', // 标题
           describe: '', // 描述
           time: '' // 时间
         }, // 课程相关信息
+        countdownText: '00天00时00分00秒', // 倒计时
         countdown: 1587830400, // 倒计时
         isShowPostersShare: false, // 邀请海报弹框
         isShowCourseCustomerService: false, // 客服弹框
@@ -263,6 +257,7 @@
       // 课程信息
       mine () {
         let that = this
+        that.getColumnDetails()
         let getLocalCache = that.getLocalCache
         if (getLocalCache) { // 有缓存
           that.moreIndex = getLocalCache.moreIndex
@@ -281,7 +276,9 @@
         } else { // 没有缓存
           that.getLiveListMore()
         }
-
+      },
+      getColumnDetails () {
+        let that = this
         getColumnDetails().then(res => {
           if (res.data.code === 1) {
             let data = res.data.data
@@ -291,7 +288,7 @@
             document.title = courseInfo.title
             that.courseInfo = {
               imgSrc: courseInfo.video_cover, // 封面
-              countdown: data.differ_time, // 倒计时
+              // countdown: data.differ_time, // 倒计时
               title: courseInfo.title, // 标题
               describe: courseInfo.desc_content, // 描述
               time: data.start_time // 时间
@@ -343,7 +340,7 @@
               // 秒
               let second = parseInt(countDown % 60)
               second = second > 9 ? second : ('0' + second)
-              this.courseInfo.countdown = `${day}天${hour}时${minute}分${second}秒`
+              this.countdownText = `${day}天${hour}时${minute}分${second}秒`
             }
           }, 1000)
         }
@@ -447,7 +444,8 @@
             that.moreIndex = -1
             that.moreList = []
             that.liveBroadcastList = []
-            that.mine()
+            that.getLiveListMore()
+            that.getColumnDetails()
             that.params.page = 1
             that.params.scope = ''
             that.chooseCurrent++
