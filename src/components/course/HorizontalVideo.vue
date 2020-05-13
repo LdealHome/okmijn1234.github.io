@@ -195,6 +195,8 @@
             play_over: 1,
             key: this.data.key
           })
+          // 清空学习的时长
+          this.studyTime = 0
         }
       },
       /**
