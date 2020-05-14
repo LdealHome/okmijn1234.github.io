@@ -8,7 +8,7 @@
           p.item-stage {{item.tips}}
       div.item-describe(@click="$emit('courseDetails', item.courseId)")
         p.describe {{item.name}}
-        div.study-btn 去学习
+        div.study-btn(v-show="item.courseId !== 0") 去学习
 </template>
 
 <script>

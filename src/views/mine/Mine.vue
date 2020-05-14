@@ -207,7 +207,11 @@
        * @param id {Number} 课程id
        */
       courseDetails (id) {
-        this.$router.push({ name: 'curriculum', params: { id, from: this.uid } })
+        if (id === 0) { // 开营未开课
+          this.specialDetails()
+        } else {
+          this.$router.push({ name: 'curriculum', params: { id, from: this.uid } })
+        }
       },
       async loadMore (res) {
         const that = this
