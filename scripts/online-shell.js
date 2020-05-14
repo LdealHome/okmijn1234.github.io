@@ -3,7 +3,17 @@ const fs = require('fs-extra')
 
 const entry = `/www/wwwroot/community-pro/communityWeb/index.html`
 
-shell.exec('git checkout . && git checkout master && git pull')
+let status = shell.exec('git checkout . && git checkout master && git pull')
+if (status.code !== 0) {
+  shell.echo('更新代码失败，请排查')
+  shell.exit(1)
+}
+// 如果package.json发生变化就重新安装依赖包
+if (status.grep('package.json').stdout !== '\n') {
+  shell.echo('开始安装依赖包...')
+  shell.exec('npm install')
+  shell.echo('依赖包更新完成')
+}
 // 构建代码
 if (shell.exec('vue-cli-service build --mode production').code !== 0) {
   shell.echo('build error!!!')

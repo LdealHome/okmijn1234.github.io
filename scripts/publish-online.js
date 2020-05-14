@@ -15,7 +15,11 @@ if (!branch) {
   }
 }
 // 确保当前工作分支没有未推送的内容
-shell.exec(`git push && git checkout ${targetBranch} && git checkout . && git pull && git merge ${branch}`)
+let status = shell.exec(`git push && git checkout ${targetBranch} && git checkout . && git pull && git merge ${branch}`)
+if (status.code !== 0) {
+  shell.echo('合并代码遇到问题，请排查！')
+  shell.exit(1)
+}
 // 重新生成新的提交内容
 let log = shell.exec('git log --pretty=format:"%h - %an, %cd--%s" -1', { silent: true }).stdout
 let date = new Date().toLocaleString()
