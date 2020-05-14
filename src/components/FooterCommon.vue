@@ -6,7 +6,7 @@
         @click="switchTab(1)"
       )
         span.item-icon.hammer
-        span.text 自动成交页
+        span.text 自动集福页
       li.item(
         :class="itemClass(2)"
         @click="switchTab(2)"

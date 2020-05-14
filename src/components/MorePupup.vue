@@ -1,7 +1,7 @@
 <template lang="pug">
   div
     div.content-back(v-show="isShowMore" @click="isShowMore = false")
-      div.hammer-view(@click.stop="$router.push({ name: 'particulars', params: { from: uid } })") 自动成交页
+      div.hammer-view(@click.stop="$router.push({ name: 'particulars', params: { from: uid } })") 自动集福页
       div.fu-view(@click.stop="$router.push({ name: 'home' })") 集福中心
       div.study-view(@click.stop="$router.push({name: 'mine'})") 学习中心
       div.collection-view(@click.stop="$emit('collectionClick')") 收藏

@@ -9,7 +9,7 @@
       ul.list
         li.item(@click="$router.push({ name: 'particulars', params: { from: uid } })")
           img.item-icon(src="@icon/more/course-hammer.png")
-          p.text 自动成交页
+          p.text 自动集福页
         li.item(@click="$router.push({ name: 'home' })")
           img.item-icon(src="@icon/more/course-fu.png")
           p.text 集福中心

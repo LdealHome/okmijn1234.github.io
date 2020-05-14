@@ -380,7 +380,7 @@
         })
         return list
       },
-      // 跳转到自动成交页
+      // 跳转到自动集福页
       jumpParticulars () {
         this.$router.push({
           name: 'particulars',
