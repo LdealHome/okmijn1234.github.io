@@ -1,39 +1,40 @@
 <template lang="pug">
-  div
-    mt-popup.popup-content(
-      position="bottom"
-      v-model="isShow"
-    )
-      div.right-anchor
-        span.anchor-top(@click="rollTopClick")
-        span.anchor-bottom(@click="rollBottomClick")
-      P.top-title 讨论区({{data.totalComments}})
-      img.close-btn(src="@icon/close/close-reward.png" @click="isShow = false")
-      div.comment-back(ref="commentList" @scroll="scrollEvent")
-        ListComment.comment-list-back(
-          :list="data.commentListInfo.list"
-          type="comment"
-          :role="data.role"
-          :serverTime="data.serverTime"
-          @clickItem="clickItem"
-          @commentClick="commentClick"
-          @showManageView="showManageView"
-          @cancelReply="cancelReply"
-          @fingersAway="fingersAway"
-        )
-        infinite-loading(@infinite="loadMore" direction="top" :identifier="identifier")
-          div(slot="spinner")
-          div(slot="no-more")
-          div(slot="no-results")
-      EditView(
-        :isProblem="isProblem"
-        :data="data"
-        :replyInfo="replyInfo"
-        :changeInfo="changeInfo"
-        @problemClick="$emit('problemClick', 5)"
-        @sendComment="sendComment"
-        @contentBlur="contentBlur"
+  div.interactive
+    <!--mt-popup.popup-content(-->
+      <!--position="bottom"-->
+      <!--v-model="isShow"-->
+    <!--)-->
+    div.right-anchor
+      span.anchor-top(@click="rollTopClick")
+      span.anchor-bottom(@click="rollBottomClick")
+    <!--P.top-title 讨论区({{data.totalComments}})-->
+    <!--img.close-btn(src="@icon/close/close-reward.png" @click="isShow = false")-->
+    div.comment-back(ref="commentList" @scroll="scrollEvent")
+      ListComment.comment-list-back(
+        :list="data.commentListInfo.list"
+        type="comment"
+        :role="data.role"
+        :serverTime="data.serverTime"
+        @clickItem="clickItem"
+        @commentClick="commentClick"
+        @showManageView="showManageView"
+        @cancelReply="cancelReply"
+        @fingersAway="fingersAway"
       )
+      infinite-loading(@infinite="loadMore" direction="top" :identifier="identifier")
+        div(slot="spinner")
+        div(slot="no-more")
+        div(slot="no-results")
+    EditView(
+      v-show="isShowEditView"
+      :isProblem="isProblem"
+      :data="data"
+      :replyInfo="replyInfo"
+      :changeInfo="changeInfo"
+      @problemClick="$emit('problemClick', 5)"
+      @sendComment="sendComment"
+      @contentBlur="contentBlur"
+    )
     div.manage-view(v-show="isShowManageView" :style="manageStyle" ref="manageView")
       p.delete-item(@click="deleteComment") 删除评论
       p.forbidden-words(@click="forbiddenWords" :class="{ 'locking-btn': fingerPosition.role }") {{forbiddenWordsText}}
@@ -107,7 +108,8 @@
           height: 0
         },
         isBottom: true,
-        isClickableManage: false
+        isClickableManage: false,
+        isShowEditView: false
       }
     },
     created () {
@@ -205,12 +207,14 @@
       },
       clickItem (info) {
         this.$emit('clickItem', info)
+        this.isShowEditView = true
       },
       /**
        * 点击评论。回复处理
        */
       commentClick (index) {
         this.isShowManageView = false
+        this.isShowEditView = true
         if (!this.data.commentListInfo.list[index] ||
           this.data.commentListInfo.list[index].id === this.replyInfo.id ||
           this.data.commentListInfo.list[index].userInfo.uid === this.uid ||
@@ -319,12 +323,24 @@
     z-index: 19 !important;
   }
 
-  .popup-content {
-    height: 84%;
-    width: 100%;
-    border-radius: .12rem .12rem 0 0;
-    display: flex;
-    flex-direction: column;
+  /* .popup-content { */
+
+  /* height: 84%; */
+
+  /* width: 100%; */
+
+  /* border-radius: .12rem .12rem 0 0; */
+
+  /* display: flex; */
+
+  /* flex-direction: column; */
+
+  /* } */
+
+  .interactive {
+    flex: 1;
+    overflow: auto;
+    position: relative;
   }
 
   .top-title {
@@ -349,14 +365,17 @@
   }
 
   .comment-back {
-    flex: 1;
+    /* flex: 1; */
+    height: 100%;
     overflow: auto;
     -webkit-overflow-scrolling: touch;
-    padding-bottom: .2rem;
+
+    /* padding-bottom: .2rem; */
   }
 
   .comment-list-back {
-    min-height: 100%;
+    /* min-height: 100%; */
+    height: 100%;
     word-break: break-all;
     -webkit-user-select: none;
     user-select: none;

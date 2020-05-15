@@ -5,6 +5,10 @@
       :class="videoBackClass"
       @click="clickVideo"
     )
+      div.live-broadcast-info
+        p.state.not-started(:class="liveBroadcastClass") {{liveBroadcastState}}
+          span.interval |
+          span {{data.personTime}}人次
       VideoPlayer(
         v-if="isShowVideo"
         :options="options"
@@ -27,18 +31,23 @@
             span.count-down-num {{data.countDownList[3]}}
             span.count-down-unit 秒
           div.remind-btn(@click="$emit('clickSetRemind')" v-show="!isGuest") {{remindBtnText}}
-      div.follow-view(v-if="!data.isFollow" @click="$emit('followBtnClick')")
-        img.follow-avatar(:src="data.followBtnAvatar")
-        p.follow-text 关注润阳老师)
-    div.live-broadcast-info
-      p.state.not-started(:class="liveBroadcastClass") {{liveBroadcastState}}
-        span.interval |
-        span {{data.personTime}}人次
-      img.retract-btn(
-        src="@icon/course/retract-icon.png"
+    <!--(v-if="!data.isFollow"")-->
+      <!--div.follow-view-->
+        <!--img.follow-avatar(:src="data.followBtnAvatar")-->
+        <!--p.follow-text 关注润阳老师)-->
+    div.navBar
+      div.navBar__list
+        p.navBar__item(
+          v-for="(item, index) in navBarList"
+          :class="{active: navBarCurrent === index}"
+          @click="test(index)"
+        ) {{item}}
+      div.follow(v-show="data.isShowFollow" @click="$emit('followBtnClick')") +关注
+      div.retract-btn(
         @click="changeOpenState"
         :class="retractClass"
       )
+
 </template>
 
 <script>
@@ -95,7 +104,9 @@
           timer: null
         },
         self: null,
-        isPlay: false
+        isPlay: false,
+        navBarList: ['资料区', '互动区'],
+        navBarCurrent: 1
       }
     },
     watch: {
@@ -166,6 +177,10 @@
       }
     },
     methods: {
+      test (index) {
+        this.navBarCurrent = index
+        this.$emit('test', this.navBarCurrent)
+      },
       videTimeupdate () {
         // 解决安卓手机直播中，播放按钮点击太快时，没有从直播位置播放问题，而是从头开始播放的
         if (this.state === 1 && getDeviceSystem() !== 'ios') {
@@ -324,6 +339,7 @@
 
 <style scoped lang="less">
   .top-view {
+    background-color: #fff;
     z-index: 1; // 这里加层级是解决，直播状态栏底部边框样式，会被滚动的内容挡住
   }
 
@@ -384,31 +400,6 @@
     z-index: 2;
   }
 
-  .follow-view {
-    position: absolute;
-    right: 0;
-    top: 0;
-    background: #f9d400;
-    height: .48rem;
-    display: flex;
-    align-items: center;
-  }
-
-  .follow-avatar {
-    width: .48rem;
-    height: .48rem;
-    border-radius: 50%;
-    border: 1px solid #fff;
-    margin-left: -.24rem;
-  }
-
-  .follow-text {
-    font-size: .24rem;
-    color: #333;
-    margin-left: .1rem;
-    padding-right: .16rem;
-  }
-
   .count-down-view {
     width: 100%;
     height: 1.15rem;
@@ -457,12 +448,16 @@
   }
 
   .live-broadcast-info {
-    height: .78rem;
-    background: #fff;
+    position: absolute;
+    top: 0;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    box-shadow: 0 1px 1px 0 rgba(205, 188, 188, .5);
+    border-radius: .12rem;
+    height: .5rem;
+    padding: 0 .16rem;
+    z-index: 2;
+    background: linear-gradient(to bottom, rgba(0, 0, 0, .1), rgba(0, 0, 0, .5));
   }
 
   .video-control {
@@ -501,11 +496,11 @@
   }
 
   .state {
-    margin-left: .32rem;
     padding-left: .26rem;
     font-size: .24rem;
-    color: #5b5b5b;
+    color: #fff;
     position: relative;
+    text-shadow: 0 1px 1px rgba(4, 20, 51, .5);
   }
 
   .interval {
@@ -544,18 +539,60 @@
   }
 
   .retract-btn {
-    width: .46rem;
-    height: .46rem;
-    margin-right: .2rem;
-    padding: .1rem;
-    box-sizing: content-box;
+    width: .84rem;
+    height: .88rem;
+    background: url("~@icon/course/arrow-down.png") no-repeat center;
+    background-size: .26rem .14rem;
+    transform: rotate(180deg);
   }
 
   .retract-open {
-    transform: rotate(180deg);
+    transform: rotate(0);
   }
 
   .hide-video-controls::-webkit-media-controls-enclosure {
     display: none !important;
+  }
+
+  .navBar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-left: .3rem;
+    height: .88rem;
+
+    &__list {
+      display: flex;
+    }
+
+    &__item {
+      color: #999;
+      font-size: .32rem;
+      width: 1.8rem;
+      height: .88rem;
+      line-height: .88rem;
+      text-align: center;
+      margin-right: .74rem;
+
+      &.active {
+        color: #222;
+        font-size: .34rem;
+        border-bottom: 2px solid #f9d400;
+      }
+    }
+  }
+
+  .follow {
+    width: 1.26rem;
+    height: .88rem;
+    color: #fff;
+    font-size: .32rem;
+    text-align: center;
+    line-height: .88rem;
+    background-color: #f9d400;
+
+    &:active {
+      background-color: darken(#f9d400, 5%);
+    }
   }
 </style>

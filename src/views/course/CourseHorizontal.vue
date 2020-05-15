@@ -2,20 +2,35 @@
   div.whole
     HorizontalVideo(
       :data="data"
+      @test="test"
       @clickSetRemind="$emit('clickSetRemind')"
       @followBtnClick="$emit('followBtnClick')"
     )
-    LearningArea(
-      :studyListInfo="data.studyListInfo"
-      :chatInfo="data.chatInfo"
-      @shareBtnClick="$emit('shareBtnClick')"
-      @seeVideo="seeVideo"
-      @clickItem="clickLearningItem"
-      @loadMore="loadMore"
-      @cancelComment="cancelComment"
-      @showCommentPopup="commentInfo.isShow = true"
-      @changeStudyRollState="changeRollState"
-    )
+    template
+      LearningArea(
+        v-show="differentiateIndex === 0"
+        :studyListInfo="data.studyListInfo"
+        :chatInfo="data.chatInfo"
+        @shareBtnClick="$emit('shareBtnClick')"
+        @seeVideo="seeVideo"
+        @clickItem="clickLearningItem"
+        @loadMore="loadMore"
+        @cancelComment="cancelComment"
+        @showCommentPopup="commentInfo.isShow = true"
+        @changeStudyRollState="changeRollState"
+      )
+      CommentArea(
+        v-show="differentiateIndex === 1"
+        :data="data"
+        :commentInfo="commentInfo"
+        :isProblem="bottomInfo.isProblem"
+        @close="commentInfo.isShow = false"
+        @problemClick="clickBottomItem"
+        @loadMore="loadMore"
+        @sendComment="sendComment"
+        @clickItem="clickLearningItem"
+        @changeCommentRollState="changeRollState"
+      )
     BottomView(
       :data="bottomInfo"
       :liveInfo="data"
@@ -27,17 +42,6 @@
       :isShow="isShowMore"
       @close="isShowMore = false"
       @collect="$emit('collectBtnClick')"
-    )
-    CommentArea(
-      :data="data"
-      :commentInfo="commentInfo"
-      :isProblem="bottomInfo.isProblem"
-      @close="commentInfo.isShow = false"
-      @problemClick="clickBottomItem"
-      @loadMore="loadMore"
-      @sendComment="sendComment"
-      @clickItem="clickLearningItem"
-      @changeCommentRollState="changeRollState"
     )
     PhotoSwipe(
       :photoSwipeInit="photoSwipeInit"
@@ -87,7 +91,8 @@
           target: null
         },
         photoSwipeInit: false, // 是否显示图片预览
-        changeEditState: 0
+        changeEditState: 0,
+        differentiateIndex: 1 // 显示资料区还是互动区0资料区，1互动区
       }
     },
     computed: {
@@ -96,6 +101,10 @@
       }
     },
     methods: {
+      test (index) {
+        this.differentiateIndex = index
+        console.log(this.data.studyListInfo, this.data.chatInfo)
+      },
       seeVideo (info) {
         this.$emit('seeVideo', info)
       },

@@ -4,7 +4,7 @@
       :is="courseType"
       :data="mBean"
       @clickSetRemind="clickSetRemind"
-      @followBtnClick="isCustomerServicePopup = true"
+      @followBtnClick="isAddWeChatPopup = true"
       @clickReward="rewardInfo.isShow = true"
       @collectBtnClick="isShowCollect = true"
       @shareBtnClick="isPostersSharePopup = true"
@@ -19,6 +19,11 @@
       v-if="isCustomerServicePopup"
       :customer="customerServiceData"
       @close="isCustomerServicePopup = false"
+    )
+    AddWeChatPopup(
+      v-if="isAddWeChatPopup"
+      :addWeChatSrc="addWeChatSrc"
+      @close="isAddWeChatPopup = false"
     )
     RewardPopup(
       :rewardInfo="rewardInfo"
@@ -37,6 +42,7 @@
 <script>
   import CourseHorizontal from './CourseHorizontal'
   import CustomerServicePopup from '../../components/community/CustomerServicePopup'
+  import AddWeChatPopup from '../../components/course/AddWeChatPopup'
   import RewardPopup from '../../components/course/RewardPopup'
   import GuideCollection from '../../components/course/GuideCollection'
   import PostersSharePopup from '../../components/community/PostersSharePopup'
@@ -88,6 +94,7 @@
     components: {
       CourseHorizontal,
       CustomerServicePopup,
+      AddWeChatPopup,
       RewardPopup,
       GuideCollection,
       PostersSharePopup,
@@ -103,6 +110,7 @@
             src: '',
             poster: ''
           },
+          isShowFollow: false, // 是否显示关注按钮
           followBtnAvatar: '', // 关注按钮头像
           state: -1, // 直播状态 0: 未开始 1:直播中 2:回放
           personTime: 0, // 人次
@@ -159,6 +167,8 @@
         isShowCollect: false, // 是否显示收藏引导弹窗
         isPostersSharePopup: false,
         isCustomerServicePopup: false,
+        isAddWeChatPopup: false,
+        addWeChatSrc: '',
         customerServiceData: { // 关注公众号
           differentiate: 2,
           content: '',
@@ -240,6 +250,7 @@
                 src: data.video_src,
                 poster: data.video_cover
               },
+              isShowFollow: data.live_focus_qr_code !== '',
               followBtnAvatar: data.user_focus_info.focus_anchor_img,
               state: state, // 直播状态 0: 未开始 1:直播中 2:回放
               personTime: state > 0 ? data.watch_number : data.set_start_number, // 人次
@@ -323,7 +334,8 @@
               name: rewardInfo.nick_name,
               amountList: data.reward_info
             }
-            this.customerServiceData.codeSrc = data.user_focus_info.focus_code
+            // this.customerServiceData.codeSrc = data.user_focus_info.focus_code
+            this.addWeChatSrc = data.live_focus_qr_code
           }
         })
       },

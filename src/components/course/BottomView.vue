@@ -5,8 +5,8 @@
         div.comment-view(@click="commentClick")
           p.comment-edit {{editTips}}
           div.problem-btn(v-show="isShowProblemBtn" :class="{ 'problem-active': data.isProblem }" @click.stop="problemClick") 提问
-        img.bullet-chat(:src="bulletChatSrc" @click="$emit('clickItem', 1)")
-        span.comment-btn(@click="$emit('clickItem', 2)")
+        // img.bullet-chat(:src="bulletChatSrc" @click="$emit('clickItem', 1)")
+        // span.comment-btn(@click="$emit('clickItem', 2)")
         span.reward-btn(@click="$emit('clickItem', 3)")
         img.more-btn(src="@icon/course/more.png" @click="$emit('clickItem', 4)")
       EditView(
