@@ -440,6 +440,7 @@
         let that = this
         postSetPeriods({ id: id }).then((res) => {
           if (res.data.code === 1) {
+            clearInterval(that.countdownTimer)
             that.isShowRole = false
             that.moreIndex = -1
             that.moreList = []
