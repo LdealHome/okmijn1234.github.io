@@ -126,7 +126,7 @@
       },
       isOwnComment (index) {
         return index => {
-          return this.list[index].userInfo.uid === this.uid && this.isComment
+          return this.list[index].userInfo.uid === this.uid && this.isComment && !this.list[index].isFictitious
         }
       },
       isRecord (index) {

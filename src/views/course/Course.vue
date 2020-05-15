@@ -811,7 +811,8 @@
             },
             image: item.img_url, // 图片
             amount: item.price, // 打赏的金额
-            id: item.id
+            id: item.id,
+            isFictitious: item.is_virtual_user === 1 // 是否是虚拟用户
           })
         })
         return list
