@@ -39,17 +39,20 @@
           }
         }
       },
-      chatInfo: {
-        type: Object,
+      state: {
+        type: Number,
         required: false,
-        default () {
-          return {}
-        }
+        default: 0
       }
     },
     data () {
       return {
         isBottom: false
+      }
+    },
+    mounted () {
+      if (this.studyListInfo.list.length && this.state === 1) {
+        this.rollBottomClick()
       }
     },
     watch: {

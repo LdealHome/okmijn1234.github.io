@@ -10,7 +10,7 @@
       LearningArea(
         v-if="differentiateIndex === 0"
         :studyListInfo="data.studyListInfo"
-        :chatInfo="data.chatInfo"
+        :state="data.state"
         @shareBtnClick="$emit('shareBtnClick')"
         @seeVideo="seeVideo"
         @clickItem="clickLearningItem"
