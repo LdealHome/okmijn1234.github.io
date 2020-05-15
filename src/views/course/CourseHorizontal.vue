@@ -134,7 +134,11 @@
         return this.isShowEditView && this.isShowBottom
       },
       isShowBottom () {
-        return this.data.role || this.differentiateIndex === 1
+        return this.data.role || this.differentiateIndex === 1 || this.isGuest
+      },
+      // 访客
+      isGuest () {
+        return this.$store.state.guest
       },
       uid () {
         return this.$store.state.personalInfo.uid
