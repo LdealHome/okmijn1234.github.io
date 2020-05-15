@@ -230,6 +230,7 @@
           }
           return
         }
+        this.editContent = ''
         this.$emit('sendComment', info)
         this.replyInfo.id && (this.replyCacheList[this.replyInfo.id] = '')
         this.replyInfo = {
