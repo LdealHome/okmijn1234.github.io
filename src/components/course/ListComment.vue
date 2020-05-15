@@ -126,7 +126,7 @@
       },
       isOwnComment (index) {
         return index => {
-          return this.list[index].userInfo.uid === this.uid && this.isComment && !this.list[index].isFictitious
+          return this.list[index].userInfo.uid === this.uid && this.isComment && !this.list[index].isFictitious && !this.isRecord(index)
         }
       },
       isRecord (index) {
@@ -137,7 +137,10 @@
       },
       isShowTime (index) {
         return index => {
-          return index === 0 || (this.list[index].time - this.list[index - 1].time >= 300)
+          return index === 0 ||
+            (this.list[index].time - this.list[index - 1].time >= 300) ||
+            (this.isOwnComment(index) && !this.isOwnComment(index - 1)) ||
+            (!this.isOwnComment(index) && this.isOwnComment(index - 1))
         }
       },
       // 打赏记录、分享记录于时间文字的间距判断
