@@ -1,35 +1,19 @@
 <template lang="pug">
   div.bottom-back
     div(v-if="!isGuest")
-      div.default-view(v-show="!isShowEditView" :class="{ 'not-broadcast': isNotStarted }")
+      div.default-view(:class="{ 'not-broadcast': isNotStarted }")
         div.comment-view(@click="commentClick")
           p.comment-edit {{editTips}}
           div.problem-btn(v-show="isShowProblemBtn" :class="{ 'problem-active': data.isProblem }" @click.stop="problemClick") 提问
-        // img.bullet-chat(:src="bulletChatSrc" @click="$emit('clickItem', 1)")
-        // span.comment-btn(@click="$emit('clickItem', 2)")
         span.reward-btn(@click="$emit('clickItem', 3)")
         img.more-btn(src="@icon/course/more.png" @click="$emit('clickItem', 4)")
-      EditView(
-        v-show="isShowEditView"
-        :data="liveInfo"
-        :isProblem="data.isProblem"
-        :changeInfo="changeInfo"
-        @problemClick="problemClick"
-        @sendComment="sendComment"
-        @contentBlur="contentBlur"
-      )
     div.unregistered(v-else)
       div.enroll-btn(@click="enrollClick") 点击了解：19元学习365天
-      img.bullet-chat(:src="bulletChatSrc" @click="$emit('clickItem', 1)")
 </template>
 
 <script>
-  import EditView from './EditView'
   export default {
     name: 'BottomView',
-    components: {
-      EditView
-    },
     props: {
       data: {
         type: Object,
@@ -53,16 +37,10 @@
             }
           }
         }
-      },
-      changeEditState: {
-        type: Number,
-        required: false,
-        default: 0
       }
     },
     data () {
       return {
-        isShowEditView: false,
         editContent: '',
         changeInfo: {
           emptyNumber: 0,
@@ -70,17 +48,7 @@
         }
       }
     },
-    watch: {
-      changeEditState () {
-        if (!this.editContent) {
-          this.isShowEditView = false
-        }
-      }
-    },
     computed: {
-      bulletChatSrc () {
-        return this.isNotStarted ? require('@icon/course/bullet-chat-grey.png') : (this.isShowChat ? require('@icon/course/bullet-chat.png') : require('@icon/course/bullet-chat-close.png'))
-      },
       isShowProblemBtn () {
         return !this.liveInfo.role && !this.isForbidComment
       },
@@ -114,32 +82,7 @@
       },
       commentClick () {
         if (this.isNotStarted || this.isForbidComment) return
-        this.isShowEditView = true
-        this.changeInfo.focusNumber++
-      },
-      /**
-       * 发送评论
-       */
-      sendComment (text) {
-        if (!text) {
-          this.isShowEditView = false
-          return
-        }
-        this.editContent = ''
-        this.$emit('sendComment', {
-          text,
-          isProblem: this.data.isProblem,
-          replyInfo: {
-            id: 0,
-            uid: 0,
-            content: '',
-            name: '',
-            isAsk: false
-          }
-        })
-      },
-      contentBlur (text) {
-        this.editContent = text
+        this.$emit('clickItem', 6)
       },
       enrollClick () {
         this.$router.push({ name: 'particulars', params: { from: this.from } })
@@ -164,7 +107,7 @@
 
   .comment-view {
     flex: 1;
-    margin-right: .36rem;
+    margin-right: .16rem;
     height: .72rem;
     display: flex;
     border-radius: 36rem;
@@ -200,23 +143,6 @@
     background-size: .24rem;
   }
 
-  .bullet-chat {
-    width: .54rem;
-    height: .54rem;
-    padding: .1rem;
-    box-sizing: content-box;
-  }
-
-  .comment-btn {
-    width: .56rem;
-    height: .56rem;
-    padding: .09rem;
-    box-sizing: content-box;
-    display: block;
-    background: url('~@icon/course/comment-btn.png') no-repeat center center;
-    background-size: .56rem;
-  }
-
   .reward-btn {
     width: .54rem;
     height: .54rem;
@@ -237,7 +163,7 @@
     height: .98rem;
     display: flex;
     align-items: center;
-    padding: 0 .2rem 0 .3rem;
+    padding: 0 .3rem 0 .3rem;
     background: #fff;
   }
 
@@ -266,16 +192,6 @@
 
     .problem-btn {
       color: #ccc;
-    }
-
-    .comment-btn {
-      width: .56rem;
-      height: .56rem;
-      padding: .09rem;
-      box-sizing: content-box;
-      display: block;
-      background: url('~@icon/course/comment-grey.png') no-repeat center center;
-      background-size: .56rem;
     }
 
     .reward-btn {

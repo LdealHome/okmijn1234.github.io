@@ -2,13 +2,13 @@
   div.whole
     HorizontalVideo(
       :data="data"
-      @test="test"
+      @switchTab="switchTab"
       @clickSetRemind="$emit('clickSetRemind')"
       @followBtnClick="$emit('followBtnClick')"
     )
     template
       LearningArea(
-        v-show="differentiateIndex === 0"
+        v-if="differentiateIndex === 0"
         :studyListInfo="data.studyListInfo"
         :chatInfo="data.chatInfo"
         @shareBtnClick="$emit('shareBtnClick')"
@@ -16,27 +16,34 @@
         @clickItem="clickLearningItem"
         @loadMore="loadMore"
         @cancelComment="cancelComment"
-        @showCommentPopup="commentInfo.isShow = true"
         @changeStudyRollState="changeRollState"
       )
       CommentArea(
         v-show="differentiateIndex === 1"
         :data="data"
         :commentInfo="commentInfo"
-        :isProblem="bottomInfo.isProblem"
         @close="commentInfo.isShow = false"
-        @problemClick="clickBottomItem"
         @loadMore="loadMore"
-        @sendComment="sendComment"
         @clickItem="clickLearningItem"
         @changeCommentRollState="changeRollState"
+        @commentClick="commentClick"
+        @cancelReply="cancelComment"
       )
     BottomView(
+      v-show="isShowBottomView"
       :data="bottomInfo"
       :liveInfo="data"
-      :changeEditState="changeEditState"
       @clickItem="clickBottomItem"
+    )
+    EditView(
+      v-show="showEdit"
+      :data="data"
+      :isProblem="bottomInfo.isProblem"
+      :changeInfo="changeInfo"
+      :replyInfo="replyInfo"
+      @contentBlur="contentBlur"
       @sendComment="sendComment"
+      @clickItem="clickBottomItem"
     )
     PopupMore(
       :isShow="isShowMore"
@@ -55,6 +62,7 @@
   import HorizontalVideo from '../../components/course/HorizontalVideo'
   import LearningArea from '../../components/course/LearningArea'
   import BottomView from '../../components/course/BottomView'
+  import EditView from '../../components/course/EditView'
   import CommentArea from '../../components/course/CommentArea'
   import PhotoSwipe from '../../components/PhotoSwipe'
   
@@ -66,7 +74,8 @@
       LearningArea,
       BottomView,
       CommentArea,
-      PhotoSwipe
+      PhotoSwipe,
+      EditView
     },
     props: {
       data: {
@@ -79,6 +88,7 @@
     },
     data () {
       return {
+        isShowEditView: false,
         isShowMore: false, // 是否显示更多弹窗
         bottomInfo: {
           isProblem: false
@@ -91,19 +101,48 @@
           target: null
         },
         photoSwipeInit: false, // 是否显示图片预览
-        changeEditState: 0,
-        differentiateIndex: 1 // 显示资料区还是互动区0资料区，1互动区
+        differentiateIndex: 1, // 显示资料区还是互动区0资料区，1互动区
+        editContent: '',
+        preparedInfo: null,
+        replyCacheList: {},
+        replyInfo: {
+          content: '',
+          isReply: false,
+          id: 0
+        },
+        changeInfo: {
+          emptyNumber: 0,
+          focusNumber: 0
+        }
+      }
+    },
+    watch: {
+      isShowEditView (val) {
+        if (val) {
+          this.changeInfo.focusNumber++
+        }
       }
     },
     computed: {
       isNotBroadcast () {
         return this.data.state === 0
+      },
+      isShowBottomView () {
+        return !this.isShowEditView && this.isShowBottom
+      },
+      showEdit () {
+        return this.isShowEditView && this.isShowBottom
+      },
+      isShowBottom () {
+        return this.data.role || this.differentiateIndex === 1
+      },
+      uid () {
+        return this.$store.state.personalInfo.uid
       }
     },
     methods: {
-      test (index) {
+      switchTab (index) {
         this.differentiateIndex = index
-        console.log(this.data.studyListInfo, this.data.chatInfo)
       },
       seeVideo (info) {
         this.$emit('seeVideo', info)
@@ -116,10 +155,6 @@
           return
         }
         switch (type) {
-        case 1:
-          // 显示、隐藏弹幕
-          this.$emit('clickChat')
-          break
         case 2:
           // 点击讨论区
           this.commentInfo.isShow = true
@@ -136,7 +171,10 @@
           // 选择、取消提问
           this.bottomInfo.isProblem = !this.bottomInfo.isProblem
           break
-      
+        case 6:
+          // 评论
+          this.isShowEditView = true
+          break
         default:
           break
         }
@@ -184,16 +222,79 @@
        * 发送评论
        */
       sendComment (info) {
+        if (!info.text) {
+          if (this.replyInfo.id) {
+            this.$_.Toast('请输入评论的内容')
+          } else {
+            this.isShowEditView = false
+          }
+          return
+        }
         this.$emit('sendComment', info)
+        this.replyInfo.id && (this.replyCacheList[this.replyInfo.id] = '')
+        this.replyInfo = {
+          content: '',
+          isReply: false
+        }
       },
       loadMore (type, res) {
         this.$emit('loadMore', type, res)
       },
+      /**
+       * 取消评论、取消回复
+       */
       cancelComment () {
-        this.changeEditState++
+        if (!this.editContent) {
+          if (this.replyInfo.id) {
+            this.replyInfo = {
+              content: '',
+              isReply: false
+            }
+          } else {
+            this.isShowEditView = false
+          }
+        }
       },
       changeRollState (info) {
         this.$emit('changeRollState', info)
+      },
+      commentClick (index) {
+        if (!this.data.commentListInfo.list[index] ||
+          this.data.commentListInfo.list[index].id === this.replyInfo.id ||
+          this.data.commentListInfo.list[index].userInfo.uid === this.uid ||
+          this.data.commentListInfo.list[index].label
+        ) return
+        this.isShowEditView = true
+        this.preparedInfo = {
+          content: this.data.commentListInfo.list[index].content,
+          isReply: true,
+          id: this.data.commentListInfo.list[index].id,
+          name: this.data.commentListInfo.list[index].userInfo.name,
+          uid: this.data.commentListInfo.list[index].userInfo.uid,
+          isAsk: this.data.commentListInfo.list[index].type === 2,
+          defaultText: this.replyCacheList[this.data.commentListInfo.list[index].id] || ''
+        }
+        // // 让输入框获取焦点
+        setTimeout(() => {
+          if (this.preparedInfo) {
+            this.changeInfo.emptyNumber++
+            this.replyInfo = this.preparedInfo
+            this.preparedInfo = null
+            this.changeInfo.focusNumber++
+          }
+        }, 100)
+      },
+      contentBlur (text) {
+        this.editContent = text
+        if (this.replyInfo.isReply) {
+          this.replyCacheList[this.replyInfo.id] = text
+        }
+        if (this.preparedInfo) {
+          this.changeInfo.emptyNumber++
+          this.replyInfo = this.preparedInfo
+          this.preparedInfo = null
+          this.changeInfo.focusNumber++
+        }
       }
     }
   }

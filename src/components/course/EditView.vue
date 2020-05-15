@@ -13,7 +13,7 @@
         :class="editContentClass"
         v-ios-focus
       )
-      div.ask-btn(v-show="isShowProblem" @click="$emit('problemClick')" :class="{ 'active-ask-btn': isProblem }") 提问
+      div.ask-btn(v-show="isShowProblem" @click="$emit('clickItem', 5)" :class="{ 'active-ask-btn': isProblem }") 提问
     p.send-btn(:class="{ 'clickable-send': content }" @click="sendClick" v-show="!data.isForbidComment") 发送
 </template>
 
@@ -37,11 +37,6 @@
         type: Boolean,
         required: true,
         default: false
-      },
-      changeEdit: {
-        type: Number,
-        required: false,
-        default: 0
       },
       replyInfo: {
         type: Object,
@@ -138,7 +133,11 @@
           this.$_.Toast('内容不能超过200字哦！')
           return
         }
-        this.$emit('sendComment', this.content)
+        this.$emit('sendComment', {
+          text: this.content,
+          isProblem: this.isProblem,
+          replyInfo: this.replyInfo
+        })
         this.content = ''
         this.$refs.content.innerText = ''
       },
@@ -172,6 +171,7 @@
     display: flex;
     align-items: center;
     box-shadow: 0 0 .03rem 0 rgba(206, 202, 202, 1);
+    background: #fff;
   }
 
   .edit-left {

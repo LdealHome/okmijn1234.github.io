@@ -31,16 +31,12 @@
             span.count-down-num {{data.countDownList[3]}}
             span.count-down-unit 秒
           div.remind-btn(@click="$emit('clickSetRemind')" v-show="!isGuest") {{remindBtnText}}
-    <!--(v-if="!data.isFollow"")-->
-      <!--div.follow-view-->
-        <!--img.follow-avatar(:src="data.followBtnAvatar")-->
-        <!--p.follow-text 关注润阳老师)-->
     div.navBar
       div.navBar__list
         p.navBar__item(
           v-for="(item, index) in navBarList"
           :class="{active: navBarCurrent === index}"
-          @click="test(index)"
+          @click="switchTab(index)"
         ) {{item}}
       div.follow(v-show="data.isShowFollow" @click="$emit('followBtnClick')") +关注
       div.retract-btn(
@@ -72,8 +68,7 @@
             personTime: 0, // 人次
             time: 0, // 如果state为0，则是开始倒计时，1为直播播放的位置。单位秒，
             isSetReminders: true, // 是否设置开播提醒
-            countDownList: [], // 开播倒计时数组 [天、时、分、秒]
-            isFollow: false
+            countDownList: [] // 开播倒计时数组 [天、时、分、秒]
           }
         }
       }
@@ -177,9 +172,9 @@
       }
     },
     methods: {
-      test (index) {
+      switchTab (index) {
         this.navBarCurrent = index
-        this.$emit('test', this.navBarCurrent)
+        this.$emit('switchTab', this.navBarCurrent)
       },
       videTimeupdate () {
         // 解决安卓手机直播中，播放按钮点击太快时，没有从直播位置播放问题，而是从头开始播放的

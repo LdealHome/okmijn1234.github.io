@@ -1,14 +1,8 @@
 <template lang="pug">
   div.interactive
-    <!--mt-popup.popup-content(-->
-      <!--position="bottom"-->
-      <!--v-model="isShow"-->
-    <!--)-->
     div.right-anchor
       span.anchor-top(@click="rollTopClick")
       span.anchor-bottom(@click="rollBottomClick")
-    <!--P.top-title 讨论区({{data.totalComments}})-->
-    <!--img.close-btn(src="@icon/close/close-reward.png" @click="isShow = false")-->
     div.comment-back(ref="commentList" @scroll="scrollEvent")
       ListComment.comment-list-back(
         :list="data.commentListInfo.list"
@@ -25,16 +19,6 @@
         div(slot="spinner")
         div(slot="no-more")
         div(slot="no-results")
-    EditView(
-      v-show="isShowEditView"
-      :isProblem="isProblem"
-      :data="data"
-      :replyInfo="replyInfo"
-      :changeInfo="changeInfo"
-      @problemClick="$emit('problemClick', 5)"
-      @sendComment="sendComment"
-      @contentBlur="contentBlur"
-    )
     div.manage-view(v-show="isShowManageView" :style="manageStyle" ref="manageView")
       p.delete-item(@click="deleteComment") 删除评论
       p.forbidden-words(@click="forbiddenWords" :class="{ 'locking-btn': fingerPosition.role }") {{forbiddenWordsText}}
@@ -42,12 +26,10 @@
 
 <script>
   import ListComment from './ListComment'
-  import EditView from './EditView'
   export default {
     name: 'CommentArea',
     components: {
-      ListComment,
-      EditView
+      ListComment
     },
     props: {
       data: {
@@ -74,11 +56,6 @@
             isShow: false
           }
         }
-      },
-      isProblem: {
-        type: Boolean,
-        required: true,
-        default: false
       }
     },
     data () {
@@ -108,8 +85,7 @@
           height: 0
         },
         isBottom: true,
-        isClickableManage: false,
-        isShowEditView: false
+        isClickableManage: false
       }
     },
     created () {
@@ -159,6 +135,10 @@
       },
       forbiddenWordsText () {
         return this.data.commentListInfo.forbiddenWordsList.includes(this.fingerPosition.uid) ? '解除禁言' : '禁言'
+      },
+      // 访客
+      isGuest () {
+        return this.$store.state.guest
       }
     },
     methods: {
@@ -167,7 +147,6 @@
        */
       scrollEvent () {
         this.isShowManageView = false
-
         let scrollTop = this.$refs.commentList.scrollTop
         let scrollHeight = this.$refs.commentList.scrollHeight
         let offsetHeight = this.$refs.commentList.offsetHeight
@@ -189,79 +168,22 @@
       loadMore (res) {
         this.$emit('loadMore', 'commentListInfo', res)
       },
-      sendComment (text) {
-        if (!text) {
-          this.$_.Toast('请输入评论的内容')
-          return
-        }
-        this.$emit('sendComment', {
-          text,
-          isProblem: this.isProblem,
-          replyInfo: this.replyInfo
-        })
-        this.replyInfo.id && (this.replyCacheList[this.replyInfo.id] = '')
-        this.replyInfo = {
-          content: '',
-          isReply: false
-        }
-      },
       clickItem (info) {
         this.$emit('clickItem', info)
-        this.isShowEditView = true
       },
       /**
        * 点击评论。回复处理
        */
       commentClick (index) {
         this.isShowManageView = false
-        this.isShowEditView = true
-        if (!this.data.commentListInfo.list[index] ||
-          this.data.commentListInfo.list[index].id === this.replyInfo.id ||
-          this.data.commentListInfo.list[index].userInfo.uid === this.uid ||
-          this.data.commentListInfo.list[index].label
-        ) return
-        this.preparedInfo = {
-          content: this.data.commentListInfo.list[index].content,
-          isReply: true,
-          id: this.data.commentListInfo.list[index].id,
-          name: this.data.commentListInfo.list[index].userInfo.name,
-          uid: this.data.commentListInfo.list[index].userInfo.uid,
-          isAsk: this.data.commentListInfo.list[index].type === 2,
-          defaultText: this.replyCacheList[this.data.commentListInfo.list[index].id] || ''
-        }
-        // // 让输入框获取焦点
-        setTimeout(() => {
-          if (this.preparedInfo) {
-            this.changeInfo.emptyNumber++
-            this.replyInfo = this.preparedInfo
-            this.preparedInfo = null
-            this.changeInfo.focusNumber++
-          }
-        }, 100)
+        if (!this.isGuest) this.$emit('commentClick', index)
       },
       /**
        * 取消回复评论，更新状态为普通评论
        */
       cancelReply () {
         this.isShowManageView = false
-        if (!this.editContent) {
-          this.replyInfo = {
-            content: '',
-            isReply: false
-          }
-        }
-      },
-      contentBlur (text) {
-        this.editContent = text
-        if (this.replyInfo.isReply) {
-          this.replyCacheList[this.replyInfo.id] = text
-        }
-        if (this.preparedInfo) {
-          this.changeInfo.emptyNumber++
-          this.replyInfo = this.preparedInfo
-          this.preparedInfo = null
-          this.changeInfo.focusNumber++
-        }
+        this.$emit('cancelReply')
       },
       /**
        * 管理员长按评论，显示删除评论弹窗
@@ -315,66 +237,19 @@
 </script>
 
 <style scoped lang="less">
-  /deep/ .mint-popup {
-    z-index: 20 !important;
-  }
-
-  /deep/ .v-modal {
-    z-index: 19 !important;
-  }
-
-  /* .popup-content { */
-
-  /* height: 84%; */
-
-  /* width: 100%; */
-
-  /* border-radius: .12rem .12rem 0 0; */
-
-  /* display: flex; */
-
-  /* flex-direction: column; */
-
-  /* } */
-
   .interactive {
     flex: 1;
     overflow: auto;
     position: relative;
   }
 
-  .top-title {
-    font-size: .32rem;
-    color: #2b2b2b;
-    padding: .4rem;
-    text-align: center;
-    word-break: break-all;
-    -webkit-user-select: none;
-    user-select: none;
-    -webkit-touch-callout: none;
-  }
-
-  .close-btn {
-    position: absolute;
-    width: .24rem;
-    height: .24rem;
-    padding: .1rem;
-    right: .5rem;
-    top: .38rem;
-    box-sizing: content-box;
-  }
-
   .comment-back {
-    /* flex: 1; */
     height: 100%;
     overflow: auto;
     -webkit-overflow-scrolling: touch;
-
-    /* padding-bottom: .2rem; */
   }
 
   .comment-list-back {
-    /* min-height: 100%; */
     height: 100%;
     word-break: break-all;
     -webkit-user-select: none;
@@ -429,7 +304,7 @@
     bottom: 0;
     margin: auto 0;
     right: .3rem;
-    z-index: 21;
+    z-index: 10;
   }
 
   .anchor-top,

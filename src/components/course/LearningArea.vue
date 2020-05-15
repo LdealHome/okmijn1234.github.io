@@ -15,17 +15,14 @@
         div(slot="spinner")
         div(slot="no-more")
         div(slot="no-results")
-      PopupChat(:chatInfo="chatInfo" @showCommentPopup="$emit('showCommentPopup')")
 </template>
 
 <script>
   import ListComment from './ListComment'
-  import PopupChat from '../../components/course/PopupChat'
   export default {
     name: 'LearningArea',
     components: {
-      ListComment,
-      PopupChat
+      ListComment
     },
     props: {
       studyListInfo: {
@@ -113,6 +110,10 @@
         this.$emit('clickItem', info)
       },
       loadMore (res) {
+        if (this.studyListInfo.isLastPage) {
+          res.complete()
+          return
+        }
         this.$emit('loadMore', 'studyListInfo', res)
       }
     }

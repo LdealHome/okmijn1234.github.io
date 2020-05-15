@@ -9,7 +9,6 @@
       @collectBtnClick="isShowCollect = true"
       @shareBtnClick="isPostersSharePopup = true"
       @seeVideo="seeVideo"
-      @clickChat="mBean.chatInfo.isShow = !mBean.chatInfo.isShow"
       @sendComment="sendComment"
       @loadMore="loadMore"
       @changeMessage="changeMessage"
@@ -52,8 +51,7 @@
     getCourseInfo,
     postChangeRemindState,
     postRewardCourse,
-    getCommentList,
-    getNewestCommentList
+    getCommentList
   } from '../../services/course'
   import {
     getVideoInfo
@@ -145,10 +143,6 @@
             forbiddenWordsList: [],
             isRollBottom: false
           },
-          chatInfo: {
-            isShow: false,
-            list: []
-          },
           isFollow: false,
           key: '',
           webSocketUrl: '',
@@ -162,6 +156,11 @@
           avatar: '',
           name: '',
           amountList: []
+        },
+        replyInfo: {
+          content: '',
+          isReply: false,
+          id: 0
         },
         updateCountDownTimer: null, // 更新倒计时的定时器
         isShowCollect: false, // 是否显示收藏引导弹窗
@@ -201,14 +200,6 @@
         if (val && this.studyDataLoad) {
           this.loadMore(this.studyDataLoad.type, this.studyDataLoad.res)
         }
-      },
-      isLoadGuestInfo () {
-        this.showFollowPopup()
-      },
-      isCustomerServicePopup (val) {
-        if (!val) {
-          localStorage.setItem('courseFollowPopup', true)
-        }
       }
     },
     computed: {
@@ -231,9 +222,6 @@
       },
       avatar () {
         return this.$store.state.personalInfo.avatar
-      },
-      isLoadGuestInfo () {
-        return this.$store.state.isLoadGuestInfo
       }
     },
     methods: {
@@ -250,7 +238,7 @@
                 src: data.video_src,
                 poster: data.video_cover
               },
-              isShowFollow: data.live_focus_qr_code !== '',
+              isShowFollow: data.live_focus_qr_code,
               followBtnAvatar: data.user_focus_info.focus_anchor_img,
               state: state, // 直播状态 0: 未开始 1:直播中 2:回放
               personTime: state > 0 ? data.watch_number : data.set_start_number, // 人次
@@ -291,10 +279,6 @@
                 isLastPage: false,
                 isRollBottom: true
               },
-              chatInfo: {
-                isShow: true,
-                list: []
-              },
               isFollow: data.user_focus_info.is_focus === 1,
               key: data.web_socket.key,
               webSocketUrl: data.web_socket.url,
@@ -306,13 +290,11 @@
               videoLength: data.video_length
             }
             this.isLoad = true
-            this.showFollowPopup()
             if (!state) {
               // 未开播时更新距离开播倒计时
               this.updateCountDownList()
             } else {
               this.updateServerTime()
-              this.getNewestComment()
             }
 
             let shareInfo = {
@@ -334,30 +316,8 @@
               name: rewardInfo.nick_name,
               amountList: data.reward_info
             }
-            // this.customerServiceData.codeSrc = data.user_focus_info.focus_code
+            this.customerServiceData.codeSrc = data.user_focus_info.focus_code
             this.addWeChatSrc = data.live_focus_qr_code
-          }
-        })
-      },
-      /**
-       * 已购买社群但未关注用户，第一次进入显示关注弹窗
-       */
-      showFollowPopup () {
-        if (!this.isLoad || !this.isLoadGuestInfo) return
-        if (!this.isGuest && !this.mBean.isFollow && !localStorage.getItem('courseFollowPopup')) this.isCustomerServicePopup = true
-      },
-      getNewestComment () {
-        getNewestCommentList({ key: this.courseKey }).then(res => {
-          if (res.data.code === 1 && res.data.data && res.data.data.list) {
-            let list = res.data.data.list
-            list.forEach(item => {
-              this.mBean.chatInfo.list.push({
-                id: item.id,
-                avatar: item.from_header_img,
-                text: item.content,
-                isAsk: item.msg_tag === 1
-              })
-            })
           }
         })
       },
@@ -497,9 +457,6 @@
             return item.id !== data.id
           })
        
-          this.mBean.chatInfo.list = this.mBean.chatInfo.list.filter(item => {
-            return item.id !== data.id
-          })
           this.mBean.commentListInfo.list = this.mBean.commentListInfo.list.filter(item => {
             return item.id !== data.id
           })
@@ -709,15 +666,6 @@
               this.mBean.studyListInfo.rollBottom++
             })
           }
-        }
-        // 评论或者回复的消息，添加到最新评论列表
-        if (info.type < 5) {
-          this.mBean.chatInfo.list.push({
-            id: info.id,
-            avatar: info.userInfo.avatar,
-            text: info.content,
-            isAsk: info.type === 2
-          })
         }
       },
       /**
