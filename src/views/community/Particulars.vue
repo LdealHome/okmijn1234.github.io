@@ -26,11 +26,17 @@
         button.btn.share(type="button" @click="share") 分享
         button.btn.immediately(type="button" v-if="!isParticipate" @click="immediately") 立即抢购
         // 购买成功显示参与课程
-        button.btn.participate(type="button" v-else @click="isCourseCustomerServicePopup = true") 参与课程
+        button.btn.participate(type="button" v-else @click="participate") 参与课程
     // 社群中心入口
     RouterLink.entrance(v-show="isParticipate" :to="{name: 'home'}")
       span 集福
       span 中心
+    InformationPopup(
+      v-if="isShowInformationPopup"
+      :postList="postList"
+      @close="isShowInformationPopup = false"
+      @determine="determineInformation"
+      )
     ObtainCoursePopup(
       v-if="isObtainCoursePopup"
       :courseInfo="courseInfo"
@@ -70,6 +76,7 @@
   import SwiperCommon from '../../components/SwiperCommon'
   import PostersSharePopup from '../../components/community/PostersSharePopup'
   import DetailsContent from '../../components/community/DetailsContent'
+  import InformationPopup from '../../components/community/InformationPopup'
   import CourseCustomerServicePopup from '../../components/community/CourseCustomerServicePopup'
   import ObtainCoursePopup from '../../components/community/ObtainCoursePopup'
   import PaymentPopup from '../../components/community/PaymentPopup'
@@ -82,6 +89,7 @@
   import {
     getParticularsDetail,
     postBuyNow,
+    postInformation,
     postReadTips,
     postKalmanPay
   } from '../../services/community'
@@ -92,6 +100,7 @@
       SwiperCommon,
       DetailsContent,
       PostersSharePopup,
+      InformationPopup,
       CourseCustomerServicePopup,
       ObtainCoursePopup,
       PaymentPopup,
@@ -116,6 +125,8 @@
         },
         contentList: [], // 内容
         isParticipate: false, // 是否已经支付
+        isPerfectInformation: false, // 是否完善信息
+        isShowInformationPopup: false, // 支付成功后填写信息弹框
         isObtainCoursePopup: false, // 是否已经免费获得课程弹框
         isOpening: false, // 是否开营
         isPaymentPopup: false, // 立即抢购弹框
@@ -145,6 +156,10 @@
       }
     },
     watch: {
+      isShowInformationPopup (val) {
+        // true 显示弹框 false 关闭弹框
+        this.$root.$emit('toggleModal', Boolean(val))
+      },
       isCourseCustomerServicePopup (val) {
         // true 显示弹框 false 关闭弹框
         this.$root.$emit('toggleModal', Boolean(val))
@@ -217,6 +232,7 @@
             that.configShareInfo(that.uid)
             that.shufflingList.push(...that.transformShufflingList(data.buy_list))
             that.isParticipate = buyInfo.status !== 1
+            that.isPerfectInformation = buyInfo.status === 3
 
             that.particularsInfo = {
               price: Number.isInteger(+courseInfo.price) ? parseInt(courseInfo.price) : courseInfo.price,
@@ -234,7 +250,7 @@
             that.isObtainCoursePopup = data.is_give === 2
             that.isOpening = courseInfo.status === 2
 
-            // that.postList = data.position_enums
+            that.postList = data.position_enums
             this.countdownStarts()
           }
         })
@@ -347,7 +363,7 @@
               ...res.data.data.js_sdk_config,
               success (res) {
                 that.isPaymentPopup = false
-                that.isCourseCustomerServicePopup = true
+                that.isShowInformationPopup = true
                 that.isParticipate = true
                 that.$_.store.dispatch('getPayCommunityState')
               }
@@ -366,11 +382,56 @@
         }).then(res => {
           if (res.data.code === 1) {
             this.isCamiloPaymentPopup = false
-            this.isCourseCustomerServicePopup = true
+            this.isShowInformationPopup = true
             this.isParticipate = true
             this.$_.store.dispatch('getPayCommunityState')
           }
         })
+      },
+      // 参与课程
+      participate () {
+        if (!this.isPerfectInformation) { // 未完善信息
+          this.isShowInformationPopup = true
+        } else {
+          // this.$router.push({
+          //   name: 'column-details'
+          // })
+          this.isCourseCustomerServicePopup = true
+        }
+      },
+      /**
+       * 确认个人信息
+       * @param info {Object} 相关数据
+       */
+      determineInformation (info) {
+        let that = this
+        let otherPost = ''
+        if (info.otherPost !== '') {
+          otherPost = info.otherPost
+        } else {
+          otherPost = info.post.name
+        }
+        let params = {
+          mobile: info.phone,
+          name: info.nickname,
+          position: otherPost,
+          type: info.post.key
+        }
+        if (info.nickname === '' || info.phone === '' || info.post === '') {
+          that.$_.Toast('信息需全部填写')
+        } else if (info.nickname.length < 2 || info.nickname.length > 5) {
+          that.$_.Toast('大于两个字，小于5个字')
+        } else if (!(/^\d{6,20}$/.test(info.phone))) {
+          that.$_.Toast('手机格式不正确')
+        } else {
+          postInformation(params).then(res => {
+            if (res.data.code === 1) {
+              that.isShowInformationPopup = false
+              that.isCourseCustomerServicePopup = true
+              that.isPerfectInformation = true
+            }
+          })
+        }
       },
       // 课程邀请好友
       obtainCourseInvite () {

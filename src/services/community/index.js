@@ -65,6 +65,15 @@ export function postKalmanPay (data) {
 }
 
 /**
+ * 支付成功信息填写
+ * @param data {Object} 请求携带的参数{ mobile: 手机号, name: 昵称, position: 职位, type: 职位类别 }
+ * @returns {AxiosPromise<any>>}
+ */
+export function postInformation (data) {
+  return Vue.axios.post('/community/course/save/data', data)
+}
+
+/**
  * 获取分享朋友圈
  * @returns {AxiosPromise<id, uid>>}
  */
