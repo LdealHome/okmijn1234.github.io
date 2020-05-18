@@ -104,9 +104,10 @@ export default {
     },
     /**
      * 强制将当前页重新配置
+     * @param href {[String]} 清除指定的微信配置页面
      */
-    updateWXConfig () {
-      let href = location.href.split('#')[0]
+    updateWXConfig (href) {
+      href = href || location.href.split('#')[0]
       let list = sessionStorage.getItem('wxConfigList')
       list = list ? JSON.parse(list) : []
       if (list.includes(href)) {

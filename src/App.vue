@@ -117,11 +117,13 @@
       },
       baseWeixinShare () {
         if (this.routerMeta.share || !this.shareInfo || !this.uid) return
+        let link = `${location.origin}/particulars/from/${this.uid}`
+        this.updateWXConfig(link)
         this.getWeiXinConfig({
           desc: this.shareInfo.content,
           img: this.shareInfo.img_url,
           title: this.shareInfo.title,
-          link: `${location.origin}/particulars/from/${this.uid}`
+          link: link
         })
           .then(this.setWeiXinConfig)
       },
@@ -146,6 +148,7 @@
           this.$route.name === 'curriculum')
         ) {
           this.$router.replace({ name: '404' })
+          sessionStorage.setItem('pageAccessible', true)
         }
       }
     }
