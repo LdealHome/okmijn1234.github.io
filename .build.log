@@ -15,3 +15,5 @@ tanmingyang 2020-5-3 11:12:22: dev => ed8b1cd - tanmingyang, Sun May 3 11:10:27 
 wangsiyi 2020-5-4 9:26:20 AM: dev => 6c24cc9 - wangsiyi, Mon May 4 09:25:14 2020 +0800--style: 更换邀请海报图片
 tanmingyang 2020-5-4 14:00:07: dev => deb7433 - tanmingyang, Mon May 4 13:59:43 2020 +0800--refactor: 修改社群详情页面，点击视频自动播放
 wangsiyi 2020-5-14 9:39:11 AM: dev => 7c171cd - wangsiyi, Thu May 14 09:37:54 2020 +0800--style: 邀请海报替换图片
+
+tanmingyang 2020-5-18 18:36:12: next => a955cf9 - tanmingyang, Mon May 18 18:34:53 2020 +0800--fix: 修复直接进入考试页面，离开时会显示提示框问题
