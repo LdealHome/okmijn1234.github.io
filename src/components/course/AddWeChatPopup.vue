@@ -5,7 +5,7 @@
     div.content
       p.title 老师微信
       img.code(:src="addWeChatSrc")
-      p.text 长按微信加润阳老师微信哦
+      p.text 长按添加润阳老师微信哦
       button.close(@click="$emit('close')") 关闭
 </template>
 

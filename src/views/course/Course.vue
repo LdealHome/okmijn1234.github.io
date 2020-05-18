@@ -101,7 +101,6 @@
     data () {
       return {
         type: 1,
-        isLoad: false,
         mBean: {
           id: 0, // 课程id
           video: { // 视频信息
@@ -112,7 +111,7 @@
           followBtnAvatar: '', // 关注按钮头像
           state: -1, // 直播状态 0: 未开始 1:直播中 2:回放
           personTime: 0, // 人次
-          time: 70000, // state对应不同时间 state：0距离直播开始时间 1直播播放的位置
+          time: 0, // state对应不同时间 state：0距离直播开始时间 1直播播放的位置
           isSetReminders: true, // 是否设置开播提醒
           countDownList: [],
           studyListInfo: {
@@ -289,7 +288,6 @@
               isStatistics: data.is_statistics,
               videoLength: data.video_length
             }
-            this.isLoad = true
             if (!state) {
               // 未开播时更新距离开播倒计时
               this.updateCountDownList()
