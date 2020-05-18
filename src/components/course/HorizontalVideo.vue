@@ -35,7 +35,7 @@
       div.navBar__list
         p.navBar__item(
           v-for="(item, index) in navBarList"
-          :class="{active: navBarCurrent === index}"
+          :class="{active: data.navBarCurrent === index}"
           @click="switchTab(index)"
         ) {{item}}
       div.follow(v-show="data.isShowFollow" @click="$emit('followBtnClick')") +关注
@@ -71,11 +71,6 @@
             countDownList: [] // 开播倒计时数组 [天、时、分、秒]
           }
         }
-      },
-      navBarCurrent: {
-        type: Number,
-        required: true,
-        default: 1
       }
     },
     data () {
@@ -177,7 +172,7 @@
     },
     methods: {
       switchTab (index) {
-        if (index !== this.navBarCurrent) {
+        if (index !== this.data.navBarCurrent) {
           this.$emit('switchTab', index)
         }
       },

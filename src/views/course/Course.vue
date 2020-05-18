@@ -13,6 +13,7 @@
       @loadMore="loadMore"
       @changeMessage="changeMessage"
       @changeRollState="changeRollState"
+      @switchTab="switchTab"
     )
     CustomerServicePopup(
       v-if="isCustomerServicePopup"
@@ -148,7 +149,8 @@
           isForbidComment: false,
           role: 0,
           totalComments: 0,
-          isStatistics: false
+          isStatistics: false,
+          navBarCurrent: 1
         },
         rewardInfo: {
           isShow: false,
@@ -286,7 +288,8 @@
               totalComments: data.comment_number,
               serverTime: res.data.timestamp,
               isStatistics: data.is_statistics,
-              videoLength: data.video_length
+              videoLength: data.video_length,
+              navBarCurrent: 1
             }
             if (!state) {
               // 未开播时更新距离开播倒计时
@@ -379,6 +382,17 @@
         } else {
           res.loaded()
         }
+      },
+      /**
+       * 切换资料区、互动区
+       */
+      switchTab (index) {
+        // 切换到资料区时，先将是否滚动到底部状态设置为false
+        // 解决切换到资料区，收到新消息会自动滚动新消息位置问题
+        if (index === 0) {
+          this.mBean.studyListInfo.isRollBottom = false
+        }
+        this.mBean.navBarCurrent = index
       },
       /**
        * 分享回调
@@ -578,6 +592,10 @@
           'passive_nick_name': info.replyInfo.name, // 被回复人昵称
           'passive_msg_tag': info.replyInfo.id && info.replyInfo.isAsk ? 1 : 0
         })
+        // 学员(普通用户)在选中资料区时评论，自动切换到互动区
+        if (this.mBean.navBarCurrent === 0 && !this.mBean.role) {
+          this.mBean.navBarCurrent = 1
+        }
         // 自己发送评论或回复评论时，需滚动到评论列表底部
         this.mBean.commentListInfo.isRollBottom = true
         if (this.mBean.state === 1 || this.mBean.studyListInfo.isLastPage) {

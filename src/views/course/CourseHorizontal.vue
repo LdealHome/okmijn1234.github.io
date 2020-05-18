@@ -2,14 +2,13 @@
   div.whole
     HorizontalVideo(
       :data="data"
-      :navBarCurrent="differentiateIndex"
       @switchTab="switchTab"
       @clickSetRemind="$emit('clickSetRemind')"
       @followBtnClick="$emit('followBtnClick')"
     )
     template
       LearningArea(
-        v-if="differentiateIndex === 0"
+        v-if="data.navBarCurrent === 0"
         :studyListInfo="data.studyListInfo"
         :state="data.state"
         @shareBtnClick="$emit('shareBtnClick')"
@@ -20,7 +19,7 @@
         @changeStudyRollState="changeRollState"
       )
       CommentArea(
-        v-show="differentiateIndex === 1"
+        v-show="data.navBarCurrent === 1"
         :data="data"
         :commentInfo="commentInfo"
         @close="commentInfo.isShow = false"
@@ -102,7 +101,6 @@
           target: null
         },
         photoSwipeInit: false, // 是否显示图片预览
-        differentiateIndex: 1, // 显示资料区还是互动区0资料区，1互动区
         editContent: '',
         preparedInfo: null,
         replyCacheList: {},
@@ -138,7 +136,7 @@
     },
     methods: {
       switchTab (index) {
-        this.differentiateIndex = index
+        this.$emit('switchTab', index)
       },
       seeVideo (info) {
         this.$emit('seeVideo', info)
@@ -225,9 +223,6 @@
             this.isShowEditView = false
           }
           return
-        }
-        if (this.differentiateIndex === 0 && !this.data.role) {
-          this.differentiateIndex = 1
         }
         this.editContent = ''
         this.$emit('sendComment', info)
