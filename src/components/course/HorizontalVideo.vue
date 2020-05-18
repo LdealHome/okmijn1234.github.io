@@ -71,6 +71,11 @@
             countDownList: [] // 开播倒计时数组 [天、时、分、秒]
           }
         }
+      },
+      navBarCurrent: {
+        type: Number,
+        required: true,
+        default: 1
       }
     },
     data () {
@@ -100,8 +105,7 @@
         },
         self: null,
         isPlay: false,
-        navBarList: ['资料区', '互动区'],
-        navBarCurrent: 1
+        navBarList: ['资料区', '互动区']
       }
     },
     watch: {
@@ -173,8 +177,9 @@
     },
     methods: {
       switchTab (index) {
-        this.navBarCurrent = index
-        this.$emit('switchTab', this.navBarCurrent)
+        if (index !== this.navBarCurrent) {
+          this.$emit('switchTab', index)
+        }
       },
       videTimeupdate () {
         // 解决安卓手机直播中，播放按钮点击太快时，没有从直播位置播放问题，而是从头开始播放的

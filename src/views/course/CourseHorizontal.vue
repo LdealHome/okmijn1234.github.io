@@ -2,6 +2,7 @@
   div.whole
     HorizontalVideo(
       :data="data"
+      :navBarCurrent="differentiateIndex"
       @switchTab="switchTab"
       @clickSetRemind="$emit('clickSetRemind')"
       @followBtnClick="$emit('followBtnClick')"
@@ -30,13 +31,13 @@
         @cancelReply="cancelComment"
       )
     BottomView(
-      v-show="isShowBottomView"
+      v-show="!isShowEditView"
       :data="bottomInfo"
       :liveInfo="data"
       @clickItem="clickBottomItem"
     )
     EditView(
-      v-show="showEdit"
+      v-show="isShowEditView"
       :data="data"
       :isProblem="bottomInfo.isProblem"
       :changeInfo="changeInfo"
@@ -126,15 +127,6 @@
     computed: {
       isNotBroadcast () {
         return this.data.state === 0
-      },
-      isShowBottomView () {
-        return !this.isShowEditView && this.isShowBottom
-      },
-      showEdit () {
-        return this.isShowEditView && this.isShowBottom
-      },
-      isShowBottom () {
-        return this.data.role || this.differentiateIndex === 1 || this.isGuest
       },
       // 访客
       isGuest () {
@@ -233,6 +225,9 @@
             this.isShowEditView = false
           }
           return
+        }
+        if (this.differentiateIndex === 0 && !this.data.role) {
+          this.differentiateIndex = 1
         }
         this.editContent = ''
         this.$emit('sendComment', info)
