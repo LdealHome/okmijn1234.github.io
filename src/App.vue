@@ -128,17 +128,20 @@
       guestHandle () {
         if (this.isLoadGuestInfo && this.isGuest && this.$route.name && !this.routerMeta.share) {
           this.$router.replace({ name: 'particulars', params: { from: 1 } })
+          return
         }
         this.pageAccessible()
       },
       /**
-       * 学习中心、课程详情页面、课程列表页添加访问权限限制
+       * 学习中心、消息、考试、课程详情页面、课程列表页添加访问权限限制
        */
       pageAccessible () {
         if (
-          this.uid &&
+          (this.uid || (this.isLoadGuestInfo && this.isGuest)) &&
           !this.$store.state.personalInfo.isAccessibleVisitMine &&
           (/\/mine/.test(this.$route.path) ||
+          /\/news/.test(this.$route.path) ||
+          /\/exam/.test(this.$route.path) ||
           this.$route.name === 'column-details' ||
           this.$route.name === 'curriculum')
         ) {
