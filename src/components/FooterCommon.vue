@@ -54,7 +54,11 @@
           this.$router.push({ name: 'home' })
           break
         case 3:
-          this.$router.push({ name: 'mine' })
+          if (this.$store.state.personalInfo.isAccessibleVisitMine) {
+            this.$router.push({ name: 'mine' })
+          } else {
+            this.$_.Toast('暂未开放，敬请期待！')
+          }
           break
         default:
           break

@@ -21,7 +21,8 @@ export default {
       uid: payload.uid,
       nickname: payload.nick_name,
       avatar: payload.img_url,
-      isBindPhone: payload.is_bind_mobile === 1
+      isBindPhone: payload.is_bind_mobile === 1,
+      isAccessibleVisitMine: payload.is_visit_center === 1
     }
   },
   [SET_QINIU_TOKEN] (state, payload) {

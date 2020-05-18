@@ -54,6 +54,7 @@
           location.replace(location.origin + pathname)
         }
         this.baseWeixinShare()
+        this.pageAccessible()
       },
       desc (val) {
         if (val) {
@@ -127,6 +128,21 @@
       guestHandle () {
         if (this.isLoadGuestInfo && this.isGuest && this.$route.name && !this.routerMeta.share) {
           this.$router.replace({ name: 'particulars', params: { from: 1 } })
+        }
+        this.pageAccessible()
+      },
+      /**
+       * 学习中心、课程详情页面、课程列表页添加访问权限限制
+       */
+      pageAccessible () {
+        if (
+          this.uid &&
+          !this.$store.state.personalInfo.isAccessibleVisitMine &&
+          (/\/mine/.test(this.$route.path) ||
+          this.$route.name === 'column-details' ||
+          this.$route.name === 'curriculum')
+        ) {
+          this.$router.replace({ name: '404' })
         }
       }
     }
