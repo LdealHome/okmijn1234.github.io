@@ -100,7 +100,7 @@
       }
     },
     beforeRouteLeave (to, from, next) {
-      if (!this.isAnswer) {
+      if (!this.isAnswer && history.length >= 2) {
         MessageBox({
           message: '你还没有提交试卷，退出后再次进入会从当前的时间继续开始，保存已做的考试题目，确认要退出吗？',
           confirmButtonText: '确定',
@@ -115,7 +115,9 @@
           }
         })
       } else {
-        clearInterval(this.timer)
+        if (this.timer) {
+          clearInterval(this.timer)
+        }
         next()
       }
     },
