@@ -56,7 +56,7 @@
     getCourseDetail
   } from '../../services/community'
   import {
-    getServiceInfo
+    getCourseServe
   } from '../../services'
   export default {
     name: 'CourseDetails',
@@ -86,9 +86,6 @@
       isLoadGuestInfo () {
         this.main()
       },
-      sceneService () {
-        this.getSceneValue()
-      },
       uid () {
         this.configShareInfo()
       }
@@ -105,10 +102,6 @@
       isLoadGuestInfo () {
         return this.$store.state.isLoadGuestInfo
       },
-      // 客服场景值
-      sceneService () {
-        return this.$store.state.sceneInfo.customer.activity_curriculum
-      },
       uid () {
         return this.$store.state.personalInfo.uid
       }
@@ -116,7 +109,6 @@
     data () {
       return {
         isLoad: false,
-        isSceneService: false, // 客服固定场景值是否加载
         courseDetailsInfo: {
           price: '', // 价格
           originalPrice: '' // 原价
@@ -182,8 +174,6 @@
             }
 
             that.WarmPromptNumber = relationInfo.rest_invite_number
-
-            that.getSceneValue()
           }
         })
       },
@@ -200,17 +190,15 @@
           }).then(this.setWeiXinConfig)
         }
       },
-      getSceneValue () {
+      getCourseServe () {
         let that = this
-        if (!this.isSceneService && this.sceneService) {
-          this.isSceneService = true
-          getServiceInfo({ scene: this.sceneService }).then(res => {
-            if (res.data.code === 1) {
-              let data = res.data.data
-              that.customerServiceData.codeSrc = data.qr_code
-            }
-          })
-        }
+        getCourseServe().then(res => {
+          if (res.data.code === 1) {
+            let data = res.data.data
+            that.isCustomerServicePopup = true
+            that.customerServiceData.codeSrc = data.customer_qr_code
+          }
+        })
       },
       /**
        * 视频播放
@@ -237,7 +225,7 @@
       },
       // 立即购买
       immediately () {
-        this.isCustomerServicePopup = true
+        this.getCourseServe()
       },
       // 免费获取
       free () {
