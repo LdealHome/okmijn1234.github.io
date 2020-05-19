@@ -17,3 +17,4 @@ tanmingyang 2020-5-4 14:00:07: dev => deb7433 - tanmingyang, Mon May 4 13:59:43 
 wangsiyi 2020-5-14 9:39:11 AM: dev => 7c171cd - wangsiyi, Thu May 14 09:37:54 2020 +0800--style: 邀请海报替换图片
 
 tanmingyang 2020-5-18 18:36:12: next => a955cf9 - tanmingyang, Mon May 18 18:34:53 2020 +0800--fix: 修复直接进入考试页面，离开时会显示提示框问题
+wangsiyi 2020-5-19 11:16:14 AM: next => 8d7e509 - wangsiyi, Tue May 19 11:08:24 2020 +0800--refactor: 课程详情立即购买修改客服二维码
