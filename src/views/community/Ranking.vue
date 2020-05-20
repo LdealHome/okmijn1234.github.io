@@ -99,7 +99,7 @@
         infoData: { // 个人信息
           portrait: '', // 头像
           nickname: '', // 用户昵称
-          number: 2 // 集福人数
+          number: 0 // 集福人数
         },
         isPostersSharePopup: false, // 邀请海报
         list: [], // 排行榜

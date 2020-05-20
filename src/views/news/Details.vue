@@ -63,8 +63,7 @@
             list.forEach(item => {
               this.list.push({
                 ...item,
-                link: item.url,
-                linkText: '新增字段'
+                link: item.url
               })
             })
             return list

@@ -19,7 +19,7 @@
 
 <script>
   import getDeviceSystem from '../../utils/get-device-system'
-  let vm
+  // let vm
   export default {
     name: 'EditView',
     props: {
@@ -68,11 +68,11 @@
         preparedInfo: null
       }
     },
-    beforeDestroy () {
-      if (vm.scrollTimer) {
-        // clearInterval(vm.scrollTimer)
-      }
-    },
+    // beforeDestroy () {
+    //   if (vm.scrollTimer) {
+    //     clearInterval(vm.scrollTimer)
+    //   }
+    // },
     watch: {
       emptyNumber () {
         this.content = ''
@@ -88,7 +88,7 @@
         }
       }
     },
-    created () { vm = this },
+    // created () { vm = this },
     computed: {
       isShowPlaceholder () {
         return !this.content && !this.isFocus
@@ -143,7 +143,7 @@
       },
       contentFocus () {
         this.isFocus = true
-        this.commentFocus()
+        // this.commentFocus()
       },
       contentBlur () {
         this.$emit('contentBlur', this.content)
