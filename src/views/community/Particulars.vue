@@ -10,6 +10,8 @@
             span.name "{{item.name}}"
             | 加入社群
             span.time {{item.time}}
+    div.particulars__music(v-if="musicUrl" @click="operationMusic")
+      span.music(:class="{play: isPlayMusic}")
     DetailsContent(
       :contentList="contentList"
       :countdownData="countdownData"
@@ -68,12 +70,13 @@
     VideoPopup(
       :video="videoInfo"
       :isShow="isShowVideo"
-      @videoClose="isShowVideo = false"
+      @videoClose="videoClose"
     )
 </template>
 
 <script>
   import SwiperCommon from '../../components/SwiperCommon'
+  import AudioContext from '../../utils/audio-context'
   import PostersSharePopup from '../../components/community/PostersSharePopup'
   import DetailsContent from '../../components/community/DetailsContent'
   import InformationPopup from '../../components/community/InformationPopup'
@@ -152,7 +155,9 @@
           videoUrl: '',
           imgSrc: ''
         },
-        isShowVideo: false
+        isShowVideo: false,
+        isPlayMusic: false, // 是否播放音乐
+        musicUrl: '' // 背景音乐地址
       }
     },
     watch: {
@@ -214,6 +219,9 @@
     },
     beforeRouteLeave (to, from, next) {
       clearInterval(this.countdownTimer)
+      if (this.isPlayMusic) {
+        this.__audio.pause()
+      }
       next()
     },
     created () {
@@ -251,7 +259,14 @@
             that.isOpening = courseInfo.status === 2
 
             that.postList = data.position_enums
-            this.countdownStarts()
+
+            that.musicUrl = courseInfo.music_url
+            that.countdownStarts()
+
+            // 自动播放背景音乐
+            if (that.musicUrl) {
+              that.playAudio(that.musicUrl)
+            }
           }
         })
       },
@@ -297,6 +312,40 @@
         })
       },
       /**
+       * 操作背景音乐
+       */
+      operationMusic () {
+        if (this.isPlayMusic) {
+          this.__audio.pause()
+        } else {
+          this.__audio.play()
+        }
+      },
+      /**
+       * @param src {String} 播放的音频路径
+       * 播放背景音乐
+       */
+      playAudio (src) {
+        let that = this
+        if (that.__audio) {
+          this.__audio.play(src)
+        } else {
+          that.__audio = new AudioContext({
+            src: src,
+            isFirst: false,
+            onPlaying () {
+              that.isPlayMusic = true
+            },
+            onPause () {
+              that.isPlayMusic = false
+            },
+            onEnded () {
+              that.__audio.play()
+            }
+          })
+        }
+      },
+      /**
        * 配置分享信息
        */
       configShareInfo (uid) {
@@ -316,15 +365,24 @@
        * @param videoIndex { Number } 选择播放视频当前的角标
        */
       videoPlay (itemIndex, videoIndex) {
+        let that = this
         // this.contentList[itemIndex].videoList[videoIndex].isVideoPlay = true
-        let data = this.contentList[itemIndex].videoList[videoIndex]
-        this.videoInfo = {
+        let data = that.contentList[itemIndex].videoList[videoIndex]
+        that.videoInfo = {
           videoUrl: data.src,
           imgSrc: data.cover
         }
-        this.$nextTick(() => {
-          this.isShowVideo = true
+        that.$nextTick(() => {
+          that.isShowVideo = true
+          that.__audio.pause()
         })
+      },
+      /**
+       * 关闭视频播放
+       */
+      videoClose () {
+        this.isShowVideo = false
+        this.__audio.play()
       },
       /**
        * 跳转链接
@@ -531,6 +589,27 @@
       }
     }
 
+    &__music {
+      position: fixed;
+      top: .98rem;
+      right: .4rem;
+      width: .84rem;
+      height: .84rem;
+      z-index: 2;
+
+      .music {
+        display: block;
+        width: 100%;
+        height: 100%;
+        background: url("~@images/community/music.png") no-repeat center;
+        background-size: contain;
+      }
+
+      .play {
+        animation: transformTanslate 2s linear infinite;
+      }
+    }
+
     &__footer {
       position: fixed;
       bottom: 0;
@@ -675,6 +754,28 @@
 
     &:active {
       background-color: darken(rgba(255, 184, 19, .96), 5%);
+    }
+  }
+
+  @keyframes transformTanslate {
+    0% {
+      transform: rotate(0);
+    }
+
+    25% {
+      transform: rotate(90deg);
+    }
+
+    50% {
+      transform: rotate(180deg);
+    }
+
+    75% {
+      transform: rotate(270deg);
+    }
+
+    100% {
+      transform: rotate(360deg);
     }
   }
 </style>
