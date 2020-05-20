@@ -1042,9 +1042,10 @@
       color: #686868;
       font-size: .28rem;
       text-align: left;
-      padding-left: .06rem;
-      background: @colorWhite url("~@icon/community/column-more-down.png") no-repeat .78rem center;
+      padding-left: .26rem;
+      background: @colorWhite url("~@icon/community/column-down.png") no-repeat .98rem center;
       background-size: .16rem .08rem;
+      box-shadow: -6px 0 6px -6px #c8c2b4;
     }
 
     .up {
@@ -1057,7 +1058,7 @@
       font-size: .28rem;
       text-align: left;
       padding-left: .06rem;
-      background: @colorWhite url("~@icon/community/column-more-up.png") no-repeat .78rem center;
+      background: @colorWhite url("~@icon/community/column-up.png") no-repeat .78rem center;
       background-size: .16rem .08rem;
     }
   }
