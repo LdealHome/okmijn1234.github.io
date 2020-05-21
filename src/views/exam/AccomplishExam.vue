@@ -92,7 +92,7 @@
           id: '', // 课程id
           img: '',
           title: '',
-          number: 222 // 学习人数
+          number: 0 // 学习人数
         },
         accomplishList: [], // 解析列表
         isShowCollection: false // 收藏弹框

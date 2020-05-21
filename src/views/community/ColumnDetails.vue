@@ -204,7 +204,7 @@
           time: '' // 时间
         }, // 课程相关信息
         countdownText: '00天00时00分00秒', // 倒计时
-        countdown: 1587830400, // 倒计时
+        countdown: 0, // 倒计时
         isShowPostersShare: false, // 邀请海报弹框
         isShowCourseCustomerService: false, // 客服弹框
         isGraduation: false, // 是否毕业

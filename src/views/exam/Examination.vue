@@ -85,16 +85,16 @@
           cover: '', // 封面图
           title: '', // 标题
           portraitList: [], // 考试最新的头像
-          duration: 15, // 考试时长
-          topicNumber: 10, // 题目量
-          totalScore: 10, // 总分
+          duration: 0, // 考试时长
+          topicNumber: 0, // 题目量
+          totalScore: 0, // 总分
           encourage: '' // 考前勉励
         },
         courseInfo: { // 关联课程
           id: 0, // 课程id
           img: '',
           title: '',
-          number: 222 // 学习人数
+          number: 0 // 学习人数
         },
         isShowPostersShare: false, // 邀请海报弹框
         isShowCollection: false // 收藏弹框

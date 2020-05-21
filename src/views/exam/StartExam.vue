@@ -85,9 +85,9 @@
     data () {
       return {
         duration: '00:00:00', // 考试时长
-        durationRush: 900, // 考试时间戳
-        topicNumber: 10, // 题目量
-        totalScore: 10, // 总分
+        durationRush: 0, // 考试时间戳
+        topicNumber: 0, // 题目量
+        totalScore: 0, // 总分
         examList: [], // 试题列表
         listHeight: [],
         scrollTimer: null,
