@@ -19,3 +19,4 @@ wangsiyi 2020-5-14 9:39:11 AM: dev => 7c171cd - wangsiyi, Thu May 14 09:37:54 20
 tanmingyang 2020-5-18 18:36:12: next => a955cf9 - tanmingyang, Mon May 18 18:34:53 2020 +0800--fix: 修复直接进入考试页面，离开时会显示提示框问题
 wangsiyi 2020-5-19 11:16:14 AM: next => 8d7e509 - wangsiyi, Tue May 19 11:08:24 2020 +0800--refactor: 课程详情立即购买修改客服二维码
 wangsiyi 2020-5-20 11:48:04 AM: next => 52424af - wangsiyi, Wed May 20 11:46:07 2020 +0800--refactor: 自动成交页添加背景音乐
+tanmingyang 2020-5-21 13:45:30: next => 082882f - tanmingyang, Thu May 21 13:43:39 2020 +0800--fix: 修复视频断网后播放错误
