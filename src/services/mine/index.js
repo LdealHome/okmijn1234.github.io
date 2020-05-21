@@ -29,8 +29,8 @@ export function getSingleList (params) {
  * 获取编辑资料页面信息
  * @returns {AxiosPromise<any>}
  */
-export function getEditInfo () {
-  return Vue.axios.get('/user/personal/info')
+export function getEditInfo (params) {
+  return Vue.axios.get('/user/personal/info', { params })
 }
 
 /**

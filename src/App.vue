@@ -148,7 +148,6 @@
           this.$route.name === 'curriculum')
         ) {
           this.$router.replace({ name: '404' })
-          sessionStorage.setItem('pageAccessible', true)
         }
       }
     }

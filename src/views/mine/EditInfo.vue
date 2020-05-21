@@ -136,7 +136,7 @@
     methods: {
       main () {
         this.setImageScene()
-        getEditInfo().then(res => {
+        getEditInfo({ timestamp: new Date() }).then(res => {
           if (res.data.code === 1) {
             let data = res.data.data
             this.avatar = data.head_img
