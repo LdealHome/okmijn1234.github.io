@@ -19,6 +19,7 @@
         @timeupdate="videTimeupdate"
       )
       img.video-poster(:src="options.poster" v-show="notBroadcast")
+      div.no-net-view(v-show="!networkStatus")
       div.count-down-view(v-show="notBroadcast")
         div.count-down-info
           p.count-down 倒计时: 
@@ -100,7 +101,8 @@
         },
         self: null,
         isPlay: false,
-        navBarList: ['资料区', '互动区']
+        navBarList: ['资料区', '互动区'],
+        networkStatus: true // 网络状态
       }
     },
     watch: {
@@ -185,9 +187,10 @@
       },
       eventHandle (event) {
         // 如果在直播状态时，断网后暂停播放视频
-        if (event.type === 'offline' && this.state === 1 && !this.isEnded && this.isPlay) {
+        if (event.type === 'offline' && this.state > 0 && !this.isEnded && this.isPlay) {
           this.self.pause()
         }
+        this.networkStatus = !this.networkStatus
       },
       videoEnded () {
         // 直播中，课程结束后更新状态
@@ -349,6 +352,14 @@
   .video-poster {
     width: 100%;
     height: 4.7rem;
+  }
+
+  .no-net-view {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    z-index: 1;
   }
 
   .ended-video {
