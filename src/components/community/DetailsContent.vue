@@ -249,7 +249,9 @@
         position: absolute;
         top: 50%;
         left: .06rem;
+        right: .2rem;
         color: #fff;
+        text-align: center;
         font-size: .24rem;
         font-weight: bold;
         transform: scale(.9) translateY(-50%);
