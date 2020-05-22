@@ -179,6 +179,9 @@
           this.isCanplay = true
           this.self.currentTime(this.videoCurrent)
         }
+        // 这里需要重新缓存访问统计信息，避免在videoPlayEvent事件中调用时 currentTime为0问题
+        sessionStorage.setItem('videoPlayTime', new Date().getTime())
+        this.setStudyStatistics()
       },
       eventHandle (event) {
         // 如果在直播状态时，断网后暂停播放视频
