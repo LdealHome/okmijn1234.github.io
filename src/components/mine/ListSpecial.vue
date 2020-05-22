@@ -31,6 +31,7 @@
     padding: 0 .3rem;
     border-bottom: 1px solid #f5f5f5;
     margin-bottom: .3rem;
+    box-shadow: 1px 1px .06rem 0 rgba(240, 240, 240, .8);
 
     &:last-of-type {
       margin-bottom: 0;

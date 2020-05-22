@@ -33,7 +33,7 @@
   .curriculum-item {
     padding: .24rem .3rem;
     margin-bottom: .3rem;
-    box-shadow: 1px 1px .6rem 0 rgba(240, 240, 240, .8);
+    box-shadow: 1px 1px .06rem 0 rgba(240, 240, 240, .8);
     border-radius: .1rem;
 
     &:last-of-type {
