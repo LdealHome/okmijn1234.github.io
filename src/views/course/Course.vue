@@ -141,7 +141,8 @@
             },
             rollBottom: 0,
             forbiddenWordsList: [],
-            isRollBottom: false
+            isRollBottom: false,
+            isShowTopView: false
           },
           isFollow: false,
           key: '',
@@ -278,7 +279,8 @@
                 rollBottom: 0,
                 forbiddenWordsList: [], // 显示的列表中，被禁言的用户uid列表
                 isLastPage: false,
-                isRollBottom: true
+                isRollBottom: true,
+                isShowTopView: false
               },
               isFollow: data.user_focus_info.is_focus === 1,
               key: data.web_socket.key,
@@ -339,10 +341,8 @@
               }
             }
             // 学习资料区滚动到最后一页时，显示顶部的集福中心样式
-            if (type === 'studyListInfo' &&
-              list.length < this.mBean[type].params.limit
-            ) {
-              this.mBean.studyListInfo.isShowTopView = true
+            if (list.length < this.mBean[type].params.limit) {
+              this.$set(this.mBean[type], 'isShowTopView', true)
             }
             this.$nextTick(() => {
               // 直播中进入页面学习资料区滚动到底部

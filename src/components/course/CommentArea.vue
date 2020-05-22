@@ -4,6 +4,12 @@
       span.anchor-top(@click="rollTopClick")
       span.anchor-bottom(@click="rollBottomClick")
     div.comment-back(ref="commentList" @scroll="scrollEvent")
+      div.fu-center(v-show="isShowTopView")
+        div.fu-text(@click="goHomePage")
+          img.fu-text-img(src="@images/course/fu-text.png")
+        img.fortune-bag(src="@icon/course/fortune-bag.png" @click="seeShareVideo")
+        p.click-tips(@click="seeShareVideo") 点击福字，了解分享后好处
+        div.tips-btn(@click="$emit('shareBtnClick')") 分享课程，为课程点赞
       ListComment.comment-list-back(
         :list="data.commentListInfo.list"
         type="comment"
@@ -43,7 +49,8 @@
                 page: 1
               },
               rollBottom: 0,
-              forbiddenWordsList: []
+              forbiddenWordsList: [],
+              isShowTopView: false
             }
           }
         }
@@ -139,6 +146,10 @@
       // 访客
       isGuest () {
         return this.$store.state.guest
+      },
+      // 是否显示顶部集福中心view
+      isShowTopView () {
+        return this.data.commentListInfo.isShowTopView
       }
     },
     methods: {
@@ -164,6 +175,16 @@
       },
       rollBottomClick () {
         this.$refs.commentList.scrollTop = this.$refs.commentList.scrollHeight
+      },
+      seeShareVideo () {
+        this.$emit('seeVideo', { type: 1, scene: this.$store.state.sceneInfo.video_course.share_adv })
+      },
+      goHomePage () {
+        if (this.isGuest) {
+          this.$router.push({ name: 'particulars', params: { from: this.from } })
+        } else {
+          this.$router.push({ name: 'home' })
+        }
       },
       loadMore (res) {
         this.$emit('loadMore', 'commentListInfo', res)
@@ -250,7 +271,6 @@
   }
 
   .comment-list-back {
-    height: 100%;
     word-break: break-all;
     -webkit-user-select: none;
     user-select: none;
@@ -380,5 +400,52 @@
     &:active {
       color: #fff;
     }
+  }
+  
+  .fu-center {
+    width: 6.44rem;
+    padding: .2rem 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: #fff;
+    border-radius: .12rem;
+    margin: .1rem auto 0;
+  }
+
+  .fu-text {
+    padding-right: .36rem;
+    background: url('~@icon/course/fu-text-right.png') no-repeat right center;
+    background-size: .15rem;
+  }
+
+  .fu-text-img {
+    width: 2.64rem;
+    height: .67rem;
+  }
+
+  .fortune-bag {
+    width: .85rem;
+    height: .9rem;
+    margin-top: .27rem;
+  }
+
+  .click-tips {
+    font-size: .26rem;
+    color: #ff4c49;
+    margin-top: .34rem;
+    margin-bottom: .26rem;
+  }
+  
+  .tips-btn {
+    width: 4.4rem;
+    height: .68rem;
+    line-height: .68rem;
+    border-radius: .34rem;
+    background: #f9d400;
+    box-shadow: 0 0 .1rem 0 rgba(249, 212, 0, 1);
+    text-align: center;
+    font-size: .3rem;
+    color: #313131;
   }
 </style>
