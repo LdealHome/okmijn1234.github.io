@@ -244,7 +244,7 @@
               state: state, // 直播状态 0: 未开始 1:直播中 2:回放
               personTime: state > 0 ? data.watch_number : data.set_start_number, // 人次
               visitPersonTime: data.watch_number, // 累计访问人次
-              time: state > 0 ? data.current_live_time : data.differ_time, // state对应不同时间 state：0距离直播开始时间 1直播播放的位置
+              time: state > 0 ? (state === 1 ? data.current_live_time : data.user_play_length) : data.differ_time, // state对应不同时间 state：0距离直播开始时间 1直播播放的位置 2上一次回放的位置
               isSetReminders: data.is_set_remind === 1, // 是否设置开播提醒
               countDownList: [],
               studyListInfo: {

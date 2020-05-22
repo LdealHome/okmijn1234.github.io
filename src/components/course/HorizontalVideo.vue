@@ -88,17 +88,11 @@
         videoCurrent: 0, // 视频播放的进度
         studyTime: 0, // 学习时长
         state: 0,
-        videoHeight: 'auto',
         stopInfo: {
           timer: null,
           surplusTime: 0
         },
         isCanplay: false,
-        isShowVideoControl: false,
-        showControlTimer: null,
-        doubleClick: {
-          timer: null
-        },
         self: null,
         isPlay: false,
         navBarList: ['资料区', '互动区'],
@@ -118,6 +112,7 @@
           this.isShowVideo = true
           break
         case 2:
+          this.videoCurrent = this.data.time
           this.options.isLive = false
           this.isShowVideo = true
           break
@@ -179,8 +174,8 @@
         }
       },
       videTimeupdate () {
-        // 解决安卓手机直播中，播放按钮点击太快时，没有从直播位置播放问题，而是从头开始播放的
-        if (this.state === 1 && getDeviceSystem() !== 'ios') {
+        // 解决安卓手机，播放按钮点击太快时，没有从正确位置播放问题，而是从头开始播放的
+        if (getDeviceSystem() !== 'ios') {
           this.isCanplay = true
           this.self.currentTime(this.videoCurrent)
         }
@@ -294,8 +289,8 @@
           this.isEnded = false
           this.self.currentTime(0)
           this.self.play()
-        } else if (this.state === 1) {
-          this.startLiveEndMonitor()
+        } else if (this.state > 0) {
+          this.state === 1 && this.startLiveEndMonitor()
           if (getDeviceSystem() === 'ios') {
             this.isCanplay = true
             this.self.currentTime(this.videoCurrent)
