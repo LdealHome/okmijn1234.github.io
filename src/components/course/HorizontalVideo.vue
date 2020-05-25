@@ -17,8 +17,10 @@
         @ended="videoEnded"
         @canplay="videoCanplay"
         @timeupdate="videTimeupdate"
+        @liveend="liveend"
       )
-      img.video-poster(:src="options.poster" v-show="notBroadcast")
+      div(:class="{ 'live-end': isLiveEnd }" v-show="notBroadcast || isLiveEnd")
+        img.video-poster(:src="options.poster")
       div.no-net-view(v-show="!networkStatus")
       div.count-down-view(v-show="notBroadcast")
         div.count-down-info
@@ -97,7 +99,8 @@
         self: null,
         isPlay: false,
         navBarList: ['资料区', '人互动'],
-        networkStatus: true // 网络状态
+        networkStatus: true, // 网络状态
+        isLiveEnd: false // 真直播结束状态
       }
     },
     watch: {
@@ -137,7 +140,7 @@
     computed: {
       liveBroadcastState () {
         let list = ['未开始', '直播中', '直播回放']
-        return this.isShowEnded ? '直播结束' : list[this.state]
+        return this.isShowEnded || this.isLiveEnd ? '直播结束' : list[this.state]
       },
       liveBroadcastClass () {
         return {
@@ -221,6 +224,13 @@
           // 清空学习的时长
           this.studyTime = 0
         }
+      },
+      /**
+       * 直播连接结束状态
+       */
+      liveend () {
+        this.isShowVideo = false
+        this.isLiveEnd = true
       },
       /**
        * 直播中进入页面后或暂停直播后监听直播是否结束
@@ -356,6 +366,24 @@
   .video-poster {
     width: 100%;
     height: 4.7rem;
+  }
+
+  .live-end {
+    &::after {
+      width: 100%;
+      height: 100%;
+      line-height: 4.7rem;
+      background: rgba(0, 0, 0, .5);
+      font-size: .34rem;
+      color: #fff;
+      content: '直播已结束，回放视频生成中...';
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      text-align: center;
+    }
   }
 
   .no-net-view {
