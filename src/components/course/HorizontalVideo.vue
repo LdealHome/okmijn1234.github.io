@@ -188,7 +188,7 @@
         if (event.type === 'offline' && this.state > 0 && !this.isEnded && this.isPlay) {
           this.self.pause()
         }
-        this.networkStatus = !this.networkStatus
+        this.networkStatus = event.type !== 'offline'
       },
       videoEnded () {
         // 直播中，课程结束后更新状态

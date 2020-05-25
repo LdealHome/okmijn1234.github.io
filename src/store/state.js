@@ -14,8 +14,7 @@ export default {// 是否已经加载过全局的用户信息
     nickname: '', // 用户昵称
     avatar: '', // 用户头像
     uid: '', // 用户uid
-    isBindPhone: false, // 是否绑定手机
-    isAccessibleVisitMine: false
+    isBindPhone: false // 是否绑定手机
   },
   // 七牛云直传token
   qiniuToken: {
@@ -31,7 +30,9 @@ export default {// 是否已经加载过全局的用户信息
     liveRoleType: null // 直播间角色
   },
   globalInfo: {
-    share_info: null
+    share_info: null,
+    is_open: false, // 是否可以访问权限控制页面
+    route_list: [] // 权限控制页面路由name列表
   },
   // 场景值信息
   sceneInfo: {

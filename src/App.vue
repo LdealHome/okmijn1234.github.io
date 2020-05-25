@@ -33,6 +33,12 @@
       shareInfo () {
         return this.$store.state.globalInfo.share_info
       },
+      isAccessibleVisit () {
+        return this.$store.state.globalInfo.is_open
+      },
+      accessiblePageList () {
+        return this.$store.state.globalInfo.route_list
+      },
       routerMeta () {
         return this.$route.meta || {}
       },
@@ -41,6 +47,9 @@
       },
       isGuest () {
         return this.$store.state.guest
+      },
+      typeTableLoaded () {
+        return this.$store.state.typeTableLoaded
       }
     },
     watch: {
@@ -54,7 +63,6 @@
           location.replace(location.origin + pathname)
         }
         this.baseWeixinShare()
-        this.pageAccessible()
       },
       desc (val) {
         if (val) {
@@ -79,6 +87,9 @@
       },
       isLoadGuestInfo () {
         this.guestHandle()
+      },
+      typeTableLoaded () {
+        this.pageAccessible()
       }
     },
     created () {
@@ -128,25 +139,18 @@
           .then(this.setWeiXinConfig)
       },
       guestHandle () {
-        if (this.isLoadGuestInfo && this.isGuest && this.$route.name && !this.routerMeta.share) {
+        if (this.isLoadGuestInfo && this.isGuest && this.$route.name && !this.routerMeta.share && this.$route.name !== '404') {
           this.$router.replace({ name: 'particulars', params: { from: 1 } })
           return
         }
         this.pageAccessible()
       },
       /**
-       * 学习中心、消息、考试、课程详情页面、课程列表页添加访问权限限制
+       * 添加访问权限限制
        */
       pageAccessible () {
-        if (
-          (this.uid || (this.isLoadGuestInfo && this.isGuest)) &&
-          !this.$store.state.personalInfo.isAccessibleVisitMine &&
-          (/\/mine/.test(this.$route.path) ||
-          /\/news/.test(this.$route.path) ||
-          /\/exam/.test(this.$route.path) ||
-          this.$route.name === 'column-details' ||
-          this.$route.name === 'curriculum')
-        ) {
+        // 判断没有权限的用户，访问限制页面跳转404
+        if (this.typeTableLoaded && this.$route.name && !this.isAccessibleVisit && this.accessiblePageList.includes(this.$route.name)) {
           this.$router.replace({ name: '404' })
         }
       }
