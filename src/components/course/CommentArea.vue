@@ -92,7 +92,8 @@
           height: 0
         },
         isBottom: true,
-        isClickableManage: false
+        isClickableManage: false,
+        scrollTimer: null
       }
     },
     created () {
@@ -169,6 +170,12 @@
           this.isBottom = false
           this.$emit('changeCommentRollState', { type: 'commentListInfo', state: false })
         }
+        if (this.scrollTimer) {
+          clearTimeout(this.scrollTimer)
+        }
+        this.scrollTimer = setTimeout(() => {
+          this.scrollTimer = null
+        }, 100)
       },
       rollTopClick () {
         this.$refs.commentList.scrollTop = 0
@@ -197,7 +204,7 @@
        */
       commentClick (index) {
         this.isShowManageView = false
-        if (!this.isGuest) this.$emit('commentClick', index)
+        if (!this.isGuest && !this.scrollTimer) this.$emit('commentClick', index)
       },
       /**
        * 取消回复评论，更新状态为普通评论

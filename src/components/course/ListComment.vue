@@ -92,7 +92,8 @@
     data () {
       return {
         timer: null,
-        isClickComment: false // 是否点击评论
+        isClickComment: false, // 是否点击评论，用于判断取消回复
+        isDownComment: false // 是否按下评论，用于判断回复评论
       }
     },
     filters: {
@@ -126,7 +127,7 @@
       },
       isOwnComment (index) {
         return index => {
-          return this.list[index].userInfo.uid === this.uid && this.isComment && !this.list[index].isFictitious && !this.isRecord(index)
+          return this.list[index].userInfo.uid === this.uid && this.isCommentArea && !this.list[index].isFictitious && !this.isRecord(index)
         }
       },
       isRecord (index) {
@@ -149,7 +150,7 @@
           return { 'record-top': this.isShowTime(index) }
         }
       },
-      isComment () {
+      isCommentArea () {
         return this.type === 'comment'
       },
       isShowWithdraw () {
@@ -161,7 +162,7 @@
     methods: {
       showManageView (e, index) {
         if (!this.role) {
-          this.$emit('commentClick', index)
+          this.isDownComment = true
           return
         }
         let touches = e.touches[0]
@@ -180,15 +181,20 @@
         }, 800)
       },
       touchend (index) {
-        if (this.timer) {
-          clearTimeout(this.timer)
+        if (this.timer || this.isDownComment) {
           // 点击回复评论
           this.$emit('commentClick', index)
+          if (this.timer) {
+            clearTimeout(this.timer)
+            this.timer = null
+          }
+          this.isDownComment = false
         } else {
           // 长按显示管理弹窗，手指离开屏幕后，才能操作删除和禁言功能
           // 解决ios长按后，手指离开同时触发了删除评论点击事件
           this.$emit('fingersAway')
         }
+        // 点击其他用户的评论，修改点击评论的状态， 阻止取消评论事件
         if (!this.isOwnComment(index)) this.isClickComment = true
       },
       clickItem (item) {
