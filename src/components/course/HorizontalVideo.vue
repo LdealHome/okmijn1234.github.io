@@ -98,7 +98,7 @@
         isCanplay: false,
         self: null,
         isPlay: false,
-        navBarList: ['资料区', '人互动'],
+        navBarList: ['资料区', '互动'],
         networkStatus: true, // 网络状态
         isLiveEnd: false // 真直播结束状态
       }
