@@ -73,6 +73,12 @@
         this.one('timeupdate', function () {
           self.$emit('timeupdate', this)
         })
+        this.on('error', function () {
+          if (this.error_.code === 4) {
+            this.errorDisplay.close()
+            self.$emit('liveend')
+          }
+        })
       })
     },
     beforeDestroy () {
