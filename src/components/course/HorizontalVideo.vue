@@ -38,7 +38,7 @@
           v-for="(item, index) in navBarList"
           :class="{active: data.navBarCurrent === index}"
           @click="switchTab(index)"
-        ) {{item}}
+        ) {{`${itemNumber(index)}${item}`}}
       div.follow(v-show="data.isShowFollow" @click="$emit('followBtnClick')") +关注
       div.retract-btn(
         @click="changeOpenState"
@@ -69,7 +69,8 @@
             personTime: 0, // 人次
             time: 0, // 如果state为0，则是开始倒计时，1为直播播放的位置。单位秒，
             isSetReminders: true, // 是否设置开播提醒
-            countDownList: [] // 开播倒计时数组 [天、时、分、秒]
+            countDownList: [], // 开播倒计时数组 [天、时、分、秒]
+            totalComments: 0 // 互动人次
           }
         }
       }
@@ -95,7 +96,7 @@
         isCanplay: false,
         self: null,
         isPlay: false,
-        navBarList: ['资料区', '互动区'],
+        navBarList: ['资料区', '人互动'],
         networkStatus: true // 网络状态
       }
     },
@@ -165,6 +166,11 @@
       // 访客
       isGuest () {
         return this.$store.state.guest
+      },
+      itemNumber (index) {
+        return index => {
+          return index === 1 ? this.data.totalComments : ''
+        }
       }
     },
     methods: {
