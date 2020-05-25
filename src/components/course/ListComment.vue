@@ -22,8 +22,9 @@
         div.reply-view(v-if="item.type === 3 || item.type === 4")
           p.reply-problem
             span.withdraw-btn(v-show="isShowWithdraw(index)" @click.stop="clickItem({ ...item, type: 100 })") 撤回
+            span.problem-reply-view(v-if="item.type === 4")
             span(v-if="item.replyInfo.delete") 该评论已被删除
-            span(v-else :class="{ 'problem-reply-view': item.type === 4 }") {{item.replyInfo.name}}：{{item.replyInfo.content}}
+            span(v-else) {{item.replyInfo.name}}：{{item.replyInfo.content}}
           p.reply-content {{item.content}}
         div.media-view.video-back(v-if="item.type === 6" @click="clickItem(item)")
           img.media-img(:src="item.videoInfo.cover")
@@ -471,19 +472,14 @@
   }
 
   .problem-reply-view {
-    padding-left: .5rem;
+    display: inline-block;
+    width: .42rem;
+    height: .42rem;
     position: relative;
-
-    &::before {
-      width: .42rem;
-      height: .42rem;
-      position: absolute;
-      content: '';
-      left: 0;
-      top: -.04rem;
-      background: url('~@icon/course/ask-comment.png') no-repeat;
-      background-size: 100%;
-    }
+    top: .06rem;
+    margin-right: .08rem;
+    background: url('~@icon/course/ask-comment.png') no-repeat;
+    background-size: 100%;
   }
 
   .reply-problem {
