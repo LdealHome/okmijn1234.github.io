@@ -37,7 +37,7 @@
           p 共获收益
             span.number {{item.profitNumber}}
             | 元
-          p 已邀请
+          p 已集福
             span.number {{item.inviteNumber}}
             | 人
     NothingCommon(v-else :config="nothingConfig")
