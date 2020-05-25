@@ -23,3 +23,4 @@ tanmingyang 2020-5-21 13:45:30: next => 082882f - tanmingyang, Thu May 21 13:43:
 wangsiyi 2020-5-21 6:12:32 PM: next => 8f6b716 - wangsiyi, Thu May 21 18:07:59 2020 +0800--style: 修改样式
 tanmingyang 2020-5-22 17:36:14: next => 0eeaa34 - tanmingyang, Fri May 22 17:28:15 2020 +0800--fix: 修复课程访问统计，视频播放的位置错误问题
 tanmingyang 2020-5-22 17:48:59: next => 81e5df7 - tanmingyang, Fri May 22 17:48:17 2020 +0800--style: 修改学习中心专栏、单课列表样式
+tanmingyang 2020-5-25 11:34:25: next => 8061006 - tanmingyang, Mon May 25 11:32:56 2020 +0800--refactor: 修改页面访问权限限制逻辑
