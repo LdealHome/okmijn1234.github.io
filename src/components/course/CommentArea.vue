@@ -4,6 +4,13 @@
       span.anchor-top(@click="rollTopClick")
       span.anchor-bottom(@click="rollBottomClick")
     div.comment-back(ref="commentList" @scroll="scrollEvent")
+      infinite-loading(@infinite="loadMore" direction="top" :identifier="identifier")
+        div.spinner-tips(slot="spinner")
+          div.circle-border
+            div.circle-core
+          span.spinner-text 加载中
+        div(slot="no-more")
+        div(slot="no-results")
       div.fu-center(v-show="isShowTopView")
         div.fu-text(@click="goHomePage")
           img.fu-text-img(src="@images/course/fu-text.png")
@@ -21,10 +28,6 @@
         @cancelReply="cancelReply"
         @fingersAway="fingersAway"
       )
-      infinite-loading(@infinite="loadMore" direction="top" :identifier="identifier")
-        div(slot="spinner")
-        div(slot="no-more")
-        div(slot="no-results")
     div.manage-view(v-show="isShowManageView" :style="manageStyle" ref="manageView")
       p.delete-item(@click="deleteComment") 删除评论
       p.forbidden-words(@click="forbiddenWords" :class="{ 'locking-btn': fingerPosition.role }") {{forbiddenWordsText}}
@@ -454,5 +457,51 @@
     text-align: center;
     font-size: .3rem;
     color: #313131;
+  }
+
+  .spinner-tips {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: .8rem;
+  }
+
+  .spinner-text {
+    font-size: .4rem;
+    transform: scale(.5);
+    transform-origin: 0;
+    color: #999;
+    margin-left: .6rem;
+  }
+
+  @keyframes spin {
+    from {
+      transform: rotate(0);
+    }
+
+    to {
+      transform: rotate(359deg);
+    }
+  }
+  
+  .circle-border {
+    width: .2rem;
+    height: .2rem;
+    padding: .02rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    background: linear-gradient(0deg, rgba(153, 153, 153, .1) 33%, rgba(153, 153, 153, 1) 100%);
+    animation: spin .8s linear 0s infinite;
+    position: relative;
+    right: -.5rem;
+  }
+
+  .circle-core {
+    width: 100%;
+    height: 100%;
+    background-color: #f8f8f8;
+    border-radius: 50%;
   }
 </style>

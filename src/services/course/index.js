@@ -41,5 +41,5 @@ export function postRewardCourse (data) {
  * @returns {AxiosPromise<any>}
  */
 export function getCommentList (params) {
-  return Vue.axios.get('/course/live/comments', { params })
+  return Vue.axios.get('/course/live/comments', { params, $_hideLoading: true })
 }
