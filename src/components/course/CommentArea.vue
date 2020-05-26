@@ -27,7 +27,7 @@
         div(slot="no-results")
     div.manage-view(v-show="isShowManageView" :style="manageStyle" ref="manageView")
       p.delete-item(@click="deleteComment") 删除评论
-      p.forbidden-words(@click="forbiddenWords" :class="{ 'locking-btn': fingerPosition.role }") {{forbiddenWordsText}}
+      p.forbidden-words(@click="forbiddenWords" :class="{ 'locking-btn': fingerPosition.role || fingerPosition.isFictitious }") {{forbiddenWordsText}}
 </template>
 
 <script>
