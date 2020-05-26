@@ -240,7 +240,7 @@
         moreIndex: -1, // 选择日期角标
         contentList: [], // 课程介绍
         liveBroadcastList: [], // 直播列表
-        upIndex: -1, // 展示隐藏列表的角标
+        upIndex: -2, // 展示隐藏列表的角标
         liveItemIndex: -2, // 今日直播对应指定所属索引
         isShowVideo: false, // 视频弹框
         videoInfo: { // 视频弹框
@@ -394,11 +394,6 @@
             if (res.data.code === 1) {
               let list = res.data.data.list
               this.liveBroadcastList.push(...this.transformLiveBroadcastList(list))
-              this.liveBroadcastList.forEach((item, index) => {
-                if (item.isCurrent) {
-                  this.upIndex = index
-                }
-              })
               return list
             }
           })

@@ -259,7 +259,8 @@
         if (!this.data.commentListInfo.list[index] ||
           this.data.commentListInfo.list[index].id === this.replyInfo.id ||
           this.data.commentListInfo.list[index].userInfo.uid === this.uid ||
-          this.data.commentListInfo.list[index].label
+          this.data.commentListInfo.list[index].label ||
+          this.isNotBroadcast
         ) return
         this.isShowEditView = true
         this.preparedInfo = {

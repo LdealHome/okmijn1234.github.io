@@ -53,7 +53,7 @@
         return !this.liveInfo.role && !this.isForbidComment
       },
       isNotStarted () {
-        return this.state === 0
+        return this.state <= 0
       },
       editTips () {
         return this.isForbidComment ? '已被管理员禁言' : '说点什么吧~'
