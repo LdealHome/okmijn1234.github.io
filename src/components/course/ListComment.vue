@@ -176,7 +176,8 @@
             y,
             id: this.list[index].id,
             uid: this.list[index].userInfo.uid,
-            role: this.list[index].label
+            role: this.list[index].label,
+            isFictitious: this.list[index].isFictitious
           })
           // 长按事件
         }, 800)

@@ -253,7 +253,8 @@
        * 禁言/解除禁言
        */
       forbiddenWords () {
-        if (this.fingerPosition.role || !this.isClickableManage) return
+        // 虚拟用户、管理员不做禁言
+        if (this.fingerPosition.role || !this.isClickableManage || this.fingerPosition.isFictitious) return
         this.isShowManageView = false
         this.$emit('clickItem', {
           type: 102,
