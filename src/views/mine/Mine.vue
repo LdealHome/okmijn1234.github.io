@@ -8,7 +8,8 @@
         img.news-btn-img(src="@icon/mine/news.png" @click="newsClick")
         span.news-num(v-if="mBean.newsUnreadNum") {{mBean.newsUnreadNum}}
       div.data-info(@click="editInfoClick")
-        img.avatar(:src="mBean.avatar")
+        div(:class="{ 'king-view': mBean.isKing }")
+          img.avatar(:src="mBean.avatar")
         div.data-right
           p.info-name {{mBean.name}}
           p.edit-btn 编辑个人资料
@@ -152,7 +153,8 @@
               learningToday: data.today_learn_time, // 今日学习时长
               continuityDay: data.continuous_learn_day, // 连续天数
               completeCourse: data.complete_course_num, // 完成课程
-              newsUnreadNum: data.message_num // 新消息数
+              newsUnreadNum: data.message_num, // 新消息数
+              isKing: data.is_mr_king
             }
           }
         })
@@ -373,6 +375,34 @@
     display: flex;
     align-items: center;
     margin-top: .38rem;
+  }
+
+  .king-view {
+    position: relative;
+    width: .96rem;
+    height: .96rem;
+    border-radius: 50%;
+    border: .02rem solid #ff4c49;
+
+    &::after {
+      width: .42rem;
+      height: .3rem;
+      background: url('~@icon/mine/king-icon.png') no-repeat;
+      background-size: 100%;
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: -.29rem;
+      margin: 0 auto;
+      z-index: 1;
+    }
+
+    .avatar {
+      width: 100%;
+      height: 100%;
+      border: 1px solid #fff;
+    }
   }
 
   .avatar {

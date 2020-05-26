@@ -21,7 +21,9 @@ export default {
       uid: payload.uid,
       nickname: payload.nick_name,
       avatar: payload.img_url,
-      isBindPhone: payload.is_bind_mobile === 1
+      isBindPhone: payload.is_bind_mobile === 1,
+      inviteNum: payload.invite_num, // 邀请人数
+      isKing: payload.is_mr_king // 是否是福王
     }
   },
   [SET_QINIU_TOKEN] (state, payload) {

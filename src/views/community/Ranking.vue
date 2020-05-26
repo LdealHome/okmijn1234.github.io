@@ -8,7 +8,8 @@
         )
           img.img(:src="item.pic")
     div.ranking-info
-      img.portrait(v-lazy="infoData.portrait")
+      div(:class="{ 'king-view': infoData.isKing }")
+        img.portrait(v-lazy="infoData.portrait")
       div.middle
         p.nickname {{infoData.nickname}}
         p.text 集福{{infoData.number}}人
@@ -23,7 +24,8 @@
           div.item-view
             span(:class="index < 3 ? 'medal_icon_' + index : ''") {{index < 3 ? '' : index + 1}}
           div.item-info
-            img.avatar(v-lazy="item.avatar")
+            div(:class="{ 'king-view': item.isKing }")
+              img.avatar(v-lazy="item.avatar")
             button.entry(
               type="button"
               v-if="item.isCard"
@@ -96,11 +98,6 @@
           }
         },
         isLoadBanner: false,
-        infoData: { // 个人信息
-          portrait: '', // 头像
-          nickname: '', // 用户昵称
-          number: 0 // 集福人数
-        },
         isPostersSharePopup: false, // 邀请海报
         list: [], // 排行榜
         params: {
@@ -150,6 +147,14 @@
       // banner的场景值
       bannerScene () {
         return this.$store.state.sceneInfo.ad.community_course_rank
+      },
+      infoData () {
+        return {
+          portrait: this.$store.state.personalInfo.avatar, // 头像
+          nickname: this.$store.state.personalInfo.nickname, // 用户昵称
+          number: this.$store.state.personalInfo.inviteNum, // 集福人数
+          isKing: this.$store.state.personalInfo.isKing // 是否是福王
+        }
       }
     },
     created () {
@@ -226,12 +231,6 @@
           .then(res => {
             if (res.data.code === 1) {
               let list = res.data.data.list || []
-              let memberInfo = res.data.data.member_info
-              this.infoData = {
-                portrait: memberInfo.head_img, // 头像
-                nickname: memberInfo.nick_name, // 用户昵称
-                number: memberInfo.invite_num // 集福人数
-              }
               this.list.push(...this.transformRankingList(list))
               return list
             }
@@ -274,7 +273,8 @@
             name: item.nick_name,
             courseNumber: item.course_number,
             profitNumber: item.amount,
-            inviteNumber: item.invite_number
+            inviteNumber: item.invite_number,
+            isKing: item.is_mr_king // 是否是福王
           })
         })
         return list
@@ -485,5 +485,31 @@
 
   .medal_icon_2 {
     background-image: url('~@icon/community/medal_icon_3.png');
+  }
+
+  .king-view {
+    padding: .03rem;
+    border: .02rem solid #ff4c49;
+    border-radius: 50%;
+    position: relative;
+
+    &::after {
+      width: .42rem;
+      height: .3rem;
+      background: url('~@icon/mine/king-icon.png') no-repeat;
+      background-size: 100%;
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: -.29rem;
+      margin: 0 auto;
+      z-index: 1;
+    }
+
+    .portrait,
+    .avatar {
+      border: 1px solid #ff4c49;
+    }
   }
 </style>
