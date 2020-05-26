@@ -148,6 +148,8 @@
           key: '',
           webSocketUrl: '',
           isForbidComment: false,
+          isAllProhibited: false, // 是否是全员禁言
+          isSuperAdmin: false, // 是否是超级管理员，超级管理员在全员禁言时，可以评论
           role: 0,
           totalComments: 0,
           isStatistics: false,
@@ -286,6 +288,8 @@
               key: data.web_socket.key,
               webSocketUrl: data.web_socket.url,
               isForbidComment: data.is_comment === 2,
+              isAllProhibited: data.is_comment_all === 2 && data.is_super !== 1, // 是否是全员禁言(只改变非超级管理员的禁言状态)
+              isSuperAdmin: data.is_super === 1, // 是否是超级管理员，超级管理员在全员禁言时，可以评论
               role: data.role,
               totalComments: data.comment_number,
               serverTime: res.data.timestamp,
@@ -481,6 +485,14 @@
         case 8:
           // 禁言
           this.mBean.isForbidComment = false
+          break
+        case 10:
+          // 全员禁言, 只改变不是超级管理员的禁言状态
+          this.mBean.isAllProhibited = !this.mBean.isSuperAdmin
+          break
+        case 11:
+          // 全员解除禁言
+          this.mBean.isAllProhibited = false
           break
         case 'message':
           this.$_.Toast(data.message)

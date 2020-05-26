@@ -1,7 +1,7 @@
 <template lang="pug">
   div.edit-back
     div.edit-left
-      p.forbid-comment(v-if="data.isForbidComment" contenteditable="false") 已被管理员禁言，如有疑问请联系客服
+      p.forbid-comment(v-if="isEstoppel" contenteditable="false") {{forbidTips}}
       p.edit-content(
         v-else
         ref="content"
@@ -14,7 +14,7 @@
         v-ios-focus
       )
       div.ask-btn(v-show="isShowProblem" @click="$emit('clickItem', 5)" :class="{ 'active-ask-btn': isProblem }") 提问
-    p.send-btn(:class="{ 'clickable-send': content }" @click="sendClick" v-show="!data.isForbidComment") 发送
+    p.send-btn(:class="{ 'clickable-send': content }" @click="sendClick" v-show="!isEstoppel") 发送
 </template>
 
 <script>
@@ -29,7 +29,8 @@
         default () {
           return {
             role: 0,
-            isForbidComment: false
+            isForbidComment: false,
+            isAllProhibited: false // 是否开启全员禁言
           }
         }
       },
@@ -94,12 +95,15 @@
         return !this.content && !this.isFocus
       },
       isShowProblem () {
-        return !this.data.isForbidComment && !this.data.role && !this.isReply
+        return !this.isEstoppel && !this.data.role && !this.isReply
       },
       editContentClass () {
         return {
           'content-placeholder': this.isShowPlaceholder || (this.isFocus && !this.content)
         }
+      },
+      isEstoppel () {
+        return this.data.isForbidComment || this.data.isAllProhibited
       },
       editPlaceholder () {
         return this.isReply ? `回复：${this.replyInfo.content}` : this.placeholder
@@ -115,6 +119,9 @@
       },
       replyId () {
         return this.replyInfo.id
+      },
+      forbidTips () {
+        return this.data.isAllProhibited ? '全员禁言，只允许管理员发言' : '已被管理员禁言，如有疑问请联系客服'
       }
     },
     methods: {

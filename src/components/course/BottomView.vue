@@ -31,6 +31,7 @@
           return {
             state: 0, // 直播状态 0: 未开始 1:直播中 2:回放
             isForbidComment: false, // 是否禁止评论
+            isAllProhibited: false, // 是否开启全员禁言
             role: 0, // 直播间角色
             chatInfo: {
               isShow: true
@@ -50,19 +51,25 @@
     },
     computed: {
       isShowProblemBtn () {
-        return !this.liveInfo.role && !this.isForbidComment
+        return !this.liveInfo.role && !this.isEstoppel
       },
       isNotStarted () {
         return this.state <= 0
       },
       editTips () {
-        return this.isForbidComment ? '已被管理员禁言' : '说点什么吧~'
+        return this.isAllProhibited ? '全员禁言，只允许管理员发言' : (this.isForbidComment ? '已被管理员禁言' : '说点什么吧~')
       },
       state () {
         return this.liveInfo.state
       },
       isForbidComment () {
         return this.liveInfo.isForbidComment
+      },
+      isAllProhibited () {
+        return this.liveInfo.isAllProhibited
+      },
+      isEstoppel () {
+        return this.isForbidComment || this.isAllProhibited
       },
       isShowChat () {
         return this.liveInfo.chatInfo.isShow
@@ -77,11 +84,11 @@
     },
     methods: {
       problemClick () {
-        if (this.isNotStarted || this.isForbidComment) return
+        if (this.isNotStarted || this.isEstoppel) return
         this.$emit('clickItem', 5)
       },
       commentClick () {
-        if (this.isNotStarted || this.isForbidComment) return
+        if (this.isNotStarted || this.isEstoppel) return
         this.$emit('clickItem', 6)
       },
       enrollClick () {

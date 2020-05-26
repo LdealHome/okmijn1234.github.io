@@ -134,6 +134,9 @@
       },
       uid () {
         return this.$store.state.personalInfo.uid
+      },
+      isEstoppel () {
+        return this.data.isForbidComment || this.data.isAllProhibited
       }
     },
     methods: {
@@ -260,7 +263,8 @@
           this.data.commentListInfo.list[index].id === this.replyInfo.id ||
           this.data.commentListInfo.list[index].userInfo.uid === this.uid ||
           this.data.commentListInfo.list[index].label ||
-          this.isNotBroadcast
+          this.isNotBroadcast ||
+          this.isEstoppel
         ) return
         this.isShowEditView = true
         this.preparedInfo = {
