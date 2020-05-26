@@ -16,6 +16,7 @@
       :contentList="contentList"
       :countdownData="countdownData"
       @videoPlay="videoPlay"
+      @typeVideoPlay="typeVideoPlay"
       @jumpLink="jumpLink"
       )
     div.particulars__footer
@@ -378,6 +379,24 @@
         })
       },
       /**
+       * 分类视频播放
+       * @param itemIndex { Number } 选择视频父元素的角标
+       * @param videoTypeIndex { Number } 选择播放视频当前的角标
+       * @param videoIndex { Number } 选择播放视频当前的角标
+       */
+      typeVideoPlay (itemIndex, videoTypeIndex, videoIndex) {
+        let that = this
+        let data = that.contentList[itemIndex].typeVideoList[videoTypeIndex].list[videoIndex]
+        that.videoInfo = {
+          videoUrl: data.src,
+          imgSrc: data.cover
+        }
+        that.$nextTick(() => {
+          that.isShowVideo = true
+          that.__audio.pause()
+        })
+      },
+      /**
        * 关闭视频播放
        */
       videoClose () {
@@ -529,7 +548,24 @@
             type: item.mark_format, // 类型 1图片 2文本 3单个视频 4多个视频 6多链接 7倒计时
             title: item.title, // 标题
             text: item.resource, // 文本内容
-            countdown: item.time // 倒计时秒
+            countdown: item.time, // 倒计时秒
+            typeVideoList: this.transformTypeVideoList(item.more_video_list || [])
+          })
+        })
+        return list
+      },
+      /**
+       * 转换分类视频列表数据
+       * @param source {Object} 需要转换的数据源
+       * @return {Object} 转换后可以直接使用的结构
+       */
+      transformTypeVideoList (source) {
+        let list = []
+        source.forEach(item => {
+          list.push({
+            id: item.cate_id,
+            name: item.cate_name, // 类型
+            list: this.transformVideoList(item.more_video)
           })
         })
         return list

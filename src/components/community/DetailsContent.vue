@@ -42,6 +42,29 @@
               //-   :poster="video.cover"
               //-   )
             p.item-text(v-show="video.text") {{video.text}}
+      // 多视频
+      div.module__video(v-if="item.type === 8")
+        ul.name-list
+          li.name-item(
+            v-for="(item, index) in item.typeVideoList"
+            :class="{ 'active-item': typeVideoIndex === index }"
+            @click="typeVideoIndex = index"
+          ) {{item.name}}
+        // h2.title(v-show="item.title") 多视频标题
+        ul.list
+          li.item(v-for="(video, videoIndex) in item.typeVideoList[typeVideoIndex].list" :key="videoIndex")
+            div.item-cover
+              template
+                img.item-img(:src="video.cover")
+                p.pause(@click="$emit('typeVideoPlay', itemIndex, typeVideoIndex, videoIndex)")
+              //- video.item-video(
+              //-   v-else
+              //-   autoplay
+              //-   :src="video.src"
+              //-   controls="controls"
+              //-   :poster="video.cover"
+              //-   )
+            p.item-text(v-show="video.text") {{video.text}}
       // 链接跳转
       ul.module__link(v-if="item.type === 6")
         li.item(v-for="(video, videoIndex) in item.videoList" @click="$emit('jumpLink', video.src)" :key="videoIndex")
@@ -91,6 +114,11 @@
             second: [] // 秒
           }
         }
+      }
+    },
+    data () {
+      return {
+        typeVideoIndex: 0 // 选中的视频分类索引
       }
     }
   }
@@ -322,6 +350,37 @@
         border-radius: .04rem;
         background: linear-gradient(to top, #fec901, #ff9104);
       }
+    }
+  }
+
+  .name-list {
+    display: flex;
+    justify-content: center;
+    margin-bottom: .16rem;
+  }
+
+  .name-item {
+    font-size: .34rem;
+    color: #999;
+    padding: .22rem .78rem;
+  }
+
+  .active-item {
+    color: #333;
+    font-weight: bold;
+    position: relative;
+
+    &::after {
+      width: .26rem;
+      height: .06rem;
+      border-radius: .03rem;
+      background: #fec801;
+      content: '';
+      position: absolute;
+      bottom: .1rem;
+      left: 0;
+      right: 0;
+      margin: 0 auto;
     }
   }
 </style>
