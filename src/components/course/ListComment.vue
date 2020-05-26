@@ -342,15 +342,14 @@
     height: .28rem;
     line-height: .28rem;
     border-radius: .04rem;
-    font-size: .24rem;
+    font-size: .22rem;
     color: #fff;
     padding: 0 .1rem;
   }
 
   .name {
-    font-size: .32rem;
-    color: #2b2b2b;
-    font-weight: bold;
+    font-size: .24rem;
+    color: #999;
     margin-left: .12rem;
     max-width: 3rem;
     overflow: hidden;
@@ -360,7 +359,7 @@
   }
 
   .comment-content {
-    font-size: .28rem;
+    font-size: .3rem;
     color: #333;
     line-height: .44rem;
     padding: .16rem .24rem .18rem .2rem;
@@ -462,7 +461,7 @@
   }
 
   .reply-view {
-    font-size: .28rem;
+    font-size: .3rem;
     color: #333;
     line-height: .44rem;
     background: #fff;
