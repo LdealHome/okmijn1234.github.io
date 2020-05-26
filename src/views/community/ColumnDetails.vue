@@ -26,39 +26,40 @@
       p.text 当前列表学员期数：第{{realPeriods}}期
       button.see(type="button" @click="change") 切换
     // 导航切换
-    ul.column__navbar
-      li.item(
-        v-for="(item, index) in navbarList"
-        :key="index"
-        :class="{current: currentIndex === index}"
-        @click="chooseNav(index)"
-        )
-        span.item-text {{item}}
-    div.more(v-show="currentIndex === 1")
-      template(v-if="!isMore")
-        ul.more-list(ref="moreScrollLeft")
-          li.more-item(
-            v-for="(item, index) in moreList"
-            :key="index"
-            :class="{active: moreIndex === index}"
-            @click="moreChoose(index, item.enum)"
+    div.navbar-back
+      ul.column__navbar
+        li.item(
+          v-for="(item, index) in navbarList"
+          :key="index"
+          :class="{current: currentIndex === index}"
+          @click="chooseNav(index)"
+          )
+          span.item-text {{item}}
+      div.more(v-show="currentIndex === 1")
+        template(v-if="!isMore")
+          ul.more-list(ref="moreScrollLeft")
+            li.more-item(
+              v-for="(item, index) in moreList"
+              :key="index"
+              :class="{active: moreIndex === index}"
+              @click="moreChoose(index, item.enum)"
+              ) {{item.text}}
+          button.more-text(
+            type="button"
+            @click="isMore = !isMore"
+            ) 更多
+        template(v-else)
+          ul.choose-list
+            li.choose-item(
+              v-for="(item, index) in moreList"
+              :key="index"
+              :class="{active: moreIndex === index}"
+              @click="moreChoose(index, item.enum)"
             ) {{item.text}}
-        button.more-text(
-          type="button"
-          @click="isMore = !isMore"
+          button.up(
+            type="button"
+            @click="isMore = !isMore"
           ) 更多
-      template(v-else)
-        ul.choose-list
-          li.choose-item(
-            v-for="(item, index) in moreList"
-            :key="index"
-            :class="{active: moreIndex === index}"
-            @click="moreChoose(index, item.enum)"
-          ) {{item.text}}
-        button.up(
-          type="button"
-          @click="isMore = !isMore"
-        ) 更多
     // 课程介绍
     DetailsContent(
       v-show="currentIndex === 0"
@@ -66,6 +67,27 @@
       @videoPlay="videoPlay"
       @jumpLink="jumpLink"
       )
+    ul.column__broadcast(v-show="currentIndex === 1")
+      li.broadcast-item.live-today(v-for="item in todayLive")
+        div.broadcast-above(@click="toggleArrow(liveItemIndex)")
+          div.synopsis
+            p.title {{item.title}}
+            // 进行中
+            p.ongoing(v-if="item.isOngoing") 进行中
+            // 未开始
+            p.date(v-else)
+              span.date-text {{item.date}}
+              span.date-time(v-if="item.time") {{item.time}}
+          i.icon-arrow(:class="{up: upIndex === liveItemIndex}")
+        ul.broadcast-following(v-show="upIndex === liveItemIndex")
+          li.following-item(
+            v-for="(itm, index) in item.list"
+            :key="index"
+            @click="operationBroadcast(item, itm)"
+            )
+            span.following-state {{itm.isState === 1 ? '直播' : itm.isState === 2 ? '考试' : itm.isState === 3 ? '预告' : '视频'}}
+            span.following-text(:class="{unlock: itm.isLock}") {{itm.text}}
+            span.following-lock(v-if="!itm.isLock")
     // 直播列表
     ul.column__broadcast(v-show="currentIndex === 1 && this.liveBroadcastList.length")
       li.broadcast-item(v-for="(item, index) in liveBroadcastList" :key="item.id")
@@ -88,7 +110,7 @@
             span.following-state {{itm.isState === 1 ? '直播' : itm.isState === 2 ? '考试' : itm.isState === 3 ? '预告' : '视频'}}
             span.following-text(:class="{unlock: itm.isLock}") {{itm.text}}
             span.following-lock(v-if="!itm.isLock")
-    NothingCommon(:config="config" v-if="currentIndex === 1 && this.liveBroadcastList.length === 0")
+    NothingCommon(:config="config" v-if="currentIndex === 1 && !liveBroadcastList.length && !todayLive.length")
     infinite-loading(@infinite="loadMore" :identifier="chooseCurrent" v-if="isLoadMoreShow")
       div(slot="spinner")
       div(slot="no-more")
@@ -219,11 +241,13 @@
         contentList: [], // 课程介绍
         liveBroadcastList: [], // 直播列表
         upIndex: -1, // 展示隐藏列表的角标
+        liveItemIndex: -2, // 今日直播对应指定所属索引
         isShowVideo: false, // 视频弹框
         videoInfo: { // 视频弹框
           videoUrl: '',
           imgSrc: ''
         },
+        todayLive: [],
         isFollow: false, // 是否关注公众号
         isShowCustomerService: false, // 关注公众号弹框
         followInfo: {
@@ -316,6 +340,7 @@
               link: shareInfo.link
             }).then(this.setWeiXinConfig)
             that.countdownStarts()
+            that.todayLive = that.transformLiveBroadcastList(data.today_list || [])
           }
         })
       },
@@ -1013,6 +1038,7 @@
       width: 100%;
       overflow-x: scroll;
       -webkit-overflow-scrolling: touch;
+      padding-bottom: .1rem;
     }
 
     &-item {
@@ -1108,5 +1134,27 @@
     height: 2.06rem;
     background: url("~@images/community/column-follow-img.png") no-repeat center;
     background-size: contain;
+  }
+
+  .navbar-back {
+    position: sticky;
+    top: 0;
+    background: #fff;
+    z-index: 10;
+  }
+
+  .live-today {
+    position: relative;
+
+    &::after {
+      width: 1.2rem;
+      height: .32rem;
+      position: absolute;
+      left: 0;
+      top: -.15rem;
+      content: '';
+      background: url("~@icon/community/live-today.png") no-repeat center;
+      background-size: 100%;
+    }
   }
 </style>
