@@ -49,6 +49,7 @@
             div.analysis
               p 答案：{{item.answer}}
               p 解析： {{item.analysis}}
+    RouterLink.jump-exam(:to="{ name: 'column-details' }") 返回课程列表
     MorePupup(
       @collectionClick="isShowCollection = true"
     )
@@ -455,5 +456,25 @@
     color: #2b2b2b;
     font-size: .36rem;
     font-weight: bold;
+  }
+
+  .jump-exam {
+    position: fixed;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: .2rem;
+    width: 5.8rem;
+    height: .78rem;
+    text-align: center;
+    line-height: .78rem;
+    color: #313131;
+    font-size: .3rem;
+    box-shadow: 0 0 10px 0 #f9d400;
+    background-color: #f9d400;
+    border-radius: 1rem;
+
+    &:active {
+      background-color: darken(#f9d400, 5%);
+    }
   }
 </style>
