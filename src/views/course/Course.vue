@@ -153,7 +153,8 @@
           role: 0,
           totalComments: 0,
           isStatistics: false,
-          navBarCurrent: 1
+          navBarCurrent: 1,
+          isFullScreen: false
         },
         rewardInfo: {
           isShow: false,
@@ -295,7 +296,8 @@
               serverTime: res.data.timestamp,
               isStatistics: data.is_statistics,
               videoLength: data.video_length,
-              navBarCurrent: 1
+              navBarCurrent: 1,
+              isFullScreen: data.is_full_screen
             }
             if (!state) {
               // 未开播时更新距离开播倒计时

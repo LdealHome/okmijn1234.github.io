@@ -113,6 +113,8 @@
           // 用于计算点击开始播放后，调整视频的播放位置
           sessionStorage.setItem('waitTime', new Date().getTime())
           this.videoCurrent = this.data.time
+          // 1~6期学员是真直播，展示全屏按钮
+          this.options.isLive = !this.data.isFullScreen
           this.isShowVideo = true
           break
         case 2:
