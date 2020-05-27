@@ -67,6 +67,11 @@
         this.on('ended', function () {
           self.$emit('ended', this)
         })
+        this.on('seeking', function () {
+          setTimeout(() => {
+            this.handleTechSeeked_()
+          }, 3000)
+        })
         this.one('canplay', function () {
           self.$emit('canplay', this)
         })
