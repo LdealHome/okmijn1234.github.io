@@ -154,7 +154,8 @@
           totalComments: 0,
           isStatistics: false,
           navBarCurrent: 1,
-          isFullScreen: false
+          isFullScreen: false,
+          peopleOnlineNumber: 0
         },
         rewardInfo: {
           isShow: false,
@@ -297,7 +298,8 @@
               isStatistics: data.is_statistics,
               videoLength: data.video_length,
               navBarCurrent: 1,
-              isFullScreen: data.is_full_screen
+              isFullScreen: data.is_full_screen,
+              peopleOnlineNumber: 0 // 在线人数
             }
             if (!state) {
               // 未开播时更新距离开播倒计时
@@ -501,6 +503,9 @@
           break
         case 'join':
           this.mBean.personTime++
+          break
+        case 'people':
+          this.mBean.peopleOnlineNumber = data.number
           break
         default:
           break
@@ -791,7 +796,7 @@
             amount: item.price, // 打赏的金额
             id: item.id,
             isFictitious: item.is_virtual_user === 1, // 是否是虚拟用户
-            isSuperAdmin: item.is_super === 1 // 是否是超级管理员发的信息
+            isSuperAdmin: +item.is_super === 1 // 是否是超级管理员发的信息
           })
         })
         return list

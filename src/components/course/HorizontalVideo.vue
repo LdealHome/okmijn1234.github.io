@@ -9,6 +9,7 @@
         p.state.not-started(:class="liveBroadcastClass") {{liveBroadcastState}}
           span.interval |
           span {{data.personTime}}人次
+          span(v-show="isShowOnlineNumber") (在线用户：{{data.peopleOnlineNumber}})
       VideoPlayer(
         v-if="isShowVideo"
         :options="options"
@@ -72,7 +73,9 @@
             time: 0, // 如果state为0，则是开始倒计时，1为直播播放的位置。单位秒，
             isSetReminders: true, // 是否设置开播提醒
             countDownList: [], // 开播倒计时数组 [天、时、分、秒]
-            totalComments: 0 // 互动人次
+            totalComments: 0, // 互动人次
+            peopleOnlineNumber: 0, // 在线人数
+            isSuperAdmin: false // 是否是超级管理员
           }
         }
       }
@@ -176,6 +179,9 @@
         return index => {
           return index === 1 ? this.data.totalComments : ''
         }
+      },
+      isShowOnlineNumber () {
+        return this.data.isSuperAdmin && this.courseState === 1
       }
     },
     methods: {
