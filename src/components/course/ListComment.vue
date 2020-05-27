@@ -15,11 +15,11 @@
           img.avatar(:src="item.userInfo.avatar")
           p.user-label(v-if="item.label") {{roleType[item.label]}}
           p.name {{item.userInfo.name}}
-        p.comment-content(v-if="item.type === 1 || item.type === 2")
+        p.comment-content(v-if="item.type === 1 || item.type === 2" @click="commentClick(index)")
           span.withdraw-btn(v-show="isShowWithdraw(index)" @click.stop="clickItem({ ...item, type: 100 })") 撤回
           span.problem-comment(v-if="item.type === 2")
           span {{item.content}}
-        div.reply-view(v-if="item.type === 3 || item.type === 4")
+        div.reply-view(v-if="item.type === 3 || item.type === 4" @click="commentClick(index)")
           p.reply-problem
             span.withdraw-btn(v-show="isShowWithdraw(index)" @click.stop="clickItem({ ...item, type: 100 })") 撤回
             span.problem-reply-view(v-if="item.type === 4")
@@ -161,6 +161,10 @@
       }
     },
     methods: {
+      commentClick (index) {
+        // 点击回复评论
+        this.$emit('commentClick', index)
+      },
       showManageView (e, index) {
         if (!this.role) {
           this.isDownComment = true
@@ -184,8 +188,6 @@
       },
       touchend (index) {
         if (this.timer || this.isDownComment) {
-          // 点击回复评论
-          this.$emit('commentClick', index)
           if (this.timer) {
             clearTimeout(this.timer)
             this.timer = null
