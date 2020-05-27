@@ -12,7 +12,10 @@
         div.tips-btn(@click="$emit('shareBtnClick')") 分享课程，为课程点赞
       ListComment(:list="studyListInfo.list" @clickItem="clickItem")
       infinite-loading(@infinite="loadMore" :direction="studyListInfo.direction")
-        div(slot="spinner")
+        div.spinner-tips(slot="spinner")
+          div.circle-border
+            div.circle-core
+          span.spinner-text 加载中
         div(slot="no-more")
         div(slot="no-results")
 </template>
@@ -218,5 +221,51 @@
     text-align: center;
     font-size: .3rem;
     color: #313131;
+  }
+  
+  .spinner-tips {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: .8rem;
+  }
+
+  .spinner-text {
+    font-size: .4rem;
+    transform: scale(.5);
+    transform-origin: 0;
+    color: #999;
+    margin-left: .6rem;
+  }
+
+  @keyframes spin {
+    from {
+      transform: rotate(0);
+    }
+
+    to {
+      transform: rotate(359deg);
+    }
+  }
+  
+  .circle-border {
+    width: .2rem;
+    height: .2rem;
+    padding: .02rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    background: linear-gradient(0deg, rgba(153, 153, 153, .1) 33%, rgba(153, 153, 153, 1) 100%);
+    animation: spin .8s linear 0s infinite;
+    position: relative;
+    right: -.5rem;
+  }
+
+  .circle-core {
+    width: 100%;
+    height: 100%;
+    background-color: #f8f8f8;
+    border-radius: 50%;
   }
 </style>
