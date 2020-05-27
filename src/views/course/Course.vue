@@ -693,7 +693,8 @@
         // 超级管理员发送的内容、打赏记录添加到学习资料区
         if (
           (info.isSuperAdmin || info.type === 5) &&
-          (this.mBean.state === 1 || this.mBean.studyListInfo.isLastPage)
+          (this.mBean.state === 1 || this.mBean.studyListInfo.isLastPage) &&
+          info.type !== 8
         ) {
           this.mBean.studyListInfo.list.push(info)
           if (this.mBean.studyListInfo.isRollBottom) {
