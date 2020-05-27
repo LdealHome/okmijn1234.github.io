@@ -64,6 +64,7 @@
   function pagehide () {
     if (vm.webSocket) {
       vm.webSocket.close()
+      vm.webSocket = null
     }
     if (vm.updateCountDownTimer) clearInterval(vm.updateCountDownTimer) 
     if (vm.sendPingTimer) clearInterval(vm.sendPingTimer) 
@@ -437,7 +438,7 @@
        * 重新连接WebSocked
        */
       reconnectWebSocket () {
-        if (this.reconnectTimer) return
+        if (this.reconnectTimer || !this.webSocket) return
         // 设置延时重连，没连接上会一直重连
         this.reconnectTimer = setTimeout(() => {
           this.connectWebSocket()
