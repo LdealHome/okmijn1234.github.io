@@ -27,3 +27,4 @@ tanmingyang 2020-5-25 11:34:25: next => 8061006 - tanmingyang, Mon May 25 11:32:
 tanmingyang 2020-5-25 18:35:36: next => 0651ea4 - tanmingyang, Mon May 25 18:34:46 2020 +0800--style: 修改排行榜页面，邀请文字改为集福
 tanmingyang 2020-5-25 18:45:42: next => 1cf1822 - tanmingyang, Mon May 25 18:45:12 2020 +0800--style: 修改互动区tab文字，去掉“人”
 tanmingyang 2020-5-26 14:37:26: next => df1bfa7 - tanmingyang, Tue May 26 12:09:54 2020 +0800--fix: 修复未开播课程可以恢复评论问题、课程列表默认展开直播课程
+tanmingyang 2020-5-27 17:52:57: next => b85e313 - tanmingyang, Wed May 27 17:46:47 2020 +0800--fix: 修复超级管理员分享记录会展示在资料区问题
