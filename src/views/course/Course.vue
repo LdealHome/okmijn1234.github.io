@@ -607,7 +607,7 @@
           'passive_msg_tag': info.replyInfo.id && info.replyInfo.isAsk ? 1 : 0
         })
         // 学员(普通用户)在选中资料区时评论，自动切换到互动区
-        if (this.mBean.navBarCurrent === 0 && !this.mBean.role) {
+        if (this.mBean.navBarCurrent === 0 && !this.mBean.isSuperAdmin) {
           this.mBean.navBarCurrent = 1
         }
         // 自己发送评论或回复评论时，需滚动到评论列表底部
@@ -684,9 +684,9 @@
             })
           }
         }
-        // 管理员发送的内容、分享记录、打赏记录添加到学习资料区
+        // 超级管理员发送的内容、分享记录、打赏记录添加到学习资料区
         if (
-          (info.label || info.type === 5 || info.type === 8) &&
+          (info.isSuperAdmin || info.type === 5 || info.type === 8) &&
           (this.mBean.state === 1 || this.mBean.studyListInfo.isLastPage)
         ) {
           this.mBean.studyListInfo.list.push(info)
@@ -790,7 +790,8 @@
             image: item.img_url, // 图片
             amount: item.price, // 打赏的金额
             id: item.id,
-            isFictitious: item.is_virtual_user === 1 // 是否是虚拟用户
+            isFictitious: item.is_virtual_user === 1, // 是否是虚拟用户
+            isSuperAdmin: item.is_super === 1 // 是否是超级管理员发的信息
           })
         })
         return list
