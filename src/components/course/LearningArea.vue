@@ -12,10 +12,7 @@
         div.tips-btn(@click="$emit('shareBtnClick')") 分享课程，为课程点赞
       ListComment(:list="studyListInfo.list" @clickItem="clickItem")
       infinite-loading(@infinite="loadMore" :direction="studyListInfo.direction")
-        div.spinner-tips(slot="spinner")
-          div.circle-border
-            div.circle-core
-          span.spinner-text 加载中
+        div(slot="spinner")
         div(slot="no-more")
         div(slot="no-results")
 </template>
