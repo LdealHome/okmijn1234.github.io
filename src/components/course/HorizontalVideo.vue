@@ -237,6 +237,8 @@
        * 直播连接结束状态
        */
       liveend () {
+        // 避免假直播或回放时触发liveend事件
+        if (!this.data.isFullScreen || this.state !== 1) return
         this.isShowVideo = false
         this.isLiveEnd = true
       },
