@@ -3,7 +3,14 @@
     div.right-anchor
       span.anchor-top(@click="rollTopClick")
       span.anchor-bottom(@click="rollBottomClick")
-    div.content(ref="learningView" @click="$emit('cancelComment')" @scroll="scrollEvent")
+    div.content(ref="learningView" @click="$emit('cancelComment')" @scroll="scrollEvent" id="studyListInfo")
+      infinite-loading(@infinite="loadMore" direction="top" v-if="isShowTopInfinite")
+        div.spinner-tips(slot="spinner")
+          div.circle-border
+            div.circle-core
+          span.spinner-text 加载中
+        div(slot="no-more")
+        div(slot="no-results")
       div.fu-center(v-show="isShowTopView")
         div.fu-text(@click="goHomePage")
           img.fu-text-img(src="@images/course/fu-text.png")
@@ -11,8 +18,11 @@
         p.click-tips(@click="seeShareVideo") 点击福字，了解分享后好处
         div.tips-btn(@click="$emit('shareBtnClick')") 分享课程，为课程点赞
       ListComment(:list="studyListInfo.list" @clickItem="clickItem")
-      infinite-loading(@infinite="loadMore" :direction="studyListInfo.direction")
-        div(slot="spinner")
+      infinite-loading(@infinite="loadMore" direction="bottom" v-if="!isShowTopInfinite")
+        div.spinner-tips(slot="spinner")
+          div.circle-border
+            div.circle-core
+          span.spinner-text 加载中
         div(slot="no-more")
         div(slot="no-results")
 </template>
@@ -61,6 +71,9 @@
       }
     },
     computed: {
+      isShowTopInfinite () {
+        return this.studyListInfo.direction === 'top'
+      },
       isShowChat () {
         return this.bottomInfo.isShow && !this.isNotBroadcast
       },

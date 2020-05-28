@@ -336,12 +336,17 @@
       getStudyDataList (type) {
         return new Promise((resolve, reject) => {
           let originalList = this.mBean[type].list
+          // 根据不同的加载方式（历史评论/最新评论）、获取最后一条或第一条数据的id
           if (originalList.length) {
             this.mBean[type].params.mark_id = originalList[this.mBean[type].params.direction === 1 ? 0 : (originalList.length - 1)].id
           }
           getCommentList(this.mBean[type].params).then(res => {
             let list = []
             if (res.data.code === 1 && res.data.data && res.data.data.list) {
+              // 下拉加载更多时，需要先禁止内容滚动。避免ios添加新的数据时，会导致内容滚动两次
+              if (this.mBean[type].params.direction === 1 && this.mBean[type].params.page > 1) {
+                document.getElementById(type).style.overflow = 'hidden'
+              }
               list = res.data.data.list
               if (this.mBean[type].params.direction === 1) {
                 this.mBean[type].list = [ ...this.transformStudyList(list), ...this.mBean[type].list ]
@@ -379,6 +384,12 @@
         })
         if (type === 'commentListInfo' && this.mBean[type].params.page === 1) {
           this.mBean.commentListInfo.rollBottom++
+        }
+        // 修改评论内容样式，添加滚动属性（在获取新数据时禁止了滚动）
+        if (this.mBean[type].params.direction === 1) {
+          setTimeout(() => {
+            document.getElementById(type).style.overflow = 'auto'
+          }, 200)
         }
         // 连接websocket
         if (!this.webSocket) {

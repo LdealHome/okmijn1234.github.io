@@ -3,7 +3,14 @@
     div.right-anchor
       span.anchor-top(@click="rollTopClick")
       span.anchor-bottom(@click="rollBottomClick")
-    div.comment-back(ref="commentList" @scroll="scrollEvent")
+    div.comment-back(ref="commentList" @scroll="scrollEvent" id="commentListInfo")
+      infinite-loading(@infinite="loadMore" direction="top" :identifier="identifier")
+        div.spinner-tips(slot="spinner")
+          div.circle-border
+            div.circle-core
+          span.spinner-text 加载中
+        div(slot="no-more")
+        div(slot="no-results")
       div.fu-center(v-show="isShowTopView")
         div.fu-text(@click="goHomePage")
           img.fu-text-img(src="@images/course/fu-text.png")
@@ -21,10 +28,6 @@
         @cancelReply="cancelReply"
         @fingersAway="fingersAway"
       )
-      infinite-loading(@infinite="loadMore" direction="top" :identifier="identifier")
-        div(slot="spinner")
-        div(slot="no-more")
-        div(slot="no-results")
     div.manage-view(v-show="isShowManageView" :style="manageStyle" ref="manageView")
       p.delete-item(@click="deleteComment") 删除评论
       p.forbidden-words(@click="forbiddenWords" :class="{ 'locking-btn': fingerPosition.role || fingerPosition.isFictitious }") {{forbiddenWordsText}}
