@@ -158,6 +158,7 @@
         },
         isShowVideo: false,
         isPlayMusic: false, // 是否播放音乐
+        beforeMusicState: false, // 点击播放视频之前的音乐播放状态
         musicUrl: '' // 背景音乐地址
       }
     },
@@ -374,6 +375,7 @@
         }
         that.$nextTick(() => {
           that.isShowVideo = true
+          that.beforeMusicState = that.isPlayMusic
           that.__audio.pause()
         })
       },
@@ -392,6 +394,7 @@
         }
         that.$nextTick(() => {
           that.isShowVideo = true
+          that.beforeMusicState = that.isPlayMusic
           that.__audio.pause()
         })
       },
@@ -400,7 +403,9 @@
        */
       videoClose () {
         this.isShowVideo = false
-        this.__audio.play()
+        if (this.beforeMusicState) {
+          this.__audio.play()
+        }
       },
       /**
        * 跳转链接
