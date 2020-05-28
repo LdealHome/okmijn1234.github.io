@@ -78,7 +78,7 @@
         this.one('timeupdate', function () {
           // 在第一次触发timeupdate事件时，error报网络错误时。处理成直播结束
           // 解决部分手机在直播结束后，重新进入页面，视频播放错误，没有更新直播结束状态
-          if (this.error_.code === 2) {
+          if (this.error_ && this.error_.code === 2) {
             this.errorDisplay.close()
             self.$emit('liveend')
           } else {

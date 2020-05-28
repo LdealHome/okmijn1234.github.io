@@ -43,3 +43,12 @@ export function postRewardCourse (data) {
 export function getCommentList (params) {
   return Vue.axios.get('/course/live/comments', { params, $_hideLoading: true })
 }
+
+/**
+ * 手动结束直播
+ * @param data {Object} 请求携带的参数{ key: 直播间key }
+ * @returns {AxiosPromise<any>}
+ */
+export function postEndLive (data) {
+  return Vue.axios.post('/course/live/close', data)
+}

@@ -66,7 +66,8 @@
           return {
             video: {
               src: '',
-              poster: ''
+              poster: '',
+              liveEnd: false
             },
             state: 0, // 直播状态 0: 未开始 1:直播中 2:回放
             personTime: 0, // 人次
@@ -129,6 +130,10 @@
           break
         }
         this.state = val
+      },
+      liveEndState (val) {
+        // 手动结束直播后，更新直播状态
+        val && this.liveend()
       }
     },
     created () {
@@ -182,6 +187,9 @@
       },
       isShowOnlineNumber () {
         return this.data.isSuperAdmin && !this.notBroadcast
+      },
+      liveEndState () {
+        return this.data.video.liveEnd
       }
     },
     methods: {

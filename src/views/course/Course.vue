@@ -14,6 +14,7 @@
       @changeMessage="changeMessage"
       @changeRollState="changeRollState"
       @switchTab="switchTab"
+      @endLiveClick="endLiveClick"
     )
     CustomerServicePopup(
       v-if="isCustomerServicePopup"
@@ -52,7 +53,8 @@
     getCourseInfo,
     postChangeRemindState,
     postRewardCourse,
-    getCommentList
+    getCommentList,
+    postEndLive
   } from '../../services/course'
   import {
     getVideoInfo
@@ -107,7 +109,8 @@
           id: 0, // 课程id
           video: { // 视频信息
             src: '',
-            poster: ''
+            poster: '',
+            liveEnd: false // 手动处理直播结束状态
           },
           isShowFollow: false, // 是否显示关注按钮
           followBtnAvatar: '', // 关注按钮头像
@@ -156,7 +159,8 @@
           isStatistics: false,
           navBarCurrent: 1,
           isFullScreen: false,
-          peopleOnlineNumber: 0
+          peopleOnlineNumber: 0,
+          isLecturer: false
         },
         rewardInfo: {
           isShow: false,
@@ -243,7 +247,8 @@
               id: data.id, // 课程id
               video: { // 视频信息
                 src: data.video_src,
-                poster: data.video_cover
+                poster: data.video_cover,
+                liveEnd: false // 手动处理直播结束状态
               },
               isShowFollow: data.live_focus_qr_code,
               followBtnAvatar: data.user_focus_info.focus_anchor_img,
@@ -300,7 +305,8 @@
               videoLength: data.video_length,
               navBarCurrent: 1,
               isFullScreen: data.is_full_screen,
-              peopleOnlineNumber: 0 // 在线人数
+              peopleOnlineNumber: 0, // 在线人数
+              isLecturer: data.is_close_live // 是否是讲师，用于判断显示结束直播按钮
             }
             if (!state) {
               // 未开播时更新距离开播倒计时
@@ -418,6 +424,31 @@
         this.mBean.navBarCurrent = index
       },
       /**
+       * 结束直播点击确认弹窗
+       */
+      endLiveClick () {
+        const that = this
+        MessageBox({
+          message: '是否确认结束直播？',
+          showCancelButton: true
+        }).then(function (code) {
+          if (code === 'confirm') {
+            that.postEndLive()
+          }
+        })
+      },
+      /**
+       * 结束直播提交
+       */
+      postEndLive () {
+        postEndLive({ key: this.courseKey }).then(res => {
+          if (res.data.code === 1) {
+            this.$_.Toast('操作成功！')
+            this.mBean.video.liveEnd = true
+          }
+        })
+      },
+      /**
        * 分享回调
        */
       shareSuccess () {
@@ -520,7 +551,14 @@
           this.mBean.personTime++
           break
         case 'people':
+          // 在线人数
           this.mBean.peopleOnlineNumber = data.number
+          break
+        case 'close_live':
+          // 触发直播结束
+          if (this.mBean.state === 1) {
+            this.mBean.video.liveEnd = true
+          }
           break
         default:
           break
