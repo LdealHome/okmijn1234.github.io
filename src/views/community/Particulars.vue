@@ -219,10 +219,8 @@
       }
     },
     beforeRouteLeave (to, from, next) {
-      clearInterval(this.countdownTimer)
-      if (this.isPlayMusic) {
-        this.__audio.pause()
-      }
+      this.countdownTimer && clearInterval(this.countdownTimer)
+      this.isPlayMusic && this.__audio.pause()
       next()
     },
     created () {
@@ -280,6 +278,7 @@
               this.countdownTimer = setInterval(() => {
                 if (countDown <= 1) {
                   clearInterval(this.countdownTimer)
+                  this.countdownTimer = null
                 } else {
                   countDown--
                   // 天

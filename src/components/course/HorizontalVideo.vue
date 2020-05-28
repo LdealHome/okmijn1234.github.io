@@ -9,7 +9,7 @@
         p.state.not-started(:class="liveBroadcastClass") {{liveBroadcastState}}
           span.interval |
           span {{data.personTime}}人次
-          span(v-show="isShowOnlineNumber") (在线用户：{{data.peopleOnlineNumber}})
+          span(v-show="isShowOnlineNumber") ({{data.peopleOnlineNumber}})
       VideoPlayer(
         v-if="isShowVideo"
         :options="options"
@@ -181,7 +181,7 @@
         }
       },
       isShowOnlineNumber () {
-        return this.data.isSuperAdmin && this.courseState === 1
+        return this.data.isSuperAdmin && !this.notBroadcast
       }
     },
     methods: {
