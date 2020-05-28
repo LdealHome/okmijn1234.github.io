@@ -358,6 +358,14 @@
 </script>
 
 <style scoped lang="less">
+  /deep/ .vjs-control-bar {
+    border-radius: 0 0 .12rem .12rem;
+  }
+
+  /deep/ .video-js.vjs-playing .vjs-tech {
+    border-radius: .12rem;
+  }
+
   .top-view {
     background-color: #fff;
     z-index: 1; // 这里加层级是解决，直播状态栏底部边框样式，会被滚动的内容挡住
