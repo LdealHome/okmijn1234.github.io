@@ -340,13 +340,14 @@
           if (originalList.length) {
             this.mBean[type].params.mark_id = originalList[this.mBean[type].params.direction === 1 ? 0 : (originalList.length - 1)].id
           }
+          // 下拉加载更多时，需要先禁止内容滚动。避免添加新的数据时，会导致内容滚动两次
+          if (this.mBean[type].params.direction === 1 && this.mBean[type].params.page > 1) {
+            document.getElementById(type).scrollTop = 0
+            document.getElementById(type).style.overflow = 'hidden'
+          }
           getCommentList(this.mBean[type].params).then(res => {
             let list = []
             if (res.data.code === 1 && res.data.data && res.data.data.list) {
-              // 下拉加载更多时，需要先禁止内容滚动。避免ios添加新的数据时，会导致内容滚动两次
-              if (this.mBean[type].params.direction === 1 && this.mBean[type].params.page > 1) {
-                document.getElementById(type).style.overflow = 'hidden'
-              }
               list = res.data.data.list
               if (this.mBean[type].params.direction === 1) {
                 this.mBean[type].list = [ ...this.transformStudyList(list), ...this.mBean[type].list ]
@@ -369,6 +370,8 @@
               }
               resolve(list)
             })
+          }, () => {
+            document.getElementById(type).style.overflow = 'auto'
           })
         })
       },
