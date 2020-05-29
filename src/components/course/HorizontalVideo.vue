@@ -47,7 +47,11 @@
         @click="changeOpenState"
         :class="retractClass"
       )
-
+    div.end-live-btn(
+      v-if="isShowEndLiveBtn"
+      :class="{ 'retract-end-live': !showEndLiveBtnTimer }"
+      @click="endLiveClick"
+    ) {{endLiveText}}
 </template>
 
 <script>
@@ -104,7 +108,8 @@
         isPlay: false,
         navBarList: ['资料区', '互动'],
         networkStatus: true, // 网络状态
-        isLiveEnd: false // 真直播结束状态
+        isLiveEnd: false, // 真直播结束状态
+        showEndLiveBtnTimer: null
       }
     },
     watch: {
@@ -141,9 +146,8 @@
       window.addEventListener('online', this.eventHandle)
     },
     beforeDestroy () {
-      if (this.stopInfo.timer) {
-        clearInterval(this.stopInfo.timer)
-      }
+      this.stopInfo.timer && clearInterval(this.stopInfo.timer)
+      this.showEndLiveBtnTimer && clearTimeout(this.showEndLiveBtnTimer)
       window.removeEventListener('offline', this.eventHandle)
       window.removeEventListener('online', this.eventHandle)
     },
@@ -190,9 +194,28 @@
       },
       liveEndState () {
         return this.data.video.liveEnd
+      },
+      // 是否显示结束直播按钮
+      isShowEndLiveBtn () {
+        return this.data.state === 1 && this.data.isFullScreen && this.data.isLecturer && !this.liveEndState
+      },
+      endLiveText () {
+        return this.showEndLiveBtnTimer ? '结束直播' : ''
       }
     },
     methods: {
+      /**
+       * 结束直播逻辑处理
+       */
+      endLiveClick () {
+        if (this.showEndLiveBtnTimer) {
+          this.$emit('endLiveClick')
+        } else {
+          this.showEndLiveBtnTimer = setTimeout(() => {
+            this.showEndLiveBtnTimer = null
+          }, 5000)
+        }
+      },
       switchTab (index) {
         if (index !== this.data.navBarCurrent) {
           this.$emit('switchTab', index)
@@ -379,6 +402,7 @@
   .top-view {
     background-color: #fff;
     z-index: 1; // 这里加层级是解决，直播状态栏底部边框样式，会被滚动的内容挡住
+    position: relative;
   }
 
   .video-back {
@@ -657,6 +681,49 @@
 
     &:active {
       background-color: darken(#f9d400, 5%);
+    }
+  }
+
+  .end-live-btn {
+    position: absolute;
+    height: .78rem;
+    line-height: .78rem;
+    bottom: -1.42rem;
+    right: 0;
+    background: rgba(0, 0, 0, .6);
+    font-size: .28rem;
+    color: #fff;
+    border-radius: .39rem 0 0 .39rem;
+    padding: 0 .24rem 0 .7rem;
+
+    &::after {
+      width: .36rem;
+      height: .36rem;
+      background: url('~@icon/course/end-live-icon.png') no-repeat left center;
+      background-size: 100%;
+      content: '';
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: .24rem;
+      margin: auto 0;
+    }
+  }
+
+  .retract-end-live {
+    width: .98rem;
+
+    &::after {
+      width: .36rem;
+      height: .36rem;
+      background: url('~@icon/course/end-live-icon.png') no-repeat left center;
+      background-size: 100%;
+      content: '';
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: .3rem;
+      margin: auto 0;
     }
   }
 </style>

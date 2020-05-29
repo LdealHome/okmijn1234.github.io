@@ -5,6 +5,7 @@
       @switchTab="switchTab"
       @clickSetRemind="$emit('clickSetRemind')"
       @followBtnClick="$emit('followBtnClick')"
+      @endLiveClick="$emit('endLiveClick')"
     )
     template
       LearningArea(
@@ -37,7 +38,6 @@
       :liveInfo="data"
       @clickItem="clickBottomItem"
     )
-    div.end-live-btn(@click="$emit('endLiveClick')" v-if="isShowEndLiveBtn") 结束直播
     EditView(
       v-show="isShowEditView"
       :data="data"
@@ -138,10 +138,6 @@
       },
       isEstoppel () {
         return this.data.isForbidComment || this.data.isAllProhibited
-      },
-      // 是否显示结束直播按钮
-      isShowEndLiveBtn () {
-        return this.data.state === 1 && this.data.isFullScreen && this.data.isLecturer && !this.data.video.liveEnd
       }
     },
     methods: {
@@ -313,31 +309,5 @@
     background: #f8f8f8;
     display: flex;
     flex-direction: column;
-  }
-
-  .end-live-btn {
-    position: absolute;
-    height: .78rem;
-    line-height: .78rem;
-    top: 6.52rem;
-    right: 0;
-    background: rgba(0, 0, 0, .6);
-    font-size: .28rem;
-    color: #fff;
-    border-radius: .39rem 0 0 .39rem;
-    padding: 0 .24rem 0 .7rem;
-
-    &::after {
-      width: .36rem;
-      height: .36rem;
-      background: url('~@icon/course/end-live-icon.png') no-repeat;
-      background-size: 100%;
-      content: '';
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      margin: auto 0;
-      left: .24rem;
-    }
   }
 </style>
