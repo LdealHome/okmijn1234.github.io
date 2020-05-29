@@ -40,7 +40,8 @@
             fullscreenToggle: true
           }
         },
-        computedOptions: {}
+        computedOptions: {},
+        closeSpinnerTimer: null
       }
     },
     watch: {
@@ -68,7 +69,9 @@
           self.$emit('ended', this)
         })
         this.on('seeking', function () {
-          setTimeout(() => {
+          self.closeSpinnerTimer && clearTimeout(self.closeSpinnerTimer)
+          self.closeSpinnerTimer = setTimeout(() => {
+            self.closeSpinnerTimer = null
             this.handleTechSeeked_()
           }, 3000)
         })
@@ -94,6 +97,7 @@
       })
     },
     beforeDestroy () {
+      this.closeSpinnerTimer && clearTimeout(this.closeSpinnerTimer)
       if (this.player) {
         this.player.dispose()
       }
