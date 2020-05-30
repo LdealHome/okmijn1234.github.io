@@ -30,3 +30,4 @@ tanmingyang 2020-5-26 14:37:26: next => df1bfa7 - tanmingyang, Tue May 26 12:09:
 tanmingyang 2020-5-27 17:52:57: next => b85e313 - tanmingyang, Wed May 27 17:46:47 2020 +0800--fix: 修复超级管理员分享记录会展示在资料区问题
 tanmingyang 2020-5-28 14:46:21: next => f9e12fe - tanmingyang, Thu May 28 14:41:31 2020 +0800--style: 修改课程视频圆角样式
 tanmingyang 2020-5-28 18:40:56: next => a35bd00 - tanmingyang, Thu May 28 18:37:47 2020 +0800--feat: 课程直播间讲师添加结束直播按钮
+tanmingyang 2020-5-30 17:25:55: next => 5d82fee - tanmingyang, Sat May 30 15:48:44 2020 +0800--feat: 课程直播间添加直播结束状态
