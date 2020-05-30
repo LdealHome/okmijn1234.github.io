@@ -240,7 +240,7 @@
         getCourseInfo({ course_single_id: this.courseId, uid: this.fromUid }).then(res => {
           if (res.data.code === 1) {
             let data = res.data.data
-            let state = data.is_start === 1 ? (data.is_live === 1 ? 1 : 2) : 0
+            let state = data.is_start === 1 ? (data.is_live === 2 ? 2 : 1) : 0
             this.type = data.lay_out // 1横屏、2竖屏全屏、3竖屏小屏
             document.title = data.title
             this.mBean = {
@@ -248,7 +248,7 @@
               video: { // 视频信息
                 src: data.video_src,
                 poster: data.video_cover,
-                liveEnd: false // 手动处理直播结束状态
+                liveEnd: data.is_live === 3 // 手动处理直播结束状态
               },
               isShowFollow: data.live_focus_qr_code,
               followBtnAvatar: data.user_focus_info.focus_anchor_img,

@@ -124,7 +124,7 @@
           this.videoCurrent = this.data.time
           // 1~6期学员是真直播，展示全屏按钮
           this.options.isLive = !this.data.isFullScreen
-          this.isShowVideo = true
+          this.isShowVideo = !this.liveEndState
           break
         case 2:
           this.videoCurrent = this.data.time
