@@ -86,7 +86,8 @@ document.addEventListener('WeixinJSBridgeReady', function () {
 
 // debugger 模式
 if (process.env.VUE_APP_DEBUGGER === 'debugger') {
-  setLocalToken(process.env.VUE_APP_MEMBER_TOKEN)
+  // setLocalToken(process.env.VUE_APP_MEMBER_TOKEN)在env.local中获取token改为直接设置token
+  setLocalToken('eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJtYXJrIjoiTE03MjAtODc0YXNkaGlhd3U1NTUiLCJ1aWQiOjE5LCJvcGVuaWQiOiJvbVdfOHdBOG4zU0tiZ2lwTTRSZklKNVBMVjBBIiwiaXNUZW1wIjoxLCJ1bmlvbmlkIjoiIiwibmlja05hbWUiOiJcdTU5MjlcdTZlMDVcdTVmYWVcdTYyNmMiLCJ2ZXJzaW9ucyI6InYwLjEuMSIsInRpbWUiOjE1OTE4MTIxNjUsInR0bCI6NzIwMH0.4puMhxUMgDTFNL-Mn8KQ4A_2HCCQxiC8ePF9j081QGI')
 }
 
 const CancelToken = axios.CancelToken
@@ -130,6 +131,7 @@ if (currentRoute) {
     entryOtherPage(getToken)
   }
 }
+console.log(process)
 
 axios.defaults.baseURL = process.env.VUE_APP_BASE_URL
 axios.defaults.timeout = process.env.VUE_APP_TIME_OUT

@@ -90,10 +90,7 @@
     postReadTips,
     getExtensionList
   } from '../services/community'
-  import {
-    getBannerList,
-    getVideoInfo
-  } from '../services'
+  import { getBannerList, getVideoInfo } from '../services'
 
   let vm
   export default {
@@ -113,7 +110,8 @@
     data () {
       return {
         isLoad: false,
-        swiperOption: { // 轮播设置对应属性
+        swiperOption: {
+          // 轮播设置对应属性
           autoplay: true,
           speed: 500, // 切换速度
           watchOverflow: false, // 当没有足够的slide切换时，例如只有1个slide（非loop），swiper会失效且隐藏导航等
@@ -143,18 +141,21 @@
         extensionList: [], // 推广指南
         isObtainCoursePopup: false, // 是否已经免费获得课程弹框
         isCourseCustomerServicePopup: false, // 课程客服弹框
-        courseInfo: { // 获取课程
+        courseInfo: {
+          // 获取课程
           name: '',
           imgSrc: '',
           id: 0
         },
         isCustomerServicePopup: false, // 关注公众号弹框
-        customerServiceData: { // 关注公众号
+        customerServiceData: {
+          // 关注公众号
           differentiate: 2,
           content: '',
           codeSrc: ''
         },
-        params: { // 请求的数据
+        params: {
+          // 请求的数据
           page: 1,
           limit: 10
         },
@@ -171,13 +172,13 @@
         showFollowBtnTimer: null
       }
     },
-    beforeRouteLeave (to, from, next) {
-      window.removeEventListener('scroll', this.handleScroll)
-      if (this.showFollowBtnTimer) {
-        clearTimeout(this.showFollowBtnTimer)
-      }
-      next()
-    },
+    // beforeRouteLeave (to, from, next) {
+    //   window.removeEventListener('scroll', this.handleScroll)
+    //   if (this.showFollowBtnTimer) {
+    //     clearTimeout(this.showFollowBtnTimer)
+    //   }
+    //   next()
+    // },
     watch: {
       isCustomerServicePopup (val) {
         // true 显示弹框 false 关闭弹框
@@ -206,7 +207,11 @@
                 imgSrc: data.img_url,
                 id: data.id
               }
-              if (this.isPostersSharePopup || this.isCustomerServicePopup || this.isCourseCustomerServicePopup) {
+              if (
+                this.isPostersSharePopup ||
+                this.isCustomerServicePopup ||
+                this.isCourseCustomerServicePopup
+              ) {
                 this.isShowWaitPopup = true
               } else {
                 this.isObtainCoursePopup = true
@@ -233,8 +238,11 @@
       }
     },
     created () {
+      console.log(1231313)
+      
       vm = this
-      if (this.isLoadGuestInfo) { // 访客跳转到社群详情
+      if (this.isLoadGuestInfo) {
+        // 访客跳转到社群详情
         this.main()
       }
     },
@@ -318,19 +326,23 @@
        * 获取邀请的好友列表
        */
       getExtensionList () {
-        return getExtensionList(this.params)
-          .then(res => {
-            if (res.data.code === 1) {
-              let list = res.data.data.list || []
-              this.extensionList.push(...this.transformExtensionList(list))
-              return list
-            }
-          })
+        return getExtensionList(this.params).then(res => {
+          if (res.data.code === 1) {
+            let list = res.data.data.list || []
+            this.extensionList.push(...this.transformExtensionList(list))
+            return list
+          }
+        })
       },
       async loadMore (res) {
         const that = this
         let isLastPage = false
-        if (isLastPage || (that.extensionList.length > 0 && that.extensionList.length < that.params.limit)) { // 不满一页
+        if (
+          isLastPage ||
+          (that.extensionList.length > 0 &&
+          that.extensionList.length < that.params.limit)
+        ) {
+          // 不满一页
           res.complete()
           return
         }
@@ -412,7 +424,9 @@
           this.$_.entryOtherPage(this.bannerList[index].url)
           break
         case 2: // 视频
-          this.getBannerVideo(this.$store.state.sceneInfo.video_course.community_course_home)
+          this.getBannerVideo(
+            this.$store.state.sceneInfo.video_course.community_course_home
+          )
           break
         default:
           break
@@ -489,17 +503,17 @@
   }
 
   .top-banner {
-    margin: 0 .2rem .4rem .2rem;
+    margin: 0 0.2rem 0.4rem 0.2rem;
     height: 1.8rem;
-    border-radius: 0 0 .22rem .22rem;
+    border-radius: 0 0 0.22rem 0.22rem;
     overflow: hidden;
   }
 
   .banner-img {
     width: 100%;
     height: 100%;
-    border-bottom-left-radius: .22rem;
-    border-bottom-right-radius: .22rem;
+    border-bottom-left-radius: 0.22rem;
+    border-bottom-right-radius: 0.22rem;
   }
 
   .wallet {
@@ -509,36 +523,38 @@
     height: 1.16rem;
     border-radius: 1rem;
     border: 1px solid #f0f0f0;
-    box-shadow: 0 1px 4px 0 rgba(205, 192, 202, .35);
+    box-shadow: 0 1px 4px 0 rgba(205, 192, 202, 0.35);
     background-color: #fff;
     margin: auto;
   }
 
   .avatar {
-    width: .78rem;
-    height: .78rem;
+    width: 0.78rem;
+    height: 0.78rem;
     border-radius: 50%;
-    margin-left: .12rem;
-    margin-right: .22rem;
+    margin-left: 0.12rem;
+    margin-right: 0.22rem;
   }
 
-  .profit { flex: 1; }
+  .profit {
+    flex: 1;
+  }
 
   .invitation {
     &-text {
       color: #333;
-      font-size: .28rem;
+      font-size: 0.28rem;
     }
 
     &-number {
       color: #ff4c49;
-      font-size: .34rem;
+      font-size: 0.34rem;
     }
   }
 
   .awarded {
     color: #999;
-    font-size: .24rem;
+    font-size: 0.24rem;
 
     &-number {
       color: #ff4c49;
@@ -547,8 +563,8 @@
 
   .withdraw-btn {
     width: 2.96rem;
-    height: .76rem;
-    margin-right: .1rem;
+    height: 0.76rem;
+    margin-right: 0.1rem;
 
     &:active {
       transform: scale(1.02);
@@ -558,37 +574,37 @@
   .title {
     position: relative;
     color: #333;
-    font-size: .34rem;
+    font-size: 0.34rem;
     font-weight: bold;
     text-align: center;
-    margin-top: .5rem;
+    margin-top: 0.5rem;
 
     &::after,
     &::before {
       display: inline-block;
-      content: '';
+      content: "";
       width: 1.6rem;
-      height: .12rem;
+      height: 0.12rem;
       background: url("~@images/community/home-arrow-right.png") no-repeat center;
       background-size: contain;
       vertical-align: middle;
     }
 
     &::after {
-      padding-left: .16rem;
+      padding-left: 0.16rem;
     }
 
     &::before {
-      padding-right: .16rem;
+      padding-right: 0.16rem;
       background-image: url("~@images/community/home-arrow-left.png");
     }
   }
 
   .tips-text {
-    font-size: .26rem;
+    font-size: 0.26rem;
     color: #666;
     text-align: center;
-    margin-bottom: .26rem;
+    margin-bottom: 0.26rem;
   }
 
   .free {
@@ -596,15 +612,15 @@
   }
 
   .course-list {
-    padding: 0 .34rem;
+    padding: 0 0.34rem;
     overflow: hidden;
   }
 
   .course-item {
     width: 2.14rem;
     float: left;
-    margin-bottom: .2rem;
-    margin-right: .2rem;
+    margin-bottom: 0.2rem;
+    margin-right: 0.2rem;
     position: relative;
 
     &:nth-child(3n) {
@@ -615,25 +631,27 @@
   .item-img {
     width: 100%;
     height: 2.86rem;
-    border-radius: .12rem;
+    border-radius: 0.12rem;
   }
 
   .locking-cover {
     width: 100%;
     height: 2.86rem;
-    border-radius: .12rem;
-    background: rgba(0, 0, 0, .6) url('~@icon/community/lock.png') no-repeat top .38rem center;
-    background-size: .36rem;
+    border-radius: 0.12rem;
+    background:
+      rgba(0, 0, 0, 0.6) url("~@icon/community/lock.png") no-repeat top
+      0.38rem center;
+    background-size: 0.36rem;
     position: absolute;
     top: 0;
     bottom: 0;
     left: 0;
     right: 0;
-    padding-top: .92rem;
+    padding-top: 0.92rem;
   }
 
   .locking-text {
-    font-size: .3rem;
+    font-size: 0.3rem;
     color: #ebebeb;
     text-align: center;
   }
@@ -645,25 +663,25 @@
 
   .details-btn {
     width: 1.5rem;
-    height: .48rem;
-    line-height: .48rem;
-    font-size: .28rem;
+    height: 0.48rem;
+    line-height: 0.48rem;
+    font-size: 0.28rem;
     color: #fff;
-    border-radius: .24rem;
+    border-radius: 0.24rem;
     border: 1px solid #fff;
-    margin: .2rem auto;
+    margin: 0.2rem auto;
     text-align: center;
   }
 
   .item-name {
-    font-size: .26rem;
+    font-size: 0.26rem;
     color: #333;
     .ellipsis(1.9rem);
 
     text-align: center;
-    margin-top: .1rem;
-    height: .36rem;
-    line-height: .36rem;
+    margin-top: 0.1rem;
+    height: 0.36rem;
+    line-height: 0.36rem;
   }
 
   .follow-btn {
@@ -676,7 +694,7 @@
   }
 
   .static-btn {
-    width: .58rem;
+    width: 0.58rem;
     height: 1.12rem;
   }
 
@@ -686,14 +704,14 @@
   }
 
   .extension {
-    margin: .3rem .3rem 0 .3rem;
+    margin: 0.3rem 0.3rem 0 0.3rem;
 
     &-item {
       display: flex;
-      padding: .24rem .24rem .34rem .3rem;
-      border-radius: .1rem;
-      box-shadow: 1px 1px 6px 0 rgba(240, 240, 240, .8);
-      margin-bottom: .3rem;
+      padding: 0.24rem 0.24rem 0.34rem 0.3rem;
+      border-radius: 0.1rem;
+      box-shadow: 1px 1px 6px 0 rgba(240, 240, 240, 0.8);
+      margin-bottom: 0.3rem;
 
       &:last-child {
         margin-bottom: 0;
@@ -704,7 +722,7 @@
       position: relative;
       width: 1.9rem;
       height: 1.32rem;
-      border-radius: .08rem;
+      border-radius: 0.08rem;
       overflow: hidden;
 
       .cover {
@@ -716,32 +734,34 @@
         position: absolute;
         bottom: 0;
         right: 0;
-        width: .54rem;
-        height: .28rem;
-        background: rgba(0, 0, 0, .5) url("~@icon/community/pause.png") no-repeat .26rem top;
-        background-size: .22rem;
-        border-top-left-radius: .08rem;
-        border-bottom-left-radius: .08rem;
+        width: 0.54rem;
+        height: 0.28rem;
+        background:
+          rgba(0, 0, 0, 0.5) url("~@icon/community/pause.png") no-repeat
+          0.26rem top;
+        background-size: 0.22rem;
+        border-top-left-radius: 0.08rem;
+        border-bottom-left-radius: 0.08rem;
       }
     }
 
     &-right {
       flex: 1;
-      padding-left: .34rem;
+      padding-left: 0.34rem;
       line-height: 1.4;
 
       .headline {
         color: #1b1b1b;
-        font-size: .32rem;
+        font-size: 0.32rem;
         font-weight: bold;
-        margin-bottom: .1rem;
+        margin-bottom: 0.1rem;
         .ellipsisLn(2);
       }
 
       .text {
         color: #999;
-        font-size: .22rem;
-        transform: scale(.92) translateX(-.16rem);
+        font-size: 0.22rem;
+        transform: scale(0.92) translateX(-0.16rem);
         .ellipsisLn(3);
       }
     }

@@ -16,6 +16,11 @@ export function getQiniuToken (scene) {
 export function getUserInfo () {
   return Vue.axios.get('/member/basic')
 }
+// 获取token
+export async function gettoken () {
+  var token = await Vue.axios.get('/member/basic')
+  localStorage.setItem('sq_auth', token)
+}
 
 /**
  * 获取全局通用的类型对照关系表

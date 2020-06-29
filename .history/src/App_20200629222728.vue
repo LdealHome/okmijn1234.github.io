@@ -1,7 +1,7 @@
 <template lang="pug">
   div#app(@click="handleClick") 我的修改的next分支
     transition(:css="isTransition")
-      router-view(v-wechat-title='$route.meta.title' v-if="!restrict") 撒大大阿萨达萨达
+      router-view(v-wechat-title='$route.meta.title' v-if="!restrict")
 </template>
 
 <script>
